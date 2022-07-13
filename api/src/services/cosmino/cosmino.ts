@@ -1,3 +1,4 @@
+import { requireAuth } from 'src/lib/auth'
 import {
   contexts,
   CreateBuchungArgs,
@@ -27,6 +28,8 @@ type CreateSessionInput = {
 }
 
 export const createSession = ({ input }: CreateSessionInput) => {
+  requireAuth({ roles: 'user' })
+
   return createContextWithUser(input)
 }
 
@@ -42,5 +45,7 @@ type CreateBuchungInput = {
 }
 
 export const createBuchung = ({ input }: CreateBuchungInput) => {
-  return createBuchungWithTerminal(input)
+  requireAuth({ roles: 'user' })
+  // const { name } = context.currentUser
+  return createBuchungWithTerminal({ ...input })
 }

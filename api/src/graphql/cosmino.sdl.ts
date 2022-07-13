@@ -20,8 +20,10 @@ export const schema = gql`
     code: String!
   }
   type Mutation {
-    createSession(input: CreateSessionInput!): String! @skipAuth
+    createSession(input: CreateSessionInput!): String!
+      @requireAuth(roles: "user")
     killSession(terminal: String!): Boolean! @skipAuth
-    createBuchung(input: CreateBuchungInput!): String! @skipAuth
+    createBuchung(input: CreateBuchungInput!): String!
+      @requireAuth(roles: "user")
   }
 `

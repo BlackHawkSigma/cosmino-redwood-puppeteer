@@ -9,14 +9,21 @@
 
 import { Router, Route, Private } from '@redwoodjs/router'
 
+import MainLayout from 'src/layouts/MainLayout'
+
 const Routes = () => {
   return (
     <Router>
-      <Private unauthenticated="login">
-        <Route path="/placeholder" page={PlaceholderPage} name="placeholder" />
+      <Private unauthenticated="login" wrap={MainLayout}>
+        <Route path="/buchen/{terminal}" page={BuchenPage} name="buchen" />
+        <Route path="/sessions" page={SessionsPage} name="sessions" />
       </Private>
+
       <Route path="/login" page={LoginPage} name="login" />
       <Route path="/signup" page={SignupPage} name="signup" />
+
+      <Route path="/" page={HomePage} name="home" />
+
       <Route notfound page={NotFoundPage} />
     </Router>
   )

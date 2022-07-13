@@ -1,6 +1,9 @@
+import { User } from '@prisma/client'
+
 import { DbAuthHandler } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
+import { createContextWithUser } from 'src/lib/puppeteer'
 
 export const handler = async (event, context) => {
   const forgotPasswordOptions = {
@@ -45,7 +48,13 @@ export const handler = async (event, context) => {
     // didn't validate their email yet), throw an error and it will be returned
     // by the `logIn()` function from `useAuth()` in the form of:
     // `{ message: 'Error message' }`
-    handler: (user) => {
+    handler: async (user: User) => {
+      await createContextWithUser({
+        terminal: '1',
+        username: user.name,
+        userpwd: user.password,
+      })
+
       return user
     },
 

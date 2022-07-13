@@ -25,7 +25,6 @@ export const getCurrentUser = async (session) => {
     select: {
       id: true,
       name: true,
-      password: true,
       userRoles: { select: { name: true } },
     },
   })

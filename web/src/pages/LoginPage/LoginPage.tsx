@@ -15,11 +15,11 @@ import { MetaTags } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 const LoginPage = () => {
-  const { isAuthenticated, logIn } = useAuth()
+  const { isAuthenticated, logIn, loading } = useAuth()
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(routes.placeholder())
+      navigate(routes.buchen({ terminal: '1' }))
     }
   }, [isAuthenticated])
 
@@ -100,7 +100,12 @@ const LoginPage = () => {
                   <FieldError name="password" className="rw-field-error" />
 
                   <div className="rw-button-group">
-                    <Submit className="rw-button rw-button-blue">Login</Submit>
+                    <Submit
+                      disabled={loading}
+                      className="rw-button rw-button-blue"
+                    >
+                      {loading ? 'anmeldung läuft' : 'Login'}
+                    </Submit>
                   </div>
                 </Form>
               </div>

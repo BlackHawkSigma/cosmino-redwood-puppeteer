@@ -3,11 +3,12 @@ import type {
   CreateBuchungMutationVariables,
 } from 'types/graphql'
 
+import { FormError } from '@redwoodjs/forms'
 import { navigate, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/dist/toast'
 
-import BuchungForm from 'src/components/BuchungForm/BuchungForm'
+import ScannerHandler from 'src/components/ScannerHandler'
 
 const CREATE_BUCHUNG_MUTATION = gql`
   mutation CreateBuchungMutation($input: CreateBuchungInput!) {
@@ -38,7 +39,17 @@ const Buchung = ({ terminal }: BuchungProps) => {
   return (
     <div>
       <h2>{'Buchung'}</h2>
-      <BuchungForm onSave={onSave} loading={loading} error={error} />
+      <FormError
+        error={error}
+        wrapperClassName="rw-form-error-wrapper"
+        titleClassName="rw-form-error-title"
+        listClassName="rw-form-error-list"
+      />
+
+      <ScannerHandler
+        loading={loading && 'wird gesendet'}
+        onFire={(code) => onSave({ code })}
+      />
     </div>
   )
 }

@@ -41,7 +41,7 @@ const ScannerHandler = ({ loading, onFire }: ScannerHandlerProps) => {
 
       switch (key) {
         case 'Tab':
-          ev.preventDefault()
+        case 'Enter':
           return dispatch({ type: 'fire' })
         case 'Escape':
           return dispatch({ type: 'reset' })

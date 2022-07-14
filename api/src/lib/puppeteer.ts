@@ -25,6 +25,8 @@ export type CreateContextArgs = {
   userpwd: string
 }
 
+const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
+
 export const createContextWithUser = async ({
   terminal,
   username,
@@ -32,7 +34,7 @@ export const createContextWithUser = async ({
 }: CreateContextArgs) => {
   if (!browser || !browser.isConnected()) {
     browser = await puppeteer.launch({
-      headless: false,
+      headless,
       slowMo: 20,
       defaultViewport: { width: 1280, height: 720 },
     })

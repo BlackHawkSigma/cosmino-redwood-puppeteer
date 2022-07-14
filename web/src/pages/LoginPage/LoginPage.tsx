@@ -19,7 +19,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(routes.buchen({ terminal: '1' }))
+      navigate(routes.terminal())
     }
   }, [isAuthenticated])
 

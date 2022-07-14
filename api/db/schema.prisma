@@ -38,3 +38,7 @@ model Log {
   message   String
   createdAt DateTime @default(now())
 }
+
+model Terminal {
+  name String @unique
+}

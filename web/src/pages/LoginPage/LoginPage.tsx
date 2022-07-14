@@ -67,6 +67,7 @@ const LoginPage = () => {
                     className="rw-input"
                     errorClassName="rw-input rw-input-error"
                     ref={usernameRef}
+                    readOnly={loading}
                     validation={{
                       required: {
                         value: true,
@@ -89,6 +90,7 @@ const LoginPage = () => {
                     className="rw-input"
                     errorClassName="rw-input rw-input-error"
                     autoComplete="current-password"
+                    readOnly={loading}
                     validation={{
                       required: {
                         value: true,

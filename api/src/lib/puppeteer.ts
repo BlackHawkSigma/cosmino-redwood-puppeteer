@@ -1,10 +1,9 @@
-import { setTimeout } from 'timers/promises'
-
 import puppeteer, { BrowserContext, Browser } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
 import { logger } from 'src/lib/logger'
+import { setTimeoutPromise as setTimeout } from 'src/utils/timers'
 
 const puppeteerLogger = logger.child({ name: 'browser' })
 

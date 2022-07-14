@@ -1,4 +1,5 @@
 import { requireAuth } from 'src/lib/auth'
+import { db } from 'src/lib/db'
 import {
   contexts,
   CreateBuchungArgs,
@@ -44,8 +45,18 @@ type CreateBuchungInput = {
   input: CreateBuchungArgs
 }
 
-export const createBuchung = ({ input }: CreateBuchungInput) => {
+export const createBuchung = async ({ input }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
-  // const { name } = context.currentUser
-  return createBuchungWithTerminal({ ...input })
+  const { id } = context.currentUser
+  const result = await createBuchungWithTerminal({ ...input })
+
+  await db.log.create({
+    data: {
+      userId: id,
+      terminal: input.terminal,
+      code: input.code,
+      message: result,
+    },
+  })
+  return result
 }

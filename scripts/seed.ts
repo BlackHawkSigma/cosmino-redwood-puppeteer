@@ -8,14 +8,37 @@ export default async () => {
     // Seeds automatically with `yarn rw prisma migrate dev` and `yarn rw prisma migrate reset`
     //
     const data: Prisma.UserRoleCreateArgs['data'][] = [{ name: 'user', id: 1 }]
+    const terminals: Prisma.TerminalCreateArgs['data'][] = [
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+    ].map((name) => ({ name }))
 
     // Note: if using PostgreSQL, using `createMany` to insert multiple records is much faster
     // @see: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#createmany
     Promise.all(
-      data.map(async (data: Prisma.UserRoleCreateArgs['data']) => {
-        const record = await db.userRole.create({ data })
-        console.log(record)
-      })
+      [
+        data.map(async (data: Prisma.UserRoleCreateArgs['data']) => {
+          const record = await db.userRole.upsert({
+            where: { id: data.id },
+            update: {},
+            create: { ...data },
+          })
+          console.log(record)
+        }),
+
+        terminals.map(async ({ name }: Prisma.TerminalCreateArgs['data']) => {
+          const record = await db.terminal.upsert({
+            where: { name },
+            update: {},
+            create: { name },
+          })
+          console.log(record)
+        }),
+      ].flat()
     )
   } catch (error) {
     console.warn('Please define your seed data.')

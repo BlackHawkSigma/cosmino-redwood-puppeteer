@@ -15,6 +15,7 @@ const Routes = () => {
   return (
     <Router>
       <Private unauthenticated="login" wrap={MainLayout}>
+        <Route path="/terminal" page={TerminalPage} name="terminal" />
         <Route path="/buchen/{terminal}" page={BuchenPage} name="buchen" />
         <Route path="/sessions" page={SessionsPage} name="sessions" />
       </Private>

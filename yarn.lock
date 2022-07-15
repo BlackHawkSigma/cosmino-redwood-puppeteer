@@ -19599,6 +19599,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier-plugin-tailwindcss@npm:^0.1.12":
+  version: 0.1.12
+  resolution: "prettier-plugin-tailwindcss@npm:0.1.12"
+  peerDependencies:
+    prettier: ">=2.2.0"
+  checksum: 2261d014b74ad1d4866b31fd772a84a8fb8b428a2bdc221d4767b91dad77966e432b318b82a35b3571afa973da91035e0ab2ad15bd13b41d9fc0738e5b1769d7
+  languageName: node
+  linkType: hard
+
 "prettier@npm:2.7.1, prettier@npm:^2.6.2":
   version: 2.7.1
   resolution: "prettier@npm:2.7.1"
@@ -23747,6 +23756,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"usehooks-ts@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "usehooks-ts@npm:2.6.0"
+  peerDependencies:
+    react: ">=16.9.0"
+  checksum: 33c30296aeae1aac2818f6cb7d59cb5b0dee90655f705a894cbf5f59ab53ff650c739d70ccffb245ee3bcb6843a034b7363b3e0a5c3167db0b2479944c7f89c8
+  languageName: node
+  linkType: hard
+
 "util-deprecate@npm:^1.0.1, util-deprecate@npm:^1.0.2, util-deprecate@npm:~1.0.1":
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
@@ -24081,10 +24099,12 @@ __metadata:
     autoprefixer: ^10.4.7
     postcss: ^8.4.14
     postcss-loader: ^7.0.1
+    prettier-plugin-tailwindcss: ^0.1.12
     prop-types: 15.8.1
     react: 17.0.2
     react-dom: 17.0.2
     tailwindcss: ^3.1.6
+    usehooks-ts: ^2.6.0
   languageName: unknown
   linkType: soft
 

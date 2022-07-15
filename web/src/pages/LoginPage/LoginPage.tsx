@@ -1,27 +1,33 @@
-import { useRef } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+
+import { useLocalStorage } from 'usehooks-ts'
 
 import { useAuth } from '@redwoodjs/auth'
 import {
+  FieldError,
   Form,
   Label,
-  TextField,
   PasswordField,
   Submit,
-  FieldError,
+  TextField,
 } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 const LoginPage = () => {
-  const { isAuthenticated, logIn, loading } = useAuth()
+  const { isAuthenticated, logIn, loading, hasRole } = useAuth()
+  const [terminal] = useLocalStorage<string>('terminal', '')
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(routes.terminal())
+      hasRole('admin')
+        ? navigate(routes.home())
+        : terminal.length > 0
+        ? navigate(routes.buchen({ terminal }))
+        : navigate(routes.terminal())
     }
-  }, [isAuthenticated])
+  }, [hasRole, isAuthenticated, terminal])
 
   const usernameRef = useRef<HTMLInputElement>()
   useEffect(() => {
@@ -126,3 +132,5 @@ const LoginPage = () => {
 }
 
 export default LoginPage
+
+// https://support.mozilla.org/en-US/questions/1159231

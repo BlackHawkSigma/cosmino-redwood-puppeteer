@@ -7227,12 +7227,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"api@workspace:^, api@workspace:api":
+"api@workspace:api":
   version: 0.0.0-use.local
   resolution: "api@workspace:api"
   dependencies:
     "@redwoodjs/api": ^2.1.0
     "@redwoodjs/graphql-server": ^2.1.0
+    puppeteer: ^15.4.0
   languageName: unknown
   linkType: soft
 
@@ -19954,9 +19955,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"puppeteer@npm:^15.3.2":
-  version: 15.3.2
-  resolution: "puppeteer@npm:15.3.2"
+"puppeteer@npm:^15.4.0":
+  version: 15.4.0
+  resolution: "puppeteer@npm:15.4.0"
   dependencies:
     cross-fetch: 3.1.5
     debug: 4.3.4
@@ -19970,7 +19971,7 @@ __metadata:
     tar-fs: 2.1.1
     unbzip2-stream: 1.4.3
     ws: 8.8.0
-  checksum: 123ad86f3d9058ddc9abff5c9bf339c2b0c4ae0f26132bcdac0fb6187a8a2beb071cc5fcc5d5acc8faf3b95c4b2496db3e943b654418e95e485cbfb229a4a066
+  checksum: 0adc28ba23df250589b5124adfd03310fc5e55ffd5acfaf9fa987074b76d3abe63e45d9afde90df38dbae171d21d7a89ecb03edc349e65b97769cb5ef7841313
   languageName: node
   linkType: hard
 
@@ -21030,8 +21031,6 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@redwoodjs/core": ^2.1.0
-    api: "workspace:^"
-    puppeteer: ^15.3.2
   languageName: unknown
   linkType: soft
 

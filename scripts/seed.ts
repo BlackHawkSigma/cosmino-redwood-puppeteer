@@ -7,7 +7,10 @@ export default async () => {
     // Manually seed via `yarn rw prisma db seed`
     // Seeds automatically with `yarn rw prisma migrate dev` and `yarn rw prisma migrate reset`
     //
-    const data: Prisma.UserRoleCreateArgs['data'][] = [{ name: 'user', id: 1 }]
+    const data: Prisma.UserRoleCreateArgs['data'][] = [
+      { name: 'user', id: 1 },
+      { name: 'admin', id: 2 },
+    ]
     const terminals: Prisma.TerminalCreateArgs['data'][] = [
       '1',
       '2',

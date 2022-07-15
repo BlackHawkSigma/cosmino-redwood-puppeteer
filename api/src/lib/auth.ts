@@ -25,11 +25,11 @@ export const getCurrentUser = async (session) => {
     select: {
       id: true,
       name: true,
-      userRoles: { select: { name: true } },
+      userRoles: { select: { userRole: true } },
     },
   })
 
-  return { ...user, roles: user.userRoles.map((role) => role.name) }
+  return { ...user, roles: user.userRoles.map((role) => role.userRole.name) }
 }
 
 /**

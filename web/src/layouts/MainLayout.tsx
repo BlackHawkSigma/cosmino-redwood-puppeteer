@@ -23,7 +23,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <>
       <header className="mb-4 bg-slate-200">
         <nav>
-          <ul className=" pl-2 text-sm flex gap-3">
+          <ul className=" flex gap-3 pl-2 text-sm">
             <li>
               <Link to={routes.home()}>Start</Link>
             </li>

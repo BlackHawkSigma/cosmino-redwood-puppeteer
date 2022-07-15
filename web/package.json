@@ -8,6 +8,7 @@
     ],
     "production": [
       "defaults",
+      "firefox >= 89",
       "not IE 11",
       "not IE_Mob 11"
     ]

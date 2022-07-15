@@ -63,12 +63,12 @@ const ScannerHandler = ({ loading, onFire }: ScannerHandlerProps) => {
 
   return (
     <div
-      className={`h-32 border-8 rounded-2xl p-4 flex flex-col justify-between ${
+      className={`flex h-32 flex-col justify-between rounded-2xl border-8 p-4 ${
         windowIsFocused ? 'border-lime-500' : 'border-red-600'
       }`}
     >
       <p>
-        <code className="font-semibold font-mono text-3xl">
+        <code className="font-mono text-3xl font-semibold">
           {loading ? (
             <span className="animate-pulse text-gray-500">{loading}</span>
           ) : (
@@ -77,7 +77,7 @@ const ScannerHandler = ({ loading, onFire }: ScannerHandlerProps) => {
         </code>
       </p>
       <button
-        className="self-end rounded bg-slate-200 py-1 px-2 shadow border-slate-300 active:scale-90"
+        className="self-end rounded border-slate-300 bg-slate-200 py-1 px-2 shadow active:scale-90"
         onClick={() => dispatch({ type: 'reset' })}
       >
         Reset

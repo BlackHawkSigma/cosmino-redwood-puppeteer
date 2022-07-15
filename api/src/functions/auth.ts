@@ -111,18 +111,20 @@ export const handler = async (event, context) => {
     //
     // If this returns anything else, it will be returned by the
     // `signUp()` function in the form of: `{ message: 'String here' }`.
-    handler: ({ username, hashedPassword, salt, userAttributes }) => {
+    handler: async ({ username, hashedPassword, salt, userAttributes }) => {
       console.table(userAttributes)
 
-      return db.user.create({
+      const newUser = await db.user.create({
         data: {
           name: username,
           hashedPassword: hashedPassword,
           password: userAttributes.cosminopwd,
           salt: salt,
-          userRoles: { connect: { id: 1 } },
+          userRoles: { create: [{ userRole: { connect: { id: 1 } } }] },
         },
       })
+
+      return `Benutzer "${newUser.name}" erfolgreich angelegt`
     },
 
     errors: {

@@ -33,7 +33,7 @@ const SignupPage = () => {
     const response = await signUp({ ...data })
 
     if (response.message) {
-      toast(response.message)
+      toast.success(response.message)
     } else if (response.error) {
       toast.error(response.error)
     } else {

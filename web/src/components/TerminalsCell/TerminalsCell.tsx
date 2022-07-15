@@ -1,4 +1,7 @@
+import { useState } from 'react'
+
 import type { TerminalsQuery } from 'types/graphql'
+import { useLocalStorage } from 'usehooks-ts'
 
 import { Link, routes } from '@redwoodjs/router'
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
@@ -20,17 +23,37 @@ export const Failure = ({ error }: CellFailureProps) => (
 )
 
 export const Success = ({ terminals }: CellSuccessProps<TerminalsQuery>) => {
+  const [checked, setChecked] = useState(false)
+  const [_terminal, setTerminal] = useLocalStorage('terminal', '')
+
   return (
     <div className="p-4">
-      <ul>
+      <div>
+        <input
+          className="mr-2"
+          type="checkbox"
+          name="set"
+          id="set"
+          checked={checked}
+          onChange={() => setChecked(!checked)}
+        />
+        <label htmlFor="set">dauerhaft setzen</label>
+      </div>
+
+      <div className="flex flex-col gap-4 p-2 ">
         {terminals.map(({ name: terminal }) => {
           return (
-            <li key={terminal}>
-              <Link to={routes.buchen({ terminal })}>{terminal}</Link>
-            </li>
+            <Link
+              key={terminal}
+              className="rounded border bg-slate-300 px-4 py-2 text-center text-xl"
+              onClick={checked ? () => setTerminal(terminal) : null}
+              to={routes.buchen({ terminal })}
+            >
+              {terminal}
+            </Link>
           )
         })}
-      </ul>
+      </div>
     </div>
   )
 }

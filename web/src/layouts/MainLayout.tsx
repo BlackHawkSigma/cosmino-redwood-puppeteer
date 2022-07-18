@@ -3,8 +3,8 @@ import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 
 const KILL_SESSION_MUTUTAION = gql`
-  mutation KillSessionMutation($terminal: String!) {
-    killSession(terminal: $terminal)
+  mutation KillSessionMutation($username: String!) {
+    killSession(username: $username)
   }
 `
 
@@ -15,7 +15,7 @@ type MainLayoutProps = {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { isAuthenticated, currentUser, logOut } = useAuth()
   const [killSession] = useMutation(KILL_SESSION_MUTUTAION, {
-    variables: { terminal: '1' },
+    variables: { username: currentUser.name },
     onCompleted: () => logOut(),
   })
 

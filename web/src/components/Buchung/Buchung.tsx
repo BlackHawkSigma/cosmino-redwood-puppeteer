@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import type {
   CreateBuchungMutation,
   CreateBuchungMutationVariables,
@@ -8,11 +10,16 @@ import { navigate, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/dist/toast'
 
+import BuchungLog, { Logs } from 'src/components/BuchungLog'
 import ScannerHandler from 'src/components/ScannerHandler'
 
 const CREATE_BUCHUNG_MUTATION = gql`
   mutation CreateBuchungMutation($input: CreateBuchungInput!) {
-    createBuchung(input: $input)
+    createBuchung(input: $input) {
+      code
+      type
+      message
+    }
   }
 `
 
@@ -21,13 +28,37 @@ type BuchungProps = {
 }
 
 const Buchung = ({ terminal }: BuchungProps) => {
+  const [logs, setLogs] = useState<Logs[]>([])
+
   const [createBuchung, { loading, error }] = useMutation<
     CreateBuchungMutation,
     CreateBuchungMutationVariables
   >(CREATE_BUCHUNG_MUTATION, {
-    onCompleted: (data) => {
-      toast.success(data.createBuchung)
-      navigate(routes.buchen({ terminal: '1' }))
+    onCompleted: ({ createBuchung }) => {
+      setLogs(
+        [
+          ...logs,
+          {
+            timestamp: new Date(),
+            code: createBuchung.code,
+            message: createBuchung.message,
+            type: createBuchung.type,
+          },
+        ]
+          .sort((a, b) => b.timestamp.valueOf() - a.timestamp.valueOf())
+          .slice(0, 5)
+      )
+      switch (createBuchung.type) {
+        case 'success':
+          toast.success(createBuchung.message)
+          break
+        case 'error':
+          toast.error(createBuchung.message)
+          break
+        default:
+          toast(JSON.stringify(createBuchung))
+      }
+      navigate(routes.buchen({ terminal }))
     },
   })
 
@@ -50,6 +81,8 @@ const Buchung = ({ terminal }: BuchungProps) => {
         loading={loading && 'wird gesendet'}
         onFire={(code) => onSave({ code })}
       />
+
+      <BuchungLog logs={logs} />
     </div>
   )
 }

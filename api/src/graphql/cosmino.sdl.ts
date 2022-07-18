@@ -1,8 +1,14 @@
 export const schema = gql`
   type Session {
-    terminal: String!
     user: String!
     busy: Boolean!
+    focused: Boolean
+  }
+
+  type BuchungResult {
+    code: String!
+    type: String!
+    message: String!
   }
 
   type Query {
@@ -10,7 +16,6 @@ export const schema = gql`
   }
 
   input CreateSessionInput {
-    terminal: String!
     username: String!
     userpwd: String!
   }
@@ -19,11 +24,12 @@ export const schema = gql`
     terminal: String!
     code: String!
   }
+
   type Mutation {
-    createSession(input: CreateSessionInput!): String!
+    createSession(input: CreateSessionInput!): Boolean!
       @requireAuth(roles: "user")
-    killSession(terminal: String!): Boolean! @skipAuth
-    createBuchung(input: CreateBuchungInput!): String!
+    killSession(username: String!): Boolean! @skipAuth
+    createBuchung(input: CreateBuchungInput!): BuchungResult!
       @requireAuth(roles: "user")
   }
 `

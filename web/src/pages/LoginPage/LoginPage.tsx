@@ -55,7 +55,7 @@ const LoginPage = () => {
         <div className="rw-scaffold rw-login-container">
           <div className="rw-segment">
             <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">Login</h2>
+              <h2 className="rw-heading rw-heading-secondary">Anmeldung</h2>
             </header>
 
             <div className="rw-segment-main">
@@ -66,7 +66,7 @@ const LoginPage = () => {
                     className="rw-label"
                     errorClassName="rw-label rw-label-error"
                   >
-                    Username
+                    Benutzername
                   </Label>
                   <TextField
                     name="username"
@@ -89,7 +89,7 @@ const LoginPage = () => {
                     className="rw-label"
                     errorClassName="rw-label rw-label-error"
                   >
-                    Password
+                    Passwort
                   </Label>
                   <PasswordField
                     name="password"
@@ -112,7 +112,7 @@ const LoginPage = () => {
                       disabled={loading}
                       className="rw-button rw-button-blue"
                     >
-                      {loading ? 'anmeldung läuft' : 'Login'}
+                      {loading ? 'anmeldung läuft' : 'anmelden'}
                     </Submit>
                   </div>
                 </Form>
@@ -120,9 +120,9 @@ const LoginPage = () => {
             </div>
           </div>
           <div className="rw-login-link">
-            <span>Don&apos;t have an account?</span>{' '}
+            <span>neuen Benutzer</span>{' '}
             <Link to={routes.signup()} className="rw-link">
-              Sign up!
+              anlegen
             </Link>
           </div>
         </div>

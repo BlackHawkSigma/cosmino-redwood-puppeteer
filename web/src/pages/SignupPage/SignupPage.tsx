@@ -51,7 +51,9 @@ const SignupPage = () => {
         <div className="rw-scaffold rw-login-container">
           <div className="rw-segment">
             <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">Signup</h2>
+              <h2 className="rw-heading rw-heading-secondary">
+                Benutzer anlegen
+              </h2>
             </header>
 
             <div className="rw-segment-main">
@@ -63,7 +65,7 @@ const SignupPage = () => {
                     className="rw-label"
                     errorClassName="rw-label rw-label-error"
                   >
-                    Username
+                    Benutzername
                   </Label>
                   <TextField
                     name="username"
@@ -85,7 +87,7 @@ const SignupPage = () => {
                     className="rw-label"
                     errorClassName="rw-label rw-label-error"
                   >
-                    Password
+                    Passwort
                   </Label>
                   <PasswordField
                     name="password"
@@ -107,7 +109,7 @@ const SignupPage = () => {
                     className="rw-label"
                     errorClassName="rw-label rw-label-error"
                   >
-                    Cosmiono Password
+                    Cosmiono Passwort
                   </Label>
                   <PasswordField
                     name="cosminopwd"
@@ -125,7 +127,7 @@ const SignupPage = () => {
 
                   <div className="rw-button-group">
                     <Submit className="rw-button rw-button-blue">
-                      Sign Up
+                      anlegen
                     </Submit>
                   </div>
                 </Form>
@@ -133,9 +135,9 @@ const SignupPage = () => {
             </div>
           </div>
           <div className="rw-login-link">
-            <span>Already have an account?</span>{' '}
+            <span>Benutzer bereits angelegt?</span>{' '}
             <Link to={routes.login()} className="rw-link">
-              Log in!
+              zur Anmeldung
             </Link>
           </div>
         </div>

@@ -50,7 +50,6 @@ export const handler = async (event, context) => {
     // `{ message: 'Error message' }`
     handler: async (user: User) => {
       await createContextWithUser({
-        terminal: '1',
         username: user.name,
         userpwd: user.password,
       })
@@ -112,8 +111,6 @@ export const handler = async (event, context) => {
     // If this returns anything else, it will be returned by the
     // `signUp()` function in the form of: `{ message: 'String here' }`.
     handler: async ({ username, hashedPassword, salt, userAttributes }) => {
-      console.table(userAttributes)
-
       const newUser = await db.user.create({
         data: {
           name: username,

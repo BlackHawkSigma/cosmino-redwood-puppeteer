@@ -5,6 +5,8 @@ import { UserInputError } from '@redwoodjs/graphql-server'
 import { logger } from 'src/lib/logger'
 import { setTimeoutPromise as setTimeout } from 'src/utils/timers'
 
+import { db } from './db'
+
 const puppeteerLogger = logger.child({ name: 'browser' })
 
 let browser: Browser | null = null
@@ -19,7 +21,6 @@ type contextStore = {
 export const contexts: Map<string, contextStore> = new Map()
 
 export type CreateContextArgs = {
-  terminal: string
   username: string
   userpwd: string
 }
@@ -27,10 +28,9 @@ export type CreateContextArgs = {
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
 
 export const createContextWithUser = async ({
-  terminal,
   username,
   userpwd,
-}: CreateContextArgs) => {
+}: CreateContextArgs): Promise<boolean> => {
   if (!browser || !browser.isConnected()) {
     browser = await puppeteer.launch({
       headless,
@@ -41,13 +41,14 @@ export const createContextWithUser = async ({
 
     browser.on('disconnected', () => contexts.clear())
   } else {
-    const ctx = contexts.get(terminal)
-    if (ctx) return ctx.username
+    const ctx = contexts.get(username)
+    if (ctx) return true
   }
 
   const context = await browser.createIncognitoBrowserContext()
-  contexts.set(terminal, { username, userpwd, busy: true, context })
-  // context.on('targetdestroyed', () => contexts.delete(terminal))
+  contexts.set(username, { username, userpwd, busy: true, context })
+
+  // context.on('targetdestroyed', () => contexts.delete(username))
 
   try {
     const page = await context.newPage()
@@ -70,6 +71,7 @@ export const createContextWithUser = async ({
       page.click('#bttlist_actLogin'),
       page.waitForNavigation(),
     ])
+    puppeteerLogger.info('anmeldung...')
 
     // Scann Fenster
     const mainFrame = await page.waitForFrame(
@@ -79,6 +81,7 @@ export const createContextWithUser = async ({
       }
     )
     await mainFrame.waitForSelector('#bttlistnav_actItemLookUp')
+    puppeteerLogger.info('... angemeldet')
 
     await Promise.all([
       mainFrame.click('#bttlistnav_actItemLookUp'),
@@ -89,49 +92,72 @@ export const createContextWithUser = async ({
       async (frame) => frame.name() === 'frameFilter'
     )
     await filterFrame.waitForSelector('#txtOpWorkItemNo')
+    puppeteerLogger.info('bereit für Eingabe')
 
-    // contexts.set(terminal, { username, userpwd, context })
-    contexts.set(terminal, { ...contexts.get(terminal), busy: false })
+    contexts.set(username, { ...contexts.get(username), busy: false })
 
-    return `logged in as ${username}`
+    return true
   } catch (err) {
+    puppeteerLogger.error(err)
     context.close()
-    contexts.delete(terminal)
-    return `anmeldung fehlsgeschlagen ${err}`
+    contexts.delete(username)
+    return false
   }
 }
 
-export const killContextwithTerminal = async (terminal: string) => {
-  const ctx = contexts.get(terminal)
-  if (!ctx) return true
+export const killContextWithUser = async (
+  username: string
+): Promise<boolean> => {
+  const ctx = contexts.get(username)
+  if (!ctx) {
+    puppeteerLogger.info('kein context mehr vorhanden')
+    return true
+  }
 
   const { context } = ctx
-  await context.close()
-  contexts.delete(terminal)
-
+  try {
+    await context.close()
+    puppeteerLogger.info('context geschlossen')
+  } finally {
+    contexts.delete(username)
+  }
   return true
 }
 
 export type CreateBuchungArgs = {
-  terminal: string
+  username: string
   code: string
 }
 
-export const createBuchungWithTerminal = async ({
-  terminal,
+export type CreateBuchungResult =
+  | { type: 'success'; message: string }
+  | { type: 'error'; message: string }
+
+export const createBuchungWithUser = async ({
+  username,
   code,
-}: CreateBuchungArgs) => {
-  const ctx = contexts.get(terminal)
+}: CreateBuchungArgs): Promise<CreateBuchungResult> => {
+  let ctx = contexts.get(username)
 
-  if (!ctx) throw new UserInputError('keine Session gefunden')
+  if (!ctx) {
+    const user = await db.user.findUnique({ where: { name: username } })
+    if (!user) throw new UserInputError(`user "${username}" unbekannt`)
+    puppeteerLogger.info('kein context gefunden, starte erneut')
 
-  if (ctx.busy) {
+    await createContextWithUser({
+      username: user.name,
+      userpwd: user.password,
+    })
+    ctx = contexts.get(username)
+  }
+
+  if (ctx && ctx.busy) {
     puppeteerLogger.info('busy, waiting...')
 
     await setTimeout(5000)
   }
 
-  contexts.set(terminal, { ...contexts.get(terminal), busy: true })
+  contexts.set(username, { ...contexts.get(username), busy: true })
 
   const { context } = ctx
   const pages = await context.pages()
@@ -163,16 +189,15 @@ export const createBuchungWithTerminal = async ({
       const ioButton = await popupPage.$('button#bttlist_actwfl888')
       await ioButton.click()
 
-      contexts.set(terminal, { ...contexts.get(terminal), busy: false })
-      return label
+      contexts.set(username, { ...contexts.get(username), busy: false })
+      return { type: 'success', message: label }
     }
     case 'Scan fehlgeschlagen.': {
       const cancelButton = await popupPage.$('button#bttlist_formcancel')
-      // await page.waitForTimeout(5000)
       await cancelButton.click()
 
-      contexts.set(terminal, { ...contexts.get(terminal), busy: false })
-      return 'Scan fehlgeschlagen'
+      contexts.set(username, { ...contexts.get(username), busy: false })
+      return { type: 'error', message: 'Scan fehlgeschlagen' }
     }
   }
 }

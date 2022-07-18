@@ -3,21 +3,20 @@ import { db } from 'src/lib/db'
 import {
   contexts,
   CreateBuchungArgs,
-  createBuchungWithTerminal,
+  createBuchungWithUser,
   CreateContextArgs,
   createContextWithUser,
-  killContextwithTerminal,
+  killContextWithUser,
 } from 'src/lib/puppeteer'
 
 export const sessions = () => {
   return [...contexts.entries()]
     .sort((a, b) => +a[0] - +b[0])
     .map((session) => {
-      const terminal = session[0]
-      const { username, busy } = session[1]
+      const username = session[0]
+      const { busy } = session[1]
 
       return {
-        terminal,
         user: username,
         busy,
       }
@@ -35,28 +34,30 @@ export const createSession = ({ input }: CreateSessionInput) => {
 }
 
 type KillSessionInput = {
-  terminal: string
+  username: string
 }
-export const killSession = ({ terminal }: KillSessionInput) => {
-  return killContextwithTerminal(terminal)
+export const killSession = ({ username }: KillSessionInput) => {
+  return killContextWithUser(username)
 }
 
 type CreateBuchungInput = {
-  input: CreateBuchungArgs
+  input: CreateBuchungArgs & { terminal: string }
 }
 
 export const createBuchung = async ({ input }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
-  const { id } = context.currentUser
-  const result = await createBuchungWithTerminal({ ...input })
+  const { id, name } = context.currentUser
+  const result = await createBuchungWithUser({ username: name, ...input })
+  const { message } = result
 
   await db.log.create({
     data: {
       userId: id,
       terminal: input.terminal,
       code: input.code,
-      message: result,
+      message,
     },
   })
-  return result
+
+  return { ...result, code: input.code }
 }

@@ -6,7 +6,6 @@ export const QUERY = gql`
   query SessionsQuery {
     sessions {
       user
-      terminal
       busy
     }
   }
@@ -28,7 +27,7 @@ export const Success = ({ sessions }: CellSuccessProps<SessionsQuery>) => {
   return (
     <ul>
       {sessions.map((item) => {
-        return <li key={item.terminal}>{JSON.stringify(item)}</li>
+        return <li key={item.user}>{JSON.stringify(item)}</li>
       })}
     </ul>
   )

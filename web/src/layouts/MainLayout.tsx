@@ -3,7 +3,7 @@ import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 
 const KILL_SESSION_MUTUTAION = gql`
-  mutation KillSessionMutation($username: String!) {
+  mutation KillCosminoSessionMutation($username: String!) {
     killSession(username: $username)
   }
 `

@@ -41,6 +41,7 @@ model Log {
   userId    Int
   terminal  String
   code      String
+  type      String   @default("success")
   message   String
   createdAt DateTime @default(now())
 }

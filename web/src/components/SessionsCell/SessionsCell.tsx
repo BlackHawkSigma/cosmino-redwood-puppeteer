@@ -2,6 +2,8 @@ import type { SessionsQuery } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
+import SessionCard from 'src/components/SessionCard'
+
 export const QUERY = gql`
   query SessionsQuery {
     sessions {
@@ -25,10 +27,10 @@ export const Failure = ({ error }: CellFailureProps) => (
 
 export const Success = ({ sessions }: CellSuccessProps<SessionsQuery>) => {
   return (
-    <ul>
-      {sessions.map((item) => {
-        return <li key={item.user}>{JSON.stringify(item)}</li>
+    <div className="flex justify-around">
+      {sessions.map((session) => {
+        return <SessionCard key={session.user} {...session} />
       })}
-    </ul>
+    </div>
   )
 }

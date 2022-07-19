@@ -8,6 +8,7 @@ import {
   createContextWithUser,
   killContextWithUser,
 } from 'src/lib/puppeteer'
+import { deleteActiveSession } from 'src/services/sessions/'
 
 export const sessions = () => {
   return [...contexts.entries()]
@@ -36,7 +37,8 @@ export const createSession = ({ input }: CreateSessionInput) => {
 type KillSessionInput = {
   username: string
 }
-export const killSession = ({ username }: KillSessionInput) => {
+export const killSession = async ({ username }: KillSessionInput) => {
+  await deleteActiveSession({ username })
   return killContextWithUser(username)
 }
 
@@ -48,16 +50,17 @@ export const createBuchung = async ({ input }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
   const result = await createBuchungWithUser({ username: name, ...input })
-  const { message } = result
+  const { message, type } = result
 
-  await db.log.create({
+  const log = await db.log.create({
     data: {
       userId: id,
       terminal: input.terminal,
       code: input.code,
+      type,
       message,
     },
   })
 
-  return { ...result, code: input.code }
+  return { ...result, code: input.code, timestamp: log.createdAt }
 }

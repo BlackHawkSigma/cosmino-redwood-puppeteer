@@ -1,18 +1,19 @@
 export const schema = gql`
-  type Session {
+  type CosminoSession {
     user: String!
     busy: Boolean!
     focused: Boolean
   }
 
   type BuchungResult {
+    timestamp: DateTime
     code: String!
     type: String!
     message: String!
   }
 
   type Query {
-    sessions: [Session!]! @skipAuth
+    sessions: [CosminoSession!]! @skipAuth
   }
 
   input CreateSessionInput {

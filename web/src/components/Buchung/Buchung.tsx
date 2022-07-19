@@ -45,6 +45,7 @@ const Buchung = ({ terminal }: BuchungProps) => {
             type: createBuchung.type,
           },
         ]
+          // @ts-expect-error: timestamp is Date
           .sort((a, b) => b.timestamp.valueOf() - a.timestamp.valueOf())
           .slice(0, 5)
       )

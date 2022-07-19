@@ -12,5 +12,11 @@ export const standard = () => ({
       message: 'VW326R-L VO 18115 SF. HLAK C9A',
       type: 'success',
     },
+    {
+      timestamp: '2022-07-19T07:18:11.666Z',
+      code: '302316505',
+      message: 'VW326R-L VO 18115 SF. HLAK C9A',
+      type: 'success',
+    },
   ],
 })

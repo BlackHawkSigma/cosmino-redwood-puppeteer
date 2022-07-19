@@ -10250,7 +10250,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^2.0.1, date-fns@npm:^2.16.1":
+"date-fns@npm:^2.0.1, date-fns@npm:^2.16.1, date-fns@npm:^2.28.0":
   version: 2.28.0
   resolution: "date-fns@npm:2.28.0"
   checksum: ecdacd36326e7f5f8c4f1e78ae931a8997109f1c841f5163053b866585ca899521b0e7a114eeb48a9fe5135a550787bd4bbd8baa321cded0b4d823f847889a80
@@ -24096,6 +24096,7 @@ __metadata:
     "@redwoodjs/router": ^2.1.0
     "@redwoodjs/web": ^2.1.0
     autoprefixer: ^10.4.7
+    date-fns: ^2.28.0
     postcss: ^8.4.14
     postcss-loader: ^7.0.1
     prettier-plugin-tailwindcss: ^0.1.12

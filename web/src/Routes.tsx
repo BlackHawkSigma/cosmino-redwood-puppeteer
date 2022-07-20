@@ -18,12 +18,11 @@ const Routes = () => {
         <Route path="/terminal" page={TerminalPage} name="terminal" />
         <Route path="/buchen/{terminal}" page={BuchenPage} name="buchen" />
         <Route path="/sessions" page={SessionsPage} name="sessions" />
+        <Route path="/" page={HomePage} name="home" />
       </Private>
 
       <Route path="/login" page={LoginPage} name="login" />
       <Route path="/signup" page={SignupPage} name="signup" />
-
-      <Route path="/" page={HomePage} name="home" />
 
       <Route notfound page={NotFoundPage} />
     </Router>

@@ -9,6 +9,7 @@ import {
   PasswordField,
   FieldError,
   Submit,
+  useForm,
 } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -29,11 +30,14 @@ const SignupPage = () => {
     usernameRef.current.focus()
   }, [])
 
+  const formMethods = useForm()
+
   const onSubmit = async (data) => {
     const response = await signUp({ ...data })
 
     if (response.message) {
       toast.success(response.message)
+      formMethods.reset()
     } else if (response.error) {
       toast.error(response.error)
     } else {
@@ -58,7 +62,11 @@ const SignupPage = () => {
 
             <div className="rw-segment-main">
               <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
+                <Form
+                  formMethods={formMethods}
+                  onSubmit={onSubmit}
+                  className="rw-form-wrapper"
+                >
                   {/* username */}
                   <Label
                     name="username"

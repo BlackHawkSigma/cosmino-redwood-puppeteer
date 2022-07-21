@@ -59,7 +59,8 @@ export const handler = async (event, context) => {
 
     errors: {
       usernameOrPasswordMissing: 'Both username and password are required',
-      usernameNotFound: 'Username ${username} not found',
+      usernameNotFound:
+        'Benutzer ${username} ist nicht angelegt, bitte über den Button unten anlegen.',
       // For security reasons you may want to make this the same as the
       // usernameNotFound error so that a malicious user can't use the error
       // to narrow down if it's the username or password that's incorrect

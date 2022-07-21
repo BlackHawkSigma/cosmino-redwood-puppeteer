@@ -55,12 +55,16 @@ const LoginPage = () => {
         <div className="rw-scaffold rw-login-container">
           <div className="rw-segment">
             <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">Anmeldung</h2>
+              <h2 className="rw-heading rw-heading-primary">Anmeldung</h2>
             </header>
 
             <div className="rw-segment-main">
               <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
+                <Form
+                  onSubmit={onSubmit}
+                  className="rw-form-wrapper"
+                  autoComplete="off"
+                >
                   <Label
                     name="username"
                     className="rw-label"
@@ -95,7 +99,7 @@ const LoginPage = () => {
                     name="password"
                     className="rw-input"
                     errorClassName="rw-input rw-input-error"
-                    autoComplete="current-password"
+                    autoComplete="one-time-code"
                     readOnly={loading}
                     validation={{
                       required: {
@@ -110,7 +114,7 @@ const LoginPage = () => {
                   <div className="rw-button-group">
                     <Submit
                       disabled={loading}
-                      className="rw-button rw-button-blue"
+                      className="rw-button rw-button-green"
                     >
                       {loading ? 'anmeldung läuft' : 'anmelden'}
                     </Submit>
@@ -120,9 +124,8 @@ const LoginPage = () => {
             </div>
           </div>
           <div className="rw-login-link">
-            <span>neuen Benutzer</span>{' '}
-            <Link to={routes.signup()} className="rw-link">
-              anlegen
+            <Link to={routes.signup()} className="rw-button rw-button-blue">
+              neuen Benutzer anlegen
             </Link>
           </div>
         </div>

@@ -23,9 +23,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <>
       <header className="mb-4 bg-slate-200">
         <nav>
-          <ul className=" flex gap-3 pl-2 text-sm">
+          <ul className="flex h-10 items-center gap-5 pl-2">
             <li>
-              <Link to={routes.home()}>Start</Link>
+              <Link to={routes.home()} className="rw-button rw-button">
+                Start
+              </Link>
             </li>
 
             <li>
@@ -33,7 +35,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <button
                   type="button"
                   onClick={() => killSession()}
-                  className="underline"
+                  className="rw-button rw-button-blue"
                 >
                   {currentUser.name} - Abmelden
                 </button>

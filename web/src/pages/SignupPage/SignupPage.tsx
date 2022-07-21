@@ -33,7 +33,7 @@ const SignupPage = () => {
   const formMethods = useForm()
 
   const onSubmit = async (data) => {
-    const response = await signUp({ ...data })
+    const response = await signUp({ ...data, ...{ cosminopwd: data.password } })
 
     if (response.message) {
       toast.success(response.message)
@@ -55,8 +55,8 @@ const SignupPage = () => {
         <div className="rw-scaffold rw-login-container">
           <div className="rw-segment">
             <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">
-                Benutzer anlegen
+              <h2 className="rw-heading rw-heading-primary">
+                neuen Benutzer anlegen
               </h2>
             </header>
 
@@ -66,6 +66,7 @@ const SignupPage = () => {
                   formMethods={formMethods}
                   onSubmit={onSubmit}
                   className="rw-form-wrapper"
+                  autoComplete="off"
                 >
                   {/* username */}
                   <Label
@@ -101,7 +102,7 @@ const SignupPage = () => {
                     name="password"
                     className="rw-input"
                     errorClassName="rw-input rw-input-error"
-                    autoComplete="current-password"
+                    autoComplete="one-time-code"
                     validation={{
                       required: {
                         value: true,
@@ -112,7 +113,7 @@ const SignupPage = () => {
                   <FieldError name="password" className="rw-field-error" />
 
                   {/* cosmino password */}
-                  <Label
+                  {/*  <Label
                     name="cosminopwd"
                     className="rw-label"
                     errorClassName="rw-label rw-label-error"
@@ -131,10 +132,10 @@ const SignupPage = () => {
                       },
                     }}
                   />
-                  <FieldError name="cosminopwd" className="rw-field-error" />
+                  <FieldError name="cosminopwd" className="rw-field-error" />  */}
 
                   <div className="rw-button-group">
-                    <Submit className="rw-button rw-button-blue">
+                    <Submit className="rw-button rw-button-green">
                       anlegen
                     </Submit>
                   </div>
@@ -143,8 +144,7 @@ const SignupPage = () => {
             </div>
           </div>
           <div className="rw-login-link">
-            <span>Benutzer bereits angelegt?</span>{' '}
-            <Link to={routes.login()} className="rw-link">
+            <Link to={routes.login()} className="rw-button rw-button-blue">
               zur Anmeldung
             </Link>
           </div>

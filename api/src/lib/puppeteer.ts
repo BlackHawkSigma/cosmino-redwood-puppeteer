@@ -197,7 +197,7 @@ export const createBuchungWithUser = async ({
       await cancelButton.click()
 
       contexts.set(username, { ...contexts.get(username), busy: false })
-      return { type: 'error', message: 'Scan fehlgeschlagen' }
+      return { type: 'error', message: 'Bearbeitungseinheit nicht gefunden!' }
     }
   }
 }

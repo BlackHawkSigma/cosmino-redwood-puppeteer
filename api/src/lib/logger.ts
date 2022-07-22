@@ -16,4 +16,6 @@ import { createLogger, redactionsList } from '@redwoodjs/api/logger'
  */
 export const logger = createLogger({
   options: { redact: [...redactionsList, 'userpwd'] },
+  destination:
+    process.env.NODE_ENV === 'production' ? './server.log' : undefined,
 })

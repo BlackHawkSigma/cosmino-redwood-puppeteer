@@ -1,5 +1,8 @@
+import { MutationResolvers } from 'types/graphql'
+
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
+import { logger } from 'src/lib/logger'
 import {
   contexts,
   CreateBuchungArgs,
@@ -46,21 +49,47 @@ type CreateBuchungInput = {
   input: CreateBuchungArgs & { terminal: string }
 }
 
-export const createBuchung = async ({ input }: CreateBuchungInput) => {
+export const createBuchung: MutationResolvers['createBuchung'] = async ({
+  input,
+}: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
-  const result = await createBuchungWithUser({ username: name, ...input })
-  const { message, type } = result
+  try {
+    const result = await createBuchungWithUser({ username: name, ...input })
+    const { message, type } = result
 
-  const log = await db.log.create({
-    data: {
-      userId: id,
-      terminal: input.terminal,
+    const log = await db.log.create({
+      data: {
+        userId: id,
+        terminal: input.terminal,
+        code: input.code,
+        type,
+        message,
+      },
+    })
+    return {
+      ...result,
       code: input.code,
-      type,
-      message,
-    },
-  })
+      timestamp: log.createdAt.toISOString(),
+    }
+  } catch (error) {
+    logger.error(error)
 
-  return { ...result, code: input.code, timestamp: log.createdAt }
+    const log = await db.log.create({
+      data: {
+        userId: id,
+        terminal: input.terminal,
+        code: input.code,
+        type: 'error',
+        message: error.message,
+      },
+    })
+
+    return {
+      code: input.code,
+      timestamp: log.createdAt.toISOString(),
+      type: 'error',
+      message: 'Fehlgeschlagen. Bitte erneut scannen!',
+    }
+  }
 }

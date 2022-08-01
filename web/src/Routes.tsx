@@ -9,20 +9,23 @@
 
 import { Router, Route, Private } from '@redwoodjs/router'
 
+import WhileLoadingAuth from 'src/components/WhileLoadingAuth/WhileLoadingAuth'
 import MainLayout from 'src/layouts/MainLayout'
 
 const Routes = () => {
   return (
     <Router>
-      <Private unauthenticated="login" wrap={MainLayout}>
+      <Route path="/dashboard/{type:string}" page={DashboardPage} name="dashboard" />
+
+      <Private unauthenticated="login" whileLoadingAuth={() => <WhileLoadingAuth />} wrap={MainLayout}>
         <Route path="/terminal" page={TerminalPage} name="terminal" />
-        <Route path="/buchen/{terminal}" page={BuchenPage} name="buchen" />
+        <Route path="/buchen/{terminal:string}" page={BuchenPage} name="buchen" />
         <Route path="/sessions" page={SessionsPage} name="sessions" />
         <Route path="/" page={HomePage} name="home" />
       </Private>
 
-      <Route path="/login" page={LoginPage} name="login" />
-      <Route path="/signup" page={SignupPage} name="signup" />
+      <Route path="/login" page={LoginPage} name="login" prerender />
+      <Route path="/signup" page={SignupPage} name="signup" prerender />
 
       <Route notfound page={NotFoundPage} />
     </Router>

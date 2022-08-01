@@ -4,7 +4,7 @@ import { QUERY as SessionsQuery } from 'src/components/SessionsCell'
 
 type SessionCardProps = {
   user: string
-  busy: boolean
+  busy?: boolean
 }
 
 const KILL_SESSION_MUTUTAION = gql`

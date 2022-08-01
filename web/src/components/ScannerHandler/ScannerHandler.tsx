@@ -7,10 +7,15 @@ type TextAction =
 
 type ScannerHandlerProps = {
   loading?: string
+  onFocusChange: (focused: boolean) => void
   onFire: (text: string) => void
 }
 
-const ScannerHandler = ({ loading, onFire }: ScannerHandlerProps) => {
+const ScannerHandler = ({
+  loading,
+  onFocusChange,
+  onFire,
+}: ScannerHandlerProps) => {
   const [windowIsFocused, setWindowIsFocused] = useState<boolean>(() =>
     document.hasFocus()
   )
@@ -21,6 +26,8 @@ const ScannerHandler = ({ loading, onFire }: ScannerHandlerProps) => {
         case 'add':
           return `${state}${action.character}`
         case 'fire':
+          if (state.length < 1) return ''
+
           onFire(state)
           return ''
         case 'reset':
@@ -36,11 +43,13 @@ const ScannerHandler = ({ loading, onFire }: ScannerHandlerProps) => {
     const onFocus = () => setWindowIsFocused(true)
     const onBlur = () => setWindowIsFocused(false)
 
-    const onKeyUp = (ev: KeyboardEvent) => {
+    const onKeyDown = (ev: KeyboardEvent) => {
       const { key } = ev
 
       switch (key) {
         case 'Tab':
+          ev.preventDefault()
+          return dispatch({ type: 'fire' })
         case 'Enter':
           return dispatch({ type: 'fire' })
         case 'Escape':
@@ -52,14 +61,18 @@ const ScannerHandler = ({ loading, onFire }: ScannerHandlerProps) => {
 
     window.addEventListener('focus', onFocus)
     window.addEventListener('blur', onBlur)
-    window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('keydown', onKeyDown)
 
     return () => {
       window.removeEventListener('focus', onFocus)
       window.removeEventListener('blur', onBlur)
-      window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('keydown', onKeyDown)
     }
   }, [])
+
+  useEffect(() => {
+    onFocusChange(windowIsFocused)
+  }, [windowIsFocused, onFocusChange])
 
   return (
     <div

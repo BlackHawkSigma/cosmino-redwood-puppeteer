@@ -14,7 +14,7 @@ export const QUERY = gql`
 `
 
 export const beforeQuery = (props) => {
-  return { variables: props, fetchPolicy: 'no-cache', pollInterval: 1000 }
+  return { variables: props, fetchPolicy: 'no-cache', pollInterval: 1_000 }
 }
 
 export const Loading = () => <div>Loading...</div>

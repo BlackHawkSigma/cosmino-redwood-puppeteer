@@ -11,7 +11,10 @@ import {
   createContextWithUser,
   killContextWithUser,
 } from 'src/lib/puppeteer'
-import { deleteActiveSession } from 'src/services/sessions/'
+import {
+  deleteActiveSession,
+  updateActiveSession,
+} from 'src/services/sessions/'
 
 export const sessions = () => {
   return [...contexts.entries()]
@@ -54,6 +57,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
 }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
+  updateActiveSession({ input: { busy: true } })
   try {
     const result = await createBuchungWithUser({ username: name, ...input })
     const { message, type } = result
@@ -91,5 +95,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
       type: 'error',
       message: 'Fehlgeschlagen. Bitte erneut scannen!',
     }
+  } finally {
+    updateActiveSession({ input: { busy: false } })
   }
 }

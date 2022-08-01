@@ -1,4 +1,4 @@
-import puppeteer, { BrowserContext, Browser } from 'puppeteer'
+import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
@@ -130,8 +130,8 @@ export type CreateBuchungArgs = {
 }
 
 export type CreateBuchungResult =
-  | { type: 'success'; message: string }
-  | { type: 'error'; message: string }
+  | { type: 'success'; message: string; image: string }
+  | { type: 'error'; message: string; image: string }
 
 export const createBuchungWithUser = async ({
   username,
@@ -186,18 +186,40 @@ export const createBuchungWithUser = async ({
       )
       puppeteerLogger.trace(label)
 
-      const ioButton = await popupPage.$('button#bttlist_actwfl888')
+      const imgElement = (await popupPage.$(
+        'img#pic01'
+      )) as HandleFor<HTMLImageElement>
+      // const src = await imgElement.getProperty('src')
+      const imgString = (await imgElement.screenshot({
+        encoding: 'base64',
+      })) as string
+
+      const ioButton = (await popupPage.$(
+        'button#bttlist_actwfl888'
+      )) as HandleFor<HTMLButtonElement>
       await ioButton.click()
 
       contexts.set(username, { ...contexts.get(username), busy: false })
-      return { type: 'success', message: label }
+      return { type: 'success', message: label, image: imgString }
     }
     case 'Scan fehlgeschlagen.': {
+      const headerElement = (await popupPage.$(
+        '#headerbar_div'
+      )) as HandleFor<HTMLDivElement>
+
+      const image = (await headerElement.screenshot({
+        encoding: 'base64',
+      })) as string
+
       const cancelButton = await popupPage.$('button#bttlist_formcancel')
       await cancelButton.click()
 
       contexts.set(username, { ...contexts.get(username), busy: false })
-      return { type: 'error', message: 'Bearbeitungseinheit nicht gefunden!' }
+      return {
+        type: 'error',
+        message: 'Bearbeitungseinheit nicht gefunden!',
+        image,
+      }
     }
   }
 }

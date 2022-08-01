@@ -13,6 +13,9 @@ const HomePage = () => {
         <h1 className="text-center text-lg">Übersicht</h1>
         <div className="flex flex-col underline">
           <Link to={routes.sessions()}>Sessions</Link>
+          <Link to={routes.dashboard({ type: '1' })}>Übersicht Seite 1</Link>
+          <Link to={routes.dashboard({ type: '2' })}>Übersicht Seite 2</Link>
+          <Link to={routes.dashboard({ type: 'alle' })}>Übersicht gesammt</Link>
           <Link
             to={
               terminal.length > 0

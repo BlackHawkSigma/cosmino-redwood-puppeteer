@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
@@ -18,6 +20,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     variables: { username: currentUser.name },
     onCompleted: () => logOut(),
   })
+
+  useEffect(() => {
+    const onUnload = () => killSession()
+
+    window.addEventListener('beforeunload', onUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', onUnload)
+    }
+  }, [killSession])
 
   return (
     <>

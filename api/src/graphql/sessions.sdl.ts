@@ -1,5 +1,5 @@
 export const schema = gql`
-  type Session {
+  type ActiveSession {
     username: String!
     terminal: String!
     busy: Boolean
@@ -7,7 +7,7 @@ export const schema = gql`
   }
 
   type Query {
-    activeSessions: [Session!]! @skipAuth
+    activeSessions: [ActiveSession!]! @skipAuth
   }
 
   input CreateActiveSessionInput {
@@ -15,9 +15,17 @@ export const schema = gql`
     terminal: String!
   }
 
+  input UpdateActiveSessionInput {
+    focused: Boolean
+    busy: Boolean
+  }
+
   type Mutation {
-    createActiveSession(input: CreateActiveSessionInput!): Session!
+    createActiveSession(input: CreateActiveSessionInput!): ActiveSession!
       @requireAuth(roles: "user")
-    deleteActiveSession(username: String!): Session @requireAuth(roles: "user")
+    updateActiveSession(input: UpdateActiveSessionInput!): ActiveSession
+      @requireAuth(roles: "user")
+    deleteActiveSession(username: String!): ActiveSession
+      @requireAuth(roles: "user")
   }
 `

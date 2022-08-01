@@ -1,14 +1,14 @@
 import { render } from '@redwoodjs/testing/web'
 
-import ScannerHandler from './ScannerHandler'
+import WhileLoadingAuth from './WhileLoadingAuth'
 
 //   Improve this test with help from the Redwood Testing Doc:
 //    https://redwoodjs.com/docs/testing#testing-components
 
-describe('ScannerHandler', () => {
+describe('WhileLoadingAuth', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<ScannerHandler onFire={() => {}} onFocusChange={() => {}} />)
+      render(<WhileLoadingAuth />)
     }).not.toThrow()
   })
 })

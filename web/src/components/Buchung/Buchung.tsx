@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import type {
   CreateBuchungMutation,
   CreateBuchungMutationVariables,
+  UpdateActiveSessionMutation,
+  UpdateActiveSessionMutationVariables,
 } from 'types/graphql'
 
 import { FormError } from '@redwoodjs/forms'
-import { navigate, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/dist/toast'
 
@@ -19,6 +20,14 @@ const CREATE_BUCHUNG_MUTATION = gql`
       code
       type
       message
+    }
+  }
+`
+
+const UPDATE_ACTIVESESSION_MUTATION = gql`
+  mutation UpdateActiveSessionMutation($input: UpdateActiveSessionInput!) {
+    updateActiveSession(input: $input) {
+      username
     }
   }
 `
@@ -59,14 +68,27 @@ const Buchung = ({ terminal }: BuchungProps) => {
         default:
           toast(JSON.stringify(createBuchung))
       }
-      navigate(routes.buchen({ terminal }))
     },
   })
+
+  const [updateActiveSession] = useMutation<
+    UpdateActiveSessionMutation,
+    UpdateActiveSessionMutationVariables
+  >(UPDATE_ACTIVESESSION_MUTATION)
 
   const onSave = (input) => {
     input = { ...input, terminal }
     createBuchung({ variables: { input } })
   }
+
+  const onFocusChange = useCallback(
+    (focused) => {
+      console.log({ parent: focused })
+
+      updateActiveSession({ variables: { input: { focused } } })
+    },
+    [updateActiveSession]
+  )
 
   return (
     <div>
@@ -80,6 +102,7 @@ const Buchung = ({ terminal }: BuchungProps) => {
 
       <ScannerHandler
         loading={loading && 'wird gesendet'}
+        onFocusChange={onFocusChange}
         onFire={(code) => onSave({ code })}
       />
 

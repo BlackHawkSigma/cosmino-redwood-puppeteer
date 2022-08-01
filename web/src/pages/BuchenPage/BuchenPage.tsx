@@ -35,14 +35,14 @@ const BuchenPage = () => {
     CreateSessionMutation,
     CreateSessionMutationVariables
   >(CREATE_SESSION, {
-    variables: { input: { username: currentUser.name, terminal } },
+    variables: { input: { username: currentUser?.name, terminal } },
   })
 
   const [killSession] = useMutation<
     KillSessionMutation,
     KillSessionMutationVariables
   >(KILL_SESSION, {
-    variables: { username: currentUser.name },
+    variables: { username: currentUser?.name },
   })
 
   useEffect(() => {

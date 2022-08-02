@@ -73,6 +73,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     })
     return {
       ...result,
+      id: log.id,
       code: input.code,
       timestamp: log.createdAt.toISOString(),
     }
@@ -90,6 +91,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     })
 
     return {
+      id: log.id,
       code: input.code,
       timestamp: log.createdAt.toISOString(),
       type: 'error',

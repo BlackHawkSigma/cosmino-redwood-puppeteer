@@ -1,7 +1,8 @@
 import { parseISO } from 'date-fns/fp'
 
 export type Logs = {
-  timestamp: Date | string
+  id: number
+  timestamp: string
   code: string
   type: string
   message: string
@@ -13,13 +14,14 @@ type BuchenLogProps = {
 
 const BuchungLog = ({ logs }: BuchenLogProps) => {
   return (
-    <div className="p-4 text-3xl">
+    <div className="p-4">
       <ol className="flex flex-col gap-3">
-        {logs.map(({ timestamp, code, message, type }) => {
-          const date =
-            timestamp instanceof Date ? timestamp : parseISO(timestamp)
+        {logs.map(({ id, timestamp, code, message, type }) => {
+          const date = parseISO(timestamp)
+
           return (
             <li
+              key={id}
               className={`border-l-4 p-2 ${
                 type === 'success'
                   ? 'border-l-emerald-600 bg-emerald-50 text-emerald-600'
@@ -27,9 +29,8 @@ const BuchungLog = ({ logs }: BuchenLogProps) => {
                   ? 'border-l-red-600 bg-red-100 text-red-600'
                   : null
               }`}
-              key={code}
             >
-              {date.toLocaleTimeString('de-DE')} | {code}: {message}
+              {date.toLocaleTimeString('de-DE')} | {code}: {message} ({id})
             </li>
           )
         })}

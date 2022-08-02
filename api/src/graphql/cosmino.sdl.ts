@@ -6,7 +6,8 @@ export const schema = gql`
   }
 
   type BuchungResult {
-    timestamp: DateTime
+    id: Int!
+    timestamp: DateTime!
     code: String!
     type: String!
     message: String!

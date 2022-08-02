@@ -1,5 +1,6 @@
 export const schema = gql`
   type BuchungsLog {
+    id: Int!
     timestamp: DateTime!
     code: String!
     type: String!

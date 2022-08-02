@@ -17,6 +17,8 @@ import ScannerHandler from 'src/components/ScannerHandler'
 const CREATE_BUCHUNG_MUTATION = gql`
   mutation CreateBuchungMutation($input: CreateBuchungInput!) {
     createBuchung(input: $input) {
+      id
+      timestamp
       code
       type
       message
@@ -45,17 +47,8 @@ const Buchung = ({ terminal }: BuchungProps) => {
   >(CREATE_BUCHUNG_MUTATION, {
     onCompleted: ({ createBuchung }) => {
       setLogs(
-        [
-          ...logs,
-          {
-            timestamp: new Date(),
-            code: createBuchung.code,
-            message: createBuchung.message,
-            type: createBuchung.type,
-          },
-        ]
-          // @ts-expect-error: timestamp is Date
-          .sort((a, b) => b.timestamp.valueOf() - a.timestamp.valueOf())
+        [...logs, createBuchung]
+          .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
           .slice(0, 5)
       )
       switch (createBuchung.type) {
@@ -82,11 +75,7 @@ const Buchung = ({ terminal }: BuchungProps) => {
   }
 
   const onFocusChange = useCallback(
-    (focused) => {
-      console.log({ parent: focused })
-
-      updateActiveSession({ variables: { input: { focused } } })
-    },
+    (focused) => updateActiveSession({ variables: { input: { focused } } }),
     [updateActiveSession]
   )
 
@@ -106,7 +95,9 @@ const Buchung = ({ terminal }: BuchungProps) => {
         onFire={(code) => onSave({ code })}
       />
 
-      <BuchungLog logs={logs} />
+      <div className="text-3xl">
+        <BuchungLog logs={logs} />
+      </div>
     </div>
   )
 }

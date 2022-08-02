@@ -3,6 +3,7 @@ import { FatalErrorBoundary, RedwoodProvider } from '@redwoodjs/web'
 import { RedwoodApolloProvider } from '@redwoodjs/web/apollo'
 import { Toaster } from '@redwoodjs/web/toast'
 
+import UpdateNotification from 'src/components/UpdateNotification'
 import FatalErrorPage from 'src/pages/FatalErrorPage'
 import Routes from 'src/Routes'
 
@@ -16,6 +17,7 @@ const App = () => (
         <RedwoodApolloProvider>
           <Toaster />
           <Routes />
+          <UpdateNotification />
         </RedwoodApolloProvider>
       </AuthProvider>
     </RedwoodProvider>

@@ -12,14 +12,14 @@ const DashboardPage = ({ type }) => {
       <section className="p-4">
         {sideOne && (
           <div className="mb-4 p-2 shadow-xl">
-            <h1>Seite 1</h1>
+            <h1 className="text-center text-lg">Seite 1</h1>
             <ActiveSessionsCell terminals={['1', '2', '3']} />
           </div>
         )}
 
         {sideTwo && (
           <div className="p-2 shadow-xl">
-            <h1>Seite 2</h1>
+            <h1 className="text-center text-lg">Seite 2</h1>
             <ActiveSessionsCell terminals={['4', '5', '6']} />
           </div>
         )}

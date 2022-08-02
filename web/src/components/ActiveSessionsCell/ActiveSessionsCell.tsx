@@ -44,7 +44,7 @@ export const Success = ({
             (session) => session.terminal === terminal
           )
           return session ? (
-            <div key={terminal} className="shadow">
+            <div key={terminal} className="px-2 shadow">
               <p className="text-center text-lg">Terminal {terminal}</p>
               <div
                 className={`rounded-xl border-8 ${

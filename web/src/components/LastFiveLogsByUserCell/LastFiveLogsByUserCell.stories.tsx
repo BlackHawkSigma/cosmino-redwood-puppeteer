@@ -1,5 +1,6 @@
+import { standard } from '../BuchungLog/BuchungLog.mock'
+
 import { Loading, Empty, Failure, Success } from './LastFiveLogsByUserCell'
-import { standard } from './LastFiveLogsByUserCell.mock'
 
 export const loading = () => {
   return Loading ? <Loading /> : null

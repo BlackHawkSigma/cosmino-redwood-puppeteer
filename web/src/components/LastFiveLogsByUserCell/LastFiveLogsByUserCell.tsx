@@ -10,6 +10,7 @@ import BuchungLog from 'src/components/BuchungLog'
 export const QUERY = gql`
   query FindLastFiveLogsByUserQuery($username: String!) {
     logs: lastFiveLogsByUser(username: $username) {
+      id
       timestamp
       code
       message
@@ -38,5 +39,9 @@ export const Success = ({
   FindLastFiveLogsByUserQuery,
   FindLastFiveLogsByUserQueryVariables
 >) => {
-  return <BuchungLog logs={logs} />
+  return (
+    <div className="text-xl">
+      <BuchungLog logs={logs} />
+    </div>
+  )
 }

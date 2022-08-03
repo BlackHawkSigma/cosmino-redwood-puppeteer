@@ -24,6 +24,10 @@ export const lastFiveLogsByUser: QueryResolvers['lastFiveLogsByUser'] = async ({
     .then((result) =>
       result.map((entry) => ({
         ...entry,
+        message:
+          entry.message === 'Bearbeitungseinheit nicht gefunden!'
+            ? 'Bearbeitungseinheit nicht gefunden!'
+            : 'Fehlgeschlagen. Bitte erneut scannen!',
         timestamp: entry.createdAt.toISOString(),
       }))
     )

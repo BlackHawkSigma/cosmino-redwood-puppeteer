@@ -57,7 +57,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
 }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
-  updateActiveSession({ input: { busy: true } })
+  await updateActiveSession({ input: { busy: true } })
   try {
     const result = await createBuchungWithUser({ username: name, ...input })
     const { message, type } = result
@@ -71,6 +71,13 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         message,
       },
     })
+
+    if (result.type === 'success') {
+      await updateActiveSession({
+        input: { lastSuccessImgUrl: result.imageUrl },
+      })
+    }
+
     return {
       ...result,
       id: log.id,
@@ -98,6 +105,6 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
       message: 'Fehlgeschlagen. Bitte erneut scannen!',
     }
   } finally {
-    updateActiveSession({ input: { busy: false } })
+    await updateActiveSession({ input: { busy: false } })
   }
 }

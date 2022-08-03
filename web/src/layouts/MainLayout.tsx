@@ -19,6 +19,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [killSession] = useMutation(KILL_SESSION_MUTUTAION, {
     variables: { username: currentUser.name },
     onCompleted: () => logOut(),
+    onError: () => logOut(),
   })
 
   useEffect(() => {

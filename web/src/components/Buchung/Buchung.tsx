@@ -22,6 +22,7 @@ const CREATE_BUCHUNG_MUTATION = gql`
       code
       type
       message
+      imageUrl
     }
   }
 `
@@ -41,7 +42,7 @@ type BuchungProps = {
 const Buchung = ({ terminal }: BuchungProps) => {
   const [logs, setLogs] = useState<Logs[]>([])
 
-  const [createBuchung, { loading, error }] = useMutation<
+  const [createBuchung, { loading, error, data }] = useMutation<
     CreateBuchungMutation,
     CreateBuchungMutationVariables
   >(CREATE_BUCHUNG_MUTATION, {
@@ -94,6 +95,10 @@ const Buchung = ({ terminal }: BuchungProps) => {
         onFocusChange={onFocusChange}
         onFire={(code) => onSave({ code })}
       />
+
+      {data?.createBuchung.imageUrl && (
+        <img src={data.createBuchung.imageUrl} alt="letze scannung" />
+      )}
 
       <div className="text-3xl">
         <BuchungLog logs={logs} />

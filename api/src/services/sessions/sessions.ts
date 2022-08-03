@@ -2,60 +2,71 @@ import type { MutationResolvers } from 'types/graphql'
 
 import { context } from '@redwoodjs/graphql-server'
 
+import { db } from 'src/lib/db'
+
 type Session = {
+  id: string
   username: string
   terminal: string
   busy: boolean
   focused: boolean
+  lastSuccessImgUrl?: string
   createdAt: Date
 }
 
-const sessions: Map<string, Session> = new Map()
-
-export const activeSessions = (): Session[] => {
-  return [...sessions.values()]
+export const activeSessions = async (): Promise<Session[]> => {
+  return db.session
+    .findMany({ include: { user: { select: { name: true } } } })
+    .then((result) =>
+      result.map((entry) => ({
+        ...entry,
+        id: entry.terminal,
+        username: entry.user.name,
+      }))
+    )
 }
 
-export const createActiveSession: MutationResolvers['createActiveSession'] = ({
-  input,
-}): Session => {
-  const { name } = context.currentUser
+export const createActiveSession: MutationResolvers['createActiveSession'] =
+  async ({ input }): Promise<Session> => {
+    const { id: userId, name } = context.currentUser
 
-  sessions.set(name, {
-    ...input,
-    username: name,
-    busy: false,
-    focused: true,
-    createdAt: new Date(),
-  })
-  return sessions.get(name)
+    return db.session
+      .upsert({
+        where: { userId },
+        create: {
+          ...input,
+          busy: false,
+          focused: true,
+          user: { connect: { name } },
+        },
+        update: { ...input, busy: false, focused: true },
+      })
+      .then((entry) => ({ ...entry, id: entry.terminal, username: name }))
+  }
+
+type updateActiveSessionArgs = {
+  input: {
+    focused?: boolean
+    busy?: boolean
+    lastSuccessImgUrl?: string
+  }
 }
 
-// type updateActiveSessionArgs = {
-//   username: string
-//   input: {
-//     focused?: boolean
-//     busy?: boolean
-//   }
-// }
-
-export const updateActiveSession: MutationResolvers['updateActiveSession'] = ({
+export const updateActiveSession = async ({
   input,
-}): Session | null => {
-  const { name } = context.currentUser
-  const session = sessions.get(name)
-  if (!session) return null
+}: updateActiveSessionArgs): Promise<Session> => {
+  const { id: userId, name } = context.currentUser
 
-  sessions.set(name, { ...session, ...input })
-  const userSession = sessions.get(name)
-  return userSession
+  return db.session
+    .update({
+      where: { userId },
+      data: { ...input },
+    })
+    .then((entry) => ({ ...entry, id: entry.terminal, username: name }))
 }
 
 export const deleteActiveSession: MutationResolvers['deleteActiveSession'] =
-  (): Session | null => {
-    const { name } = context.currentUser
-
-    const userSession = sessions.get(name)
-    sessions.delete(name)
-    return userSession || null
+  () => {
+    const { id: userId } = context.currentUser
+    return db.session.delete({ where: { userId } })
   }

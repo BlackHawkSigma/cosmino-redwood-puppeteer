@@ -1,4 +1,4 @@
-import puppeteer, { BrowserContext, Browser } from 'puppeteer'
+import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
@@ -26,6 +26,8 @@ export type CreateContextArgs = {
 }
 
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
+
+const cosminoUrl = new URL(process.env.COSMINO_URL)
 
 export const createContextWithUser = async ({
   username,
@@ -130,7 +132,7 @@ export type CreateBuchungArgs = {
 }
 
 export type CreateBuchungResult =
-  | { type: 'success'; message: string }
+  | { type: 'success'; message: string; imageUrl: string }
   | { type: 'error'; message: string }
 
 export const createBuchungWithUser = async ({
@@ -186,18 +188,28 @@ export const createBuchungWithUser = async ({
       )
       puppeteerLogger.trace(label)
 
-      const ioButton = await popupPage.$('button#bttlist_actwfl888')
+      const imageSrc = await popupPage.$eval('img#pic01', (img) =>
+        img.getAttribute('src')
+      )
+      const imageUrl = `${cosminoUrl.origin}${imageSrc}`
+
+      const ioButton = (await popupPage.$(
+        'button#bttlist_actwfl888'
+      )) as HandleFor<HTMLButtonElement>
       await ioButton.click()
 
       contexts.set(username, { ...contexts.get(username), busy: false })
-      return { type: 'success', message: label }
+      return { type: 'success', message: label, imageUrl }
     }
     case 'Scan fehlgeschlagen.': {
       const cancelButton = await popupPage.$('button#bttlist_formcancel')
       await cancelButton.click()
 
       contexts.set(username, { ...contexts.get(username), busy: false })
-      return { type: 'error', message: 'Bearbeitungseinheit nicht gefunden!' }
+      return {
+        type: 'error',
+        message: 'Bearbeitungseinheit nicht gefunden!',
+      }
     }
   }
 }

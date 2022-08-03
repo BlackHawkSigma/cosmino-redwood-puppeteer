@@ -30,7 +30,7 @@ const BuchungLog = ({ logs }: BuchenLogProps) => {
                   : null
               }`}
             >
-              {date.toLocaleTimeString('de-DE')} | {code}: {message} ({id})
+              {date.toLocaleTimeString('de-DE')} | {code}: {message}
             </li>
           )
         })}

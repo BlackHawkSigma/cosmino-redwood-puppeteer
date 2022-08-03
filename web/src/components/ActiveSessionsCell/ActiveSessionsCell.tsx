@@ -8,10 +8,12 @@ import SessionCard from 'src/components/SessionCard'
 export const QUERY = gql`
   query ActiveSessionsQuery {
     activeSessions {
+      id
       terminal
       user: username
       busy
       focused
+      src: lastSuccessImgUrl
     }
   }
 `
@@ -55,6 +57,9 @@ export const Success = ({
               >
                 <SessionCard {...session} />
               </div>
+
+              {session.src && <img src={session.src} alt="letze scannung" />}
+
               <LastFiveLogsByUserCell username={session.user} key={terminal} />
             </div>
           ) : (

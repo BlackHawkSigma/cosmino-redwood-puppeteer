@@ -1,9 +1,11 @@
 export const schema = gql`
   type ActiveSession {
+    id: String!
     username: String!
     terminal: String!
     busy: Boolean
     focused: Boolean
+    lastSuccessImgUrl: String
   }
 
   type Query {
@@ -11,7 +13,6 @@ export const schema = gql`
   }
 
   input CreateActiveSessionInput {
-    username: String!
     terminal: String!
   }
 

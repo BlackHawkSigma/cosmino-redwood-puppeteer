@@ -27,6 +27,8 @@ export type CreateContextArgs = {
 
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
 
+const cosminoUrl = new URL(process.env.COSMINO_URL)
+
 export const createContextWithUser = async ({
   username,
   userpwd,
@@ -130,8 +132,8 @@ export type CreateBuchungArgs = {
 }
 
 export type CreateBuchungResult =
-  | { type: 'success'; message: string; image: string }
-  | { type: 'error'; message: string; image: string }
+  | { type: 'success'; message: string; imageUrl: string }
+  | { type: 'error'; message: string }
 
 export const createBuchungWithUser = async ({
   username,
@@ -186,13 +188,10 @@ export const createBuchungWithUser = async ({
       )
       puppeteerLogger.trace(label)
 
-      const imgElement = (await popupPage.$(
-        'img#pic01'
-      )) as HandleFor<HTMLImageElement>
-      // const src = await imgElement.getProperty('src')
-      const imgString = (await imgElement.screenshot({
-        encoding: 'base64',
-      })) as string
+      const imageSrc = await popupPage.$eval('img#pic01', (img) =>
+        img.getAttribute('src')
+      )
+      const imageUrl = `${cosminoUrl.origin}${imageSrc}`
 
       const ioButton = (await popupPage.$(
         'button#bttlist_actwfl888'
@@ -200,17 +199,9 @@ export const createBuchungWithUser = async ({
       await ioButton.click()
 
       contexts.set(username, { ...contexts.get(username), busy: false })
-      return { type: 'success', message: label, image: imgString }
+      return { type: 'success', message: label, imageUrl }
     }
     case 'Scan fehlgeschlagen.': {
-      const headerElement = (await popupPage.$(
-        '#headerbar_div'
-      )) as HandleFor<HTMLDivElement>
-
-      const image = (await headerElement.screenshot({
-        encoding: 'base64',
-      })) as string
-
       const cancelButton = await popupPage.$('button#bttlist_formcancel')
       await cancelButton.click()
 
@@ -218,7 +209,6 @@ export const createBuchungWithUser = async ({
       return {
         type: 'error',
         message: 'Bearbeitungseinheit nicht gefunden!',
-        image,
       }
     }
   }

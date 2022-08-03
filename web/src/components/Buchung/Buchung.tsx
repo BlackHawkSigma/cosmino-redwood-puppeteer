@@ -22,7 +22,7 @@ const CREATE_BUCHUNG_MUTATION = gql`
       code
       type
       message
-      image
+      imageUrl
     }
   }
 `
@@ -96,10 +96,9 @@ const Buchung = ({ terminal }: BuchungProps) => {
         onFire={(code) => onSave({ code })}
       />
 
-      <img
-        src={`data:image/png;base64,${data?.createBuchung?.image}`}
-        alt="letze scannung"
-      />
+      {data?.createBuchung.imageUrl && (
+        <img src={data.createBuchung.imageUrl} alt="letze scannung" />
+      )}
 
       <div className="text-3xl">
         <BuchungLog logs={logs} />

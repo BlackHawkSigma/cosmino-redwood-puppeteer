@@ -25,7 +25,9 @@ export const lastFiveLogsByUser: QueryResolvers['lastFiveLogsByUser'] = async ({
       result.map((entry) => ({
         ...entry,
         message:
-          entry.message === 'Bearbeitungseinheit nicht gefunden!'
+          entry.type === 'success'
+            ? entry.message
+            : entry.message === 'Bearbeitungseinheit nicht gefunden!'
             ? 'Bearbeitungseinheit nicht gefunden!'
             : 'Fehlgeschlagen. Bitte erneut scannen!',
         timestamp: entry.createdAt.toISOString(),

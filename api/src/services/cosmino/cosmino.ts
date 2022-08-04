@@ -76,6 +76,8 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
       await updateActiveSession({
         input: { lastSuccessImgUrl: result.imageUrl },
       })
+    } else {
+      await updateActiveSession({ input: { lastSuccessImgUrl: null } })
     }
 
     return {
@@ -86,6 +88,8 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     }
   } catch (error) {
     logger.error(error)
+
+    await updateActiveSession({ input: { lastSuccessImgUrl: null } })
 
     const log = await db.log.create({
       data: {

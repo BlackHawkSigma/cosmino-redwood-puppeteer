@@ -19,6 +19,9 @@ model User {
   userRoles           UserRolesOnUser[]
   logs                Log[]
   session             Session?
+
+  // Settings
+  showSuccessCounter Boolean @default(true)
 }
 
 model UserRole {

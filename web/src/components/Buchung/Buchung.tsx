@@ -30,7 +30,9 @@ const CREATE_BUCHUNG_MUTATION = gql`
 const UPDATE_ACTIVESESSION_MUTATION = gql`
   mutation UpdateActiveSessionMutation($input: UpdateActiveSessionInput!) {
     updateActiveSession(input: $input) {
-      username
+      user {
+        name
+      }
     }
   }
 `

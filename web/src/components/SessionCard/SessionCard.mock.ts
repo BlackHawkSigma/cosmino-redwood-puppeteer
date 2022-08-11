@@ -1,9 +1,9 @@
 export const standard = () => ({
-  user: 'John Doe',
+  user: { name: 'John Doe' },
   busy: false,
 })
 
 export const busy = () => ({
-  user: 'John Doe',
+  user: { name: 'John Doe' },
   busy: true,
 })

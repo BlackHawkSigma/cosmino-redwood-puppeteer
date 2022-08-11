@@ -6,7 +6,10 @@ import { db } from 'src/lib/db'
 
 type Session = {
   id: string
-  username: string
+  user: {
+    id: number
+    name: string
+  }
   terminal: string
   busy: boolean
   focused: boolean
@@ -16,32 +19,38 @@ type Session = {
 
 export const activeSessions = async (): Promise<Session[]> => {
   return db.session
-    .findMany({ include: { user: { select: { name: true } } } })
+    .findMany({ include: { user: { select: { id: true, name: true } } } })
     .then((result) =>
       result.map((entry) => ({
         ...entry,
         id: entry.terminal,
-        username: entry.user.name,
       }))
     )
 }
 
+export const userSession = ({ userId }) => {
+  return db.session.findUnique({
+    where: { userId },
+  })
+}
+
 export const createActiveSession: MutationResolvers['createActiveSession'] =
-  async ({ input }): Promise<Session> => {
+  async ({ input }) => {
     const { id: userId, name } = context.currentUser
 
     return db.session
       .upsert({
         where: { userId },
         create: {
-          ...input,
+          terminal: input.terminal,
           busy: false,
           focused: true,
           user: { connect: { name } },
         },
-        update: { ...input, busy: false, focused: true },
+        update: { terminal: input.terminal, busy: false, focused: true },
+        include: { user: true },
       })
-      .then((entry) => ({ ...entry, id: entry.terminal, username: name }))
+      .then((entry) => ({ ...entry, id: entry.terminal }))
   }
 
 type updateActiveSessionArgs = {
@@ -55,14 +64,15 @@ type updateActiveSessionArgs = {
 export const updateActiveSession = async ({
   input,
 }: updateActiveSessionArgs): Promise<Session> => {
-  const { id: userId, name } = context.currentUser
+  const { id: userId } = context.currentUser
 
   return db.session
     .update({
       where: { userId },
       data: { ...input },
+      include: { user: { select: { id: true, name: true } } },
     })
-    .then((entry) => ({ ...entry, id: entry.terminal, username: name }))
+    .then((entry) => ({ ...entry, id: entry.terminal }))
 }
 
 export const deleteActiveSession: MutationResolvers['deleteActiveSession'] =

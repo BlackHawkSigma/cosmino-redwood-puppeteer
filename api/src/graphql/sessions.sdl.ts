@@ -1,7 +1,7 @@
 export const schema = gql`
   type ActiveSession {
     id: String!
-    username: String!
+    user: User!
     terminal: String!
     busy: Boolean
     focused: Boolean

@@ -16,14 +16,18 @@ import Buchung from 'src/components/Buchung'
 const CREATE_SESSION = gql`
   mutation CreateSessionMutation($input: CreateActiveSessionInput!) {
     createActiveSession(input: $input) {
-      username
+      user {
+        name
+      }
     }
   }
 `
 const KILL_SESSION = gql`
   mutation KillSessionMutation($username: String!) {
     deleteActiveSession(username: $username) {
-      username
+      user {
+        name
+      }
     }
   }
 `

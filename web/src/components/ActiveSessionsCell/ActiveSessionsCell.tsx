@@ -10,7 +10,10 @@ export const QUERY = gql`
     activeSessions {
       id
       terminal
-      user: username
+      user {
+        id
+        name
+      }
       busy
       focused
       src: lastSuccessImgUrl
@@ -87,7 +90,7 @@ export const Success = ({
                 <img src={session.src} alt="letze scannung" />
               )}
 
-              <LastFiveLogsByUserCell username={session.user} key={terminal} />
+              <LastFiveLogsByUserCell userId={session.user.id} key={terminal} />
             </div>
           ) : (
             <div key={terminal}></div>

@@ -8,6 +8,7 @@ export const schema = gql`
   }
 
   type Query {
-    lastFiveLogsByUser(username: String!): [BuchungsLog!]! @skipAuth
+    lastFiveLogsByUser(userId: Int!): [BuchungsLog!]! @skipAuth
+    successCount(userId: Int!): Int @skipAuth
   }
 `

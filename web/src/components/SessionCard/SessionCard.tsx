@@ -3,7 +3,9 @@ import { useMutation } from '@redwoodjs/web'
 import { QUERY as SessionsQuery } from 'src/components/SessionsCell'
 
 type SessionCardProps = {
-  user: string
+  user: {
+    name: string
+  }
   busy?: boolean
 }
 
@@ -15,14 +17,14 @@ const KILL_SESSION_MUTUTAION = gql`
 
 const SessionCard = ({ user, busy }: SessionCardProps) => {
   const [killSession] = useMutation(KILL_SESSION_MUTUTAION, {
-    variables: { username: user },
+    variables: { username: user.name },
     refetchQueries: [{ query: SessionsQuery }],
   })
 
   return (
     <div className="h-20 rounded p-2 shadow-md">
       <div className="flex items-baseline justify-between">
-        <p className="text-xl">{user}</p>
+        <p className="text-xl">{user.name}</p>
         <button
           title="Cosmino Sitzung Beenden"
           className="ml-4 px-2 font-mono font-bold"

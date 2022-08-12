@@ -36,7 +36,7 @@ export const createContextWithUser = async ({
   if (!browser || !browser.isConnected()) {
     browser = await puppeteer.launch({
       headless,
-      slowMo: 20,
+      slowMo: 10,
       defaultViewport: { width: 1280, height: 720 },
     })
     puppeteerLogger.info('gestartet')
@@ -197,6 +197,7 @@ export const createBuchungWithUser = async ({
         'button#bttlist_actwfl888'
       )) as HandleFor<HTMLButtonElement>
       await ioButton.click()
+      await page.waitForNetworkIdle()
 
       contexts.set(username, { ...contexts.get(username), busy: false })
       return { type: 'success', message: label, imageUrl }

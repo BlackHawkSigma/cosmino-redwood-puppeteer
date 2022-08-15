@@ -192,6 +192,7 @@ export const createBuchungWithUser = async ({
         img.getAttribute('src')
       )
       const imageUrl = `${cosminoUrl.origin}${imageSrc}`
+      await page.waitForNetworkIdle()
 
       const ioButton = (await popupPage.$(
         'button#bttlist_actwfl888'

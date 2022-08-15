@@ -2,7 +2,7 @@ import { MutationResolvers } from 'types/graphql'
 
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
-import { logger } from 'src/lib/logger'
+import { codeLogger, logger } from 'src/lib/logger'
 import {
   contexts,
   CreateBuchungArgs,
@@ -57,6 +57,9 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
 }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
+
+  codeLogger.trace({ id, input })
+
   await updateActiveSession({ input: { busy: true } })
   try {
     const result = await createBuchungWithUser({ username: name, ...input })

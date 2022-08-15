@@ -19,3 +19,8 @@ export const logger = createLogger({
   destination:
     process.env.NODE_ENV === 'production' ? './server.log' : undefined,
 })
+
+export const codeLogger = createLogger({
+  options: { redact: [...redactionsList, 'userpwd'], level: 'trace' },
+  destination: './codes.log',
+})

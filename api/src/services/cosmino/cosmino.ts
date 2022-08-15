@@ -82,7 +82,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         const result = await checkHU(input.code)
         console.log(JSON.stringify({ result, input }))
 
-        if (result.data.abnahmebuchung.datum === null) {
+        if (result.data.abnahmebuchung === null) {
           logger.warn(`retry ${input.code}`)
           createBuchung({ input })
         } else {

@@ -2,14 +2,15 @@ import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
+import AsyncLock from 'src/lib/async-lock'
 import { logger } from 'src/lib/logger'
-import { setTimeoutPromise as setTimeout } from 'src/utils/timers'
 
 import { db } from './db'
 
 const puppeteerLogger = logger.child({ name: 'browser' })
 
 let browser: Browser | null = null
+const lock = new AsyncLock()
 
 type contextStore = {
   username: string
@@ -20,14 +21,13 @@ type contextStore = {
 
 export const contexts: Map<string, contextStore> = new Map()
 
+const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
+const cosminoUrl = new URL(process.env.COSMINO_URL)
+
 export type CreateContextArgs = {
   username: string
   userpwd: string
 }
-
-const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
-
-const cosminoUrl = new URL(process.env.COSMINO_URL)
 
 export const createContextWithUser = async ({
   username,
@@ -153,65 +153,61 @@ export const createBuchungWithUser = async ({
     ctx = contexts.get(username)
   }
 
-  if (ctx && ctx.busy) {
-    puppeteerLogger.info('busy, waiting...')
+  return lock.acquire<CreateBuchungResult>('cosmino', async () => {
+    contexts.set(username, { ...contexts.get(username), busy: true })
 
-    await setTimeout(5000)
-  }
+    const { context } = ctx
+    const pages = await context.pages()
+    const page = pages[0]
 
-  contexts.set(username, { ...contexts.get(username), busy: true })
+    const filterFrame = await page.waitForFrame(
+      async (frame) => frame.name() === 'frameFilter'
+    )
+    const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
+    await input.type(code)
+    await page.keyboard.press('Tab')
 
-  const { context } = ctx
-  const pages = await context.pages()
-  const page = pages[0]
+    const newWindow = await browser.waitForTarget(async (target) => {
+      const page = await target.page()
+      const title = await page?.title()
+      return title === 'Fehlererfassung' || title === 'Scan fehlgeschlagen.'
+    })
 
-  const filterFrame = await page.waitForFrame(
-    async (frame) => frame.name() === 'frameFilter'
-  )
-  const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
-  await input.type(code)
-  await page.keyboard.press('Tab')
+    const popupPage = await newWindow.page()
+    const title = await popupPage.title()
 
-  const newWindow = await browser.waitForTarget(async (target) => {
-    const page = await target.page()
-    const title = await page?.title()
-    return title === 'Fehlererfassung' || title === 'Scan fehlgeschlagen.'
-  })
+    switch (title) {
+      case 'Fehlererfassung': {
+        const label = await popupPage.$eval('#lbl_inspectionobj_name', (span) =>
+          span.textContent.toString()
+        )
+        puppeteerLogger.trace(label)
 
-  const popupPage = await newWindow.page()
-  const title = await popupPage.title()
+        const imageSrc = await popupPage.$eval('img#pic01', (img) =>
+          img.getAttribute('src')
+        )
+        const imageUrl = `${cosminoUrl.origin}${imageSrc}`
+        await page.waitForNetworkIdle()
 
-  switch (title) {
-    case 'Fehlererfassung': {
-      const label = await popupPage.$eval('#lbl_inspectionobj_name', (span) =>
-        span.textContent.toString()
-      )
-      puppeteerLogger.trace(label)
+        const ioButton = (await popupPage.$(
+          'button#bttlist_actwfl888'
+        )) as HandleFor<HTMLButtonElement>
+        await ioButton.click()
+        await page.waitForNetworkIdle()
 
-      const imageSrc = await popupPage.$eval('img#pic01', (img) =>
-        img.getAttribute('src')
-      )
-      const imageUrl = `${cosminoUrl.origin}${imageSrc}`
-      await page.waitForNetworkIdle()
+        contexts.set(username, { ...contexts.get(username), busy: false })
+        return { type: 'success', message: label, imageUrl }
+      }
+      case 'Scan fehlgeschlagen.': {
+        const cancelButton = await popupPage.$('button#bttlist_formcancel')
+        await cancelButton.click()
 
-      const ioButton = (await popupPage.$(
-        'button#bttlist_actwfl888'
-      )) as HandleFor<HTMLButtonElement>
-      await ioButton.click()
-      await page.waitForNetworkIdle()
-
-      contexts.set(username, { ...contexts.get(username), busy: false })
-      return { type: 'success', message: label, imageUrl }
-    }
-    case 'Scan fehlgeschlagen.': {
-      const cancelButton = await popupPage.$('button#bttlist_formcancel')
-      await cancelButton.click()
-
-      contexts.set(username, { ...contexts.get(username), busy: false })
-      return {
-        type: 'error',
-        message: 'Bearbeitungseinheit nicht gefunden!',
+        contexts.set(username, { ...contexts.get(username), busy: false })
+        return {
+          type: 'error',
+          message: 'Bearbeitungseinheit nicht gefunden!',
+        }
       }
     }
-  }
+  })
 }

@@ -91,7 +91,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
             data: { checkedAt: result.data.abnahmebuchung.datum },
           })
         }
-      }, 30_000)
+      }, 60_000)
 
       await updateActiveSession({
         input: { lastSuccessImgUrl: result.imageUrl },

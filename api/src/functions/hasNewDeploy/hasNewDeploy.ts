@@ -2,8 +2,6 @@ import { readFile } from 'fs/promises'
 
 import type { APIGatewayEvent, Context } from 'aws-lambda'
 
-import { logger } from 'src/lib/logger'
-
 /**
  * The handler function is your code that processes http request events.
  * You can use return and throw to send a response or error, respectively.
@@ -21,8 +19,6 @@ import { logger } from 'src/lib/logger'
  * function, and execution environment.
  */
 export const handler = async (_event: APIGatewayEvent, _context: Context) => {
-  logger.info('Invoked hasNewDeploy function')
-
   return {
     statusCode: 200,
     headers: {

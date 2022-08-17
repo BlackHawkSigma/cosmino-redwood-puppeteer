@@ -16,8 +16,6 @@ import {
   updateActiveSession,
 } from 'src/services/sessions/'
 
-import { checkHU } from '../checkHU/checkHU'
-
 export const sessions = () => {
   return [...contexts.entries()]
     .sort((a, b) => +a[0] - +b[0])
@@ -78,21 +76,6 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     })
 
     if (result.type === 'success') {
-      setTimeout(async () => {
-        const result = await checkHU(input.code)
-        console.log(JSON.stringify({ result, input }))
-
-        if (result.data.abnahmebuchung === null) {
-          logger.warn(`retry ${input.code}`)
-          createBuchung({ input })
-        } else {
-          await db.log.update({
-            where: { id: log.id },
-            data: { checkedAt: result.data.abnahmebuchung.datum },
-          })
-        }
-      }, 60_000)
-
       await updateActiveSession({
         input: { lastSuccessImgUrl: result.imageUrl },
       })

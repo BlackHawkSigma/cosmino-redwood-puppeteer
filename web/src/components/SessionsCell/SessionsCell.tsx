@@ -29,7 +29,7 @@ export const Success = ({ sessions }: CellSuccessProps<SessionsQuery>) => {
   return (
     <div className="flex justify-around">
       {sessions.map((session) => {
-        return <SessionCard key={session.user} {...session} />
+        return <SessionCard key={session.user} user={{ name: session.user }} />
       })}
     </div>
   )

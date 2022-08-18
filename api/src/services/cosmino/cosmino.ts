@@ -22,7 +22,9 @@ export const sessions = () => {
     .sort((a, b) => +a[0] - +b[0])
     .map((session) => {
       const username = session[0]
-      const { busy } = session[1]
+
+      // todo: remove
+      const busy = false
 
       return {
         user: username,

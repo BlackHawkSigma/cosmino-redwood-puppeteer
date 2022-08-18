@@ -15,7 +15,6 @@ const lock = new AsyncLock()
 type contextStore = {
   username: string
   userpwd: string
-  busy: boolean
   context: BrowserContext
 }
 
@@ -48,7 +47,7 @@ export const createContextWithUser = async ({
   }
 
   const context = await browser.createIncognitoBrowserContext()
-  contexts.set(username, { username, userpwd, busy: true, context })
+  contexts.set(username, { username, userpwd, context })
 
   // context.on('targetdestroyed', () => contexts.delete(username))
 
@@ -83,7 +82,7 @@ export const createContextWithUser = async ({
       }
     )
     await mainFrame.waitForSelector('#bttlistnav_actItemLookUp')
-    puppeteerLogger.info('... angemeldet')
+    puppeteerLogger.info(`... ${username} angemeldet`)
 
     await Promise.all([
       mainFrame.click('#bttlistnav_actItemLookUp'),
@@ -95,8 +94,6 @@ export const createContextWithUser = async ({
     )
     await filterFrame.waitForSelector('#txtOpWorkItemNo')
     puppeteerLogger.info('bereit für Eingabe')
-
-    contexts.set(username, { ...contexts.get(username), busy: false })
 
     return true
   } catch (err) {
@@ -154,8 +151,6 @@ export const createBuchungWithUser = async ({
   }
 
   return lock.acquire<CreateBuchungResult>('cosmino', async () => {
-    contexts.set(username, { ...contexts.get(username), busy: true })
-
     const { context } = ctx
     const pages = await context.pages()
     const page = pages[0]
@@ -194,14 +189,12 @@ export const createBuchungWithUser = async ({
         )) as HandleFor<HTMLButtonElement>
         await ioButton.click()
 
-        contexts.set(username, { ...contexts.get(username), busy: false })
         return { type: 'success', message: label, imageUrl }
       }
       case 'Scan fehlgeschlagen.': {
         const cancelButton = await popupPage.$('button#bttlist_formcancel')
         await cancelButton.click()
 
-        contexts.set(username, { ...contexts.get(username), busy: false })
         return {
           type: 'error',
           message: 'Bearbeitungseinheit nicht gefunden!',

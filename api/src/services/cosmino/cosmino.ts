@@ -1,5 +1,6 @@
 import { MutationResolvers } from 'types/graphql'
 
+import AsyncLock from 'src/lib/async-lock'
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
@@ -52,64 +53,69 @@ type CreateBuchungInput = {
   input: CreateBuchungArgs & { terminal: string }
 }
 
+const userLock = new AsyncLock()
+
 export const createBuchung: MutationResolvers['createBuchung'] = async ({
   input,
 }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
 
-  await updateActiveSession({ input: { busy: true } })
-  try {
-    const result = await createBuchungWithUser({ username: name, ...input })
-    const { message, type } = result
+  return userLock.acquire(name, async () => {
+    await updateActiveSession({ input: { busy: true } })
 
-    const log = await db.log.create({
-      data: {
-        userId: id,
-        terminal: input.terminal,
-        code: input.code,
-        type,
-        message,
-      },
-    })
+    try {
+      const result = await createBuchungWithUser({ username: name, ...input })
+      const { message, type } = result
 
-    if (result.type === 'success') {
-      await updateActiveSession({
-        input: { lastSuccessImgUrl: result.imageUrl },
+      const log = await db.log.create({
+        data: {
+          userId: id,
+          terminal: input.terminal,
+          code: input.code,
+          type,
+          message,
+        },
       })
-    } else {
-      await updateActiveSession({ input: { lastSuccessImgUrl: null } })
-    }
 
-    return {
-      ...result,
-      id: log.id,
-      code: input.code,
-      timestamp: log.createdAt.toISOString(),
-    }
-  } catch (error) {
-    logger.error(error)
+      if (result.type === 'success') {
+        await updateActiveSession({
+          input: { lastSuccessImgUrl: result.imageUrl },
+        })
+      } else {
+        await updateActiveSession({ input: { lastSuccessImgUrl: null } })
+      }
 
-    await updateActiveSession({ input: { lastSuccessImgUrl: null } })
-
-    const log = await db.log.create({
-      data: {
-        userId: id,
-        terminal: input.terminal,
+      return {
+        ...result,
+        id: log.id,
         code: input.code,
-        type: 'error',
-        message: error.message,
-      },
-    })
+        timestamp: log.createdAt.toISOString(),
+      }
+    } catch (error) {
+      logger.error(error)
 
-    return {
-      id: log.id,
-      code: input.code,
-      timestamp: log.createdAt.toISOString(),
-      type: 'error',
-      message: 'Fehlgeschlagen. Bitte erneut scannen!',
+      await updateActiveSession({ input: { lastSuccessImgUrl: null } })
+
+      const log = await db.log.create({
+        data: {
+          userId: id,
+          terminal: input.terminal,
+          code: input.code,
+          type: 'error',
+          message: error.message,
+        },
+      })
+
+      return {
+        id: log.id,
+        code: input.code,
+        timestamp: log.createdAt.toISOString(),
+        type: 'error',
+        message: 'Fehlgeschlagen. Bitte erneut scannen!',
+      }
+    } finally {
+      await updateActiveSession({ input: { busy: false } })
     }
-  } finally {
-    await updateActiveSession({ input: { busy: false } })
-  }
+  })
 }

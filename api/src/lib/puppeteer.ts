@@ -193,7 +193,6 @@ export const createBuchungWithUser = async ({
           'button#bttlist_actwfl888'
         )) as HandleFor<HTMLButtonElement>
         await ioButton.click()
-        await page.waitForNetworkIdle()
 
         contexts.set(username, { ...contexts.get(username), busy: false })
         return { type: 'success', message: label, imageUrl }

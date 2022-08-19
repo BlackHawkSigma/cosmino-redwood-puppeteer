@@ -188,12 +188,14 @@ export const createBuchungWithUser = async ({
           'button#bttlist_actwfl888'
         )) as HandleFor<HTMLButtonElement>
         await ioButton.click()
+        await page.waitForNetworkIdle()
 
         return { type: 'success', message: label, imageUrl }
       }
       case 'Scan fehlgeschlagen.': {
         const cancelButton = await popupPage.$('button#bttlist_formcancel')
         await cancelButton.click()
+        await page.waitForNetworkIdle()
 
         return {
           type: 'error',

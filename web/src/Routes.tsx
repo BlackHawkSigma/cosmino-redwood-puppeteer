@@ -27,6 +27,8 @@ const Routes = () => {
 
       <Route path="/login" page={LoginPage} name="login" prerender />
       <Route path="/signup" page={SignupPage} name="signup" prerender />
+      <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
+      <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
 
       <Route notfound page={NotFoundPage} />
     </Router>

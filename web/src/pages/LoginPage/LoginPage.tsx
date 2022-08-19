@@ -118,6 +118,10 @@ const LoginPage = () => {
                     >
                       {loading ? 'anmeldung läuft' : 'anmelden'}
                     </Submit>
+
+                    <Link to={routes.forgotPassword()} className="rw-button ">
+                      neues Passwort
+                    </Link>
                   </div>
                 </Form>
               </div>

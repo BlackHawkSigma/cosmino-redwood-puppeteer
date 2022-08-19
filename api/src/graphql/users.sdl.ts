@@ -3,6 +3,7 @@ export const schema = gql`
     id: Int!
     name: String!
     settings: UserSettings!
+    password: String!
   }
 
   type Query {
@@ -13,6 +14,7 @@ export const schema = gql`
   input UpdateUserInput {
     name: String
     showSuccessCounter: Boolean
+    password: String
   }
 
   type Mutation {

@@ -10,6 +10,7 @@ import {
   Form,
   FormError,
   Label,
+  PasswordField,
   Submit,
 } from '@redwoodjs/forms'
 import { CellSuccessProps, CellFailureProps, useMutation } from '@redwoodjs/web'
@@ -20,6 +21,7 @@ export const QUERY = gql`
     user(id: $userId) {
       id
       name
+      password
       settings {
         showSuccessCounter
       }
@@ -37,9 +39,7 @@ const UPDATE_SETTINGS_MUTATION = gql`
   }
 `
 
-export const Loading = () => <div>Loading...</div>
-
-export const Empty = () => <div>Empty</div>
+export const Loading = () => <div>Lade Einstellungen...</div>
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error.message}</div>
@@ -83,6 +83,7 @@ export const Success = ({ user }: CellSuccessProps<SettingsQuery>) => {
                   className="rw-input"
                   errorClassName="rw-input rw-input-error"
                   defaultChecked={user.settings.showSuccessCounter}
+                  disabled={loading}
                 />
                 <FieldError
                   name="showSuccessCounter"
@@ -96,6 +97,23 @@ export const Success = ({ user }: CellSuccessProps<SettingsQuery>) => {
                   Zähler auf Monitor anzeigen
                 </Label>
               </div>
+
+              <Label
+                name="password"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Cosmino Passwort
+              </Label>
+              <PasswordField
+                name="password"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                defaultValue={user.password}
+                disabled={loading}
+              />
+
+              <FieldError name="password" className="rw-field-error" />
 
               <Submit
                 disabled={loading}

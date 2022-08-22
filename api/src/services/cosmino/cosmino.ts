@@ -11,10 +11,8 @@ import {
   createContextWithUser,
   killContextWithUser,
 } from 'src/lib/puppeteer'
-import {
-  deleteActiveSession,
-  updateActiveSession,
-} from 'src/services/sessions/'
+
+import { unclaimTerminal, updateTerminal } from '../terminal'
 
 export const sessions = () => {
   return [...contexts.entries()]
@@ -41,10 +39,11 @@ export const createSession = ({ input }: CreateSessionInput) => {
 }
 
 type KillSessionInput = {
+  id: number
   username: string
 }
-export const killSession = async ({ username }: KillSessionInput) => {
-  await deleteActiveSession({ username })
+export const killSession = async ({ id, username }: KillSessionInput) => {
+  await unclaimTerminal({ id })
   return killContextWithUser(username)
 }
 
@@ -58,7 +57,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
 
-  await updateActiveSession({ input: { busy: true } })
+  await updateTerminal({ id: input.terminal, input: { busy: true } })
   try {
     const result = await createBuchungWithUser({ username: name, ...input })
     const { message, type } = result
@@ -74,11 +73,15 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     })
 
     if (result.type === 'success') {
-      await updateActiveSession({
+      await updateTerminal({
+        id: input.terminal,
         input: { lastSuccessImgUrl: result.imageUrl },
       })
     } else {
-      await updateActiveSession({ input: { lastSuccessImgUrl: null } })
+      await updateTerminal({
+        id: input.terminal,
+        input: { lastSuccessImgUrl: null },
+      })
     }
 
     return {
@@ -90,7 +93,10 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
   } catch (error) {
     logger.error(error)
 
-    await updateActiveSession({ input: { lastSuccessImgUrl: null } })
+    await updateTerminal({
+      id: input.terminal,
+      input: { lastSuccessImgUrl: null },
+    })
 
     const log = await db.log.create({
       data: {
@@ -110,6 +116,6 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
       message: 'Fehlgeschlagen. Bitte erneut scannen!',
     }
   } finally {
-    await updateActiveSession({ input: { busy: false } })
+    await updateTerminal({ id: input.terminal, input: { busy: false } })
   }
 }

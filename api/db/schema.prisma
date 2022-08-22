@@ -18,7 +18,7 @@ model User {
   resetTokenExpiresAt DateTime?
   userRoles           UserRolesOnUser[]
   logs                Log[]
-  session             Session?
+  terminal            Terminal?
 
   // Settings
   showSuccessCounter Boolean @default(true)
@@ -52,17 +52,14 @@ model Log {
 }
 
 model Terminal {
+  id   Int    @id
   name String @unique
-}
 
-model Session {
-  user              User     @relation(fields: [userId], references: [id])
-  userId            Int      @unique
-  terminal          String
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?  @unique
+
   busy              Boolean
   focused           Boolean
   lastSuccessImgUrl String?
-  createdAt         DateTime @default(now())
-
-  @@id([userId, terminal])
+  loggedInAt        DateTime?
 }

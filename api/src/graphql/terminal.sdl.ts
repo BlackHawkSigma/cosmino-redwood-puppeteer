@@ -1,5 +1,6 @@
 export const schema = gql`
   type Terminal {
+    id: String!
     name: String!
   }
 

@@ -9,6 +9,7 @@ import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 export const QUERY = gql`
   query TerminalsQuery {
     terminals {
+      id
       name
     }
   }
@@ -41,10 +42,10 @@ export const Success = ({ terminals }: CellSuccessProps<TerminalsQuery>) => {
       </div>
 
       <div className="flex flex-col gap-4 p-2 ">
-        {terminals.map(({ name: terminal }) => {
+        {terminals.map(({ name: terminal, id }) => {
           return (
             <Link
-              key={terminal}
+              key={id}
               className="rounded border bg-slate-300 px-4 py-2 text-center text-xl"
               onClick={checked ? () => setTerminal(terminal) : null}
               to={routes.buchen({ terminal })}

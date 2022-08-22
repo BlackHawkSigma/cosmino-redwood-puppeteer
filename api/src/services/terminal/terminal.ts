@@ -2,8 +2,12 @@ import type { QueryResolvers } from 'types/graphql'
 
 import { db } from 'src/lib/db'
 
-export const terminals: QueryResolvers['terminals'] = () => {
-  return db.terminal.findMany({ orderBy: { name: 'asc' } })
+export const terminals: QueryResolvers['terminals'] = async () => {
+  return db.terminal
+    .findMany({ orderBy: { name: 'asc' } })
+    .then((terminals) =>
+      terminals.map((terminal) => ({ ...terminal, id: terminal.name }))
+    )
 }
 
 // export const terminal: QueryResolvers['terminal'] = ({ name }) => {

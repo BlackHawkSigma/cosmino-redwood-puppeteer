@@ -4,6 +4,7 @@ import { UserInputError } from '@redwoodjs/graphql-server'
 
 import AsyncLock from 'src/lib/async-lock'
 import { logger } from 'src/lib/logger'
+import { setTimeoutPromise } from 'src/utils/timers'
 
 import { db } from './db'
 
@@ -189,6 +190,7 @@ export const createBuchungWithUser = async ({
         )) as HandleFor<HTMLButtonElement>
         await ioButton.click()
         await page.waitForNetworkIdle()
+        await setTimeoutPromise(500)
 
         return { type: 'success', message: label, imageUrl }
       }
@@ -196,6 +198,7 @@ export const createBuchungWithUser = async ({
         const cancelButton = await popupPage.$('button#bttlist_formcancel')
         await cancelButton.click()
         await page.waitForNetworkIdle()
+        await setTimeoutPromise(500)
 
         return {
           type: 'error',

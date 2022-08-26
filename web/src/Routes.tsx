@@ -16,12 +16,12 @@ const Routes = () => {
   return (
     <Router>
       <Route path="/dashboard/{type:string}" page={DashboardPage} name="dashboard" />
+      <Route path="/sessions" page={SessionsPage} name="sessions" />
 
       <Private unauthenticated="login" whileLoadingAuth={() => <WhileLoadingAuth />} wrap={MainLayout}>
         <Route path="/settings" page={SettingsPage} name="settings" />
         <Route path="/terminal" page={TerminalPage} name="terminal" />
         <Route path="/buchen/{terminal:string}" page={BuchenPage} name="buchen" />
-        <Route path="/sessions" page={SessionsPage} name="sessions" />
         <Route path="/" page={HomePage} name="home" />
       </Private>
 

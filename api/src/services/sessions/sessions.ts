@@ -3,6 +3,7 @@ import type { MutationResolvers } from 'types/graphql'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
+import { killContextWithUser } from 'src/lib/puppeteer'
 
 type Session = {
   id: string
@@ -76,7 +77,9 @@ export const updateActiveSession = async ({
 }
 
 export const deleteActiveSession: MutationResolvers['deleteActiveSession'] =
-  () => {
-    const { id: userId } = context.currentUser
-    return db.session.delete({ where: { userId } })
+  async ({ username }) => {
+    const user = await db.user.findUnique({ where: { name: username } })
+    await killContextWithUser(username)
+
+    return db.session.delete({ where: { userId: user.id } })
   }

@@ -47,8 +47,10 @@ type KillSessionInput = {
   username: string
 }
 export const killSession = async ({ username }: KillSessionInput) => {
-  await deleteActiveSession({ username })
-  return killContextWithUser(username)
+  return await Promise.all([
+    deleteActiveSession({ username }),
+    killContextWithUser(username),
+  ])
 }
 
 type CreateBuchungInput = {

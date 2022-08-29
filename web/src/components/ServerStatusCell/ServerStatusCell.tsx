@@ -15,12 +15,16 @@ export const beforeQuery = (props) => {
 }
 
 export const Success = ({
-  serverStatus,
+  serverStatus: { memoryUsage },
 }: CellSuccessProps<ServerStatusQuery>) => {
   return (
-    <div>
+    <div
+      className={
+        memoryUsage >= 0.8 ? 'font-bold text-red-800' : 'text-gray-600'
+      }
+    >
       Server Auslastung{' '}
-      {serverStatus.memoryUsage.toLocaleString('de-DE', {
+      {memoryUsage.toLocaleString('de-DE', {
         style: 'percent',
         maximumFractionDigits: 2,
       })}

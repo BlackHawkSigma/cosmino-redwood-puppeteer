@@ -17,9 +17,9 @@ export const beforeQuery = (props) => {
   return { variables: props, fetchPolicy: 'no-cache', pollInterval: 1_000 }
 }
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = () => <div>Lade...</div>
 
-export const Empty = () => <div>Empty</div>
+export const Empty = () => <div>keine Cosmino Verbindungen aktiv</div>
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error.message}</div>

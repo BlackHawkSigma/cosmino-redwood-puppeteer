@@ -10,9 +10,10 @@ const SessionsPage = () => {
 
       <div className="p-4">
         <h1 className="text-center text-lg">aktive Sitzungen</h1>
-
-        <SessionsCell />
-        <ServerStatusCell />
+        <div className="flex flex-col items-center gap-2 p-4">
+          <SessionsCell />
+          <ServerStatusCell />
+        </div>
       </div>
     </>
   )

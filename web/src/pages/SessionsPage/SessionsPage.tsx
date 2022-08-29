@@ -1,5 +1,6 @@
 import { MetaTags } from '@redwoodjs/web'
 
+import ServerStatusCell from 'src/components/ServerStatusCell'
 import SessionsCell from 'src/components/SessionsCell'
 
 const SessionsPage = () => {
@@ -9,8 +10,10 @@ const SessionsPage = () => {
 
       <div className="p-4">
         <h1 className="text-center text-lg">aktive Sitzungen</h1>
-
-        <SessionsCell />
+        <div className="flex flex-col items-center gap-2 p-4">
+          <SessionsCell />
+          <ServerStatusCell />
+        </div>
       </div>
     </>
   )

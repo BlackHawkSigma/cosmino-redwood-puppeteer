@@ -1,6 +1,7 @@
 import { MetaTags } from '@redwoodjs/web'
 
 import ActiveSessionsCell from 'src/components/ActiveSessionsCell'
+import ServerStatusCell from 'src/components/ServerStatusCell'
 
 const DashboardPage = ({ type }) => {
   const sideOne = type === 'alle' || type === '1'
@@ -9,6 +10,7 @@ const DashboardPage = ({ type }) => {
   return (
     <>
       <MetaTags title={`Übersicht - ${type}`} />
+
       <section className="p-4">
         {sideOne && (
           <div className="mb-4 p-2 shadow-xl">
@@ -23,6 +25,12 @@ const DashboardPage = ({ type }) => {
             <ActiveSessionsCell terminals={['4', '5', '6']} />
           </div>
         )}
+      </section>
+
+      <section className="mt-4 p-4">
+        <div className="flex justify-center">
+          <ServerStatusCell />
+        </div>
       </section>
     </>
   )

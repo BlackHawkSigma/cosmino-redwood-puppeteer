@@ -9,7 +9,7 @@ type SessionCardProps = {
   busy?: boolean
 }
 
-const KILL_SESSION_MUTUTAION = gql`
+export const KILL_SESSION_MUTUTAION = gql`
   mutation KillCosminoSessionMutation($username: String!) {
     killSession(username: $username)
   }

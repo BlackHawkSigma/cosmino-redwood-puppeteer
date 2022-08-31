@@ -41,15 +41,18 @@ export const createSession = ({ input }: CreateSessionInput) => {
   return createContextWithUser(input)
 }
 
-type KillSessionInput = {
-  id: number
-  username: string
-}
-export const killSession = async ({ id, username }: KillSessionInput) => {
-  return await Promise.all([
-    unclaimTerminal({ id }),
+export const killSession: MutationResolvers['killSession'] = async ({
+  username,
+}) => {
+  const user = await db.user.findUnique({ where: { name: username } })
+  const terminal = await db.terminal.findUnique({ where: { userId: user.id } })
+
+  const [unclaimed, killed] = await Promise.all([
+    terminal ? unclaimTerminal({ id: terminal.id }) : Promise.resolve(true),
     killContextWithUser(username),
   ])
+
+  return unclaimed && killed
 }
 
 type CreateBuchungInput = {

@@ -34,11 +34,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   return (
     <>
-      <header className="mb-4 bg-slate-200">
+      <header className="mb-4 bg-slate-200 py-2">
         <nav>
-          <ul className="flex h-10 items-center gap-5 pl-2">
+          <ul className="flex items-center gap-5 pl-2">
             <li>
-              <Link to={routes.home()} className="rw-button rw-button">
+              <Link
+                to={routes.home()}
+                className="rw-button rw-button-green text-xl"
+              >
                 Start
               </Link>
             </li>
@@ -48,9 +51,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <button
                   type="button"
                   onClick={() => killSession()}
-                  className="rw-button rw-button-blue"
+                  className="rw-button rw-button-blue text-xl"
                 >
-                  {currentUser.name} - Abmelden
+                  {currentUser.name} abmelden
                 </button>
               )}
             </li>

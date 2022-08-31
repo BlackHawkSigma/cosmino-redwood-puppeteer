@@ -1,5 +1,6 @@
 import { MutationResolvers } from 'types/graphql'
 
+import AsyncLock from 'src/lib/async-lock'
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
@@ -19,7 +20,9 @@ export const sessions = () => {
     .sort((a, b) => +a[0] - +b[0])
     .map((session) => {
       const username = session[0]
-      const { busy } = session[1]
+
+      // todo: remove
+      const busy = false
 
       return {
         user: username,
@@ -43,13 +46,17 @@ type KillSessionInput = {
   username: string
 }
 export const killSession = async ({ id, username }: KillSessionInput) => {
-  await unclaimTerminal({ id })
-  return killContextWithUser(username)
+  return await Promise.all([
+    unclaimTerminal({ id }),
+    killContextWithUser(username),
+  ])
 }
 
 type CreateBuchungInput = {
   input: CreateBuchungArgs & { terminalId: number }
 }
+
+const userLock = new AsyncLock()
 
 export const createBuchung: MutationResolvers['createBuchung'] = async ({
   input,
@@ -57,65 +64,68 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
 
-  await updateTerminal({ id: input.terminalId, input: { busy: true } })
-  try {
-    const result = await createBuchungWithUser({ username: name, ...input })
-    const { message, type } = result
+  return userLock.acquire(name, async () => {
+    await updateTerminal({ id: input.terminalId, input: { busy: true } })
 
-    const log = await db.log.create({
-      data: {
-        userId: id,
-        terminal: input.terminalId.toString(),
-        code: input.code,
-        type,
-        message,
-      },
-    })
+    try {
+      const result = await createBuchungWithUser({ username: name, ...input })
+      const { message, type } = result
 
-    if (result.type === 'success') {
-      await updateTerminal({
-        id: input.terminalId,
-        input: { lastSuccessImgUrl: result.imageUrl },
+      const log = await db.log.create({
+        data: {
+          userId: id,
+          terminal: input.terminalId.toString(),
+          code: input.code,
+          type,
+          message,
+        },
       })
-    } else {
+
+      if (result.type === 'success') {
+        await updateTerminal({
+          id: input.terminalId,
+          input: { lastSuccessImgUrl: result.imageUrl },
+        })
+      } else {
+        await updateTerminal({
+          id: input.terminalId,
+          input: { lastSuccessImgUrl: null },
+        })
+      }
+
+      return {
+        ...result,
+        id: log.id,
+        code: input.code,
+        timestamp: log.createdAt.toISOString(),
+      }
+    } catch (error) {
+      logger.error(error)
+
       await updateTerminal({
         id: input.terminalId,
         input: { lastSuccessImgUrl: null },
       })
-    }
 
-    return {
-      ...result,
-      id: log.id,
-      code: input.code,
-      timestamp: log.createdAt.toISOString(),
-    }
-  } catch (error) {
-    logger.error(error)
+      const log = await db.log.create({
+        data: {
+          userId: id,
+          terminal: input.terminalId.toString(),
+          code: input.code,
+          type: 'error',
+          message: error.message,
+        },
+      })
 
-    await updateTerminal({
-      id: input.terminalId,
-      input: { lastSuccessImgUrl: null },
-    })
-
-    const log = await db.log.create({
-      data: {
-        userId: id,
-        terminal: input.terminalId.toString(),
+      return {
+        id: log.id,
         code: input.code,
+        timestamp: log.createdAt.toISOString(),
         type: 'error',
-        message: error.message,
-      },
-    })
-
-    return {
-      id: log.id,
-      code: input.code,
-      timestamp: log.createdAt.toISOString(),
-      type: 'error',
-      message: 'Fehlgeschlagen. Bitte erneut scannen!',
+        message: 'Fehlgeschlagen. Bitte erneut scannen!',
+      }
+    } finally {
+      await updateTerminal({ id: input.terminalId, input: { busy: false } })
     }
-  } finally {
-    await updateTerminal({ id: input.terminalId, input: { busy: false } })
-  }
+  })
 }

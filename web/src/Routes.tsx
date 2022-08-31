@@ -19,8 +19,8 @@ const Routes = () => {
 
       <Private unauthenticated="login" whileLoadingAuth={() => <WhileLoadingAuth />} wrap={MainLayout}>
         <Route path="/settings" page={SettingsPage} name="settings" />
-        <Route path="/terminal" page={TerminalPage} name="terminal" />
-        <Route path="/buchen/{terminal:string}" page={BuchenPage} name="buchen" />
+        <Route path="/terminals" page={TerminalsPage} name="terminals" />
+        <Route path="/terminal/{terminal:int}" page={TerminalPage} name="terminal" />
         <Route path="/sessions" page={SessionsPage} name="sessions" />
         <Route path="/" page={HomePage} name="home" />
       </Private>

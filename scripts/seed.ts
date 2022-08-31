@@ -18,7 +18,7 @@ export default async () => {
       '4',
       '5',
       '6',
-    ].map((name) => ({ name }))
+    ].map((name) => ({ id: +name, name, busy: false, focused: false }))
 
     // Note: if using PostgreSQL, using `createMany` to insert multiple records is much faster
     // @see: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#createmany
@@ -33,11 +33,11 @@ export default async () => {
           console.log(record)
         }),
 
-        terminals.map(async ({ name }: Prisma.TerminalCreateArgs['data']) => {
+        terminals.map(async (create: Prisma.TerminalCreateArgs['data']) => {
           const record = await db.terminal.upsert({
-            where: { name },
+            where: { id: create.id },
             update: {},
-            create: { name },
+            create,
           })
           console.log(record)
         }),

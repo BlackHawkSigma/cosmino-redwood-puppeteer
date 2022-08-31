@@ -4,7 +4,8 @@ import { db } from 'src/lib/db'
 
 import { terminalByUserId } from '../terminal'
 
-export const lastFiveLogsByUser: QueryResolvers['lastFiveLogsByUser'] = async ({
+export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = async ({
+  count,
   userId,
 }) => {
   const terminal = await terminalByUserId({ userId })
@@ -18,7 +19,7 @@ export const lastFiveLogsByUser: QueryResolvers['lastFiveLogsByUser'] = async ({
         ],
       },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: count,
     })
     .then((result) =>
       result.map((entry) => ({

@@ -11,6 +11,9 @@ export const QUERY = gql`
     terminals {
       id
       name
+      user {
+        name
+      }
     }
   }
 `
@@ -42,15 +45,17 @@ export const Success = ({ terminals }: CellSuccessProps<TerminalsQuery>) => {
       </div>
 
       <div className="flex flex-col gap-4 p-2 ">
-        {terminals.map(({ name: terminal, id }) => {
+        {terminals.map(({ name: terminal, id, user }) => {
           return (
             <Link
               key={id}
               className="rounded border bg-slate-300 px-4 py-2 text-center text-xl"
               onClick={checked ? () => setTerminal(terminal) : null}
-              to={routes.buchen({ terminal })}
+              to={routes.terminal({ terminal })}
             >
-              {terminal}
+              {user !== undefined
+                ? terminal
+                : `${terminal} belegt durch ${user?.name}`}
             </Link>
           )
         })}

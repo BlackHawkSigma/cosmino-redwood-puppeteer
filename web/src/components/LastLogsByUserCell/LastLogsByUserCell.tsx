@@ -1,6 +1,6 @@
 import type {
-  FindLastFiveLogsByUserQuery,
-  FindLastFiveLogsByUserQueryVariables,
+  FindLastLogsByUserQuery,
+  FindLastLogsByUserQueryVariables,
 } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
@@ -8,8 +8,8 @@ import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 import BuchungLog from 'src/components/BuchungLog'
 
 export const QUERY = gql`
-  query FindLastFiveLogsByUserQuery($userId: Int!) {
-    logs: lastFiveLogsByUser(userId: $userId) {
+  query FindLastLogsByUserQuery($userId: Int!, $count: Int!) {
+    logs: lastLogsByUser(userId: $userId, count: $count) {
       id
       timestamp
       code
@@ -30,7 +30,7 @@ export const Empty = () => <div>noch keine Buchungen vorhanden</div>
 
 export const Failure = ({
   error,
-}: CellFailureProps<FindLastFiveLogsByUserQueryVariables>) => (
+}: CellFailureProps<FindLastLogsByUserQueryVariables>) => (
   <div style={{ color: 'red' }}>Error: {error.message}</div>
 )
 
@@ -38,8 +38,8 @@ export const Success = ({
   logs,
   successCount,
 }: CellSuccessProps<
-  FindLastFiveLogsByUserQuery,
-  FindLastFiveLogsByUserQueryVariables
+  FindLastLogsByUserQuery,
+  FindLastLogsByUserQueryVariables
 >) => {
   return (
     <div className="text-xl">

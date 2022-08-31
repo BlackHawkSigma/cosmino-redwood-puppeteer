@@ -15,8 +15,8 @@ export const schema = gql`
     terminalByUserId(userId: Int!): Terminal! @requireAuth(roles: "user")
   }
 
-  type UpdateTerminalInput {
-    fucused: Boolean
+  input UpdateTerminalInput {
+    focused: Boolean
     busy: Boolean
     lastSuccessImgUrl: String
   }

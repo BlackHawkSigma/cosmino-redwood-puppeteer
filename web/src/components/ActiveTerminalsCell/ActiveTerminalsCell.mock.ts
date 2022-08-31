@@ -1,9 +1,9 @@
 // Define your own mock data here:
 export const standard = (/* vars, { ctx, req } */) => ({
-  activeSessions: [
+  activeTerminals: [
     {
-      id: '1',
-      terminal: '1',
+      id: 1,
+      name: '1',
       user: { id: 1, name: 'John Doe' },
       busy: false,
       focused: true,

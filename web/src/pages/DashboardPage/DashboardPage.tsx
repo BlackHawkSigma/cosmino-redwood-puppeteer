@@ -1,6 +1,6 @@
 import { MetaTags } from '@redwoodjs/web'
 
-import ActiveSessionsCell from 'src/components/ActiveSessionsCell'
+import ActiveTerminalsCell from 'src/components/ActiveTerminalsCell'
 
 const DashboardPage = ({ type }) => {
   const sideOne = type === 'alle' || type === '1'
@@ -13,14 +13,14 @@ const DashboardPage = ({ type }) => {
         {sideOne && (
           <div className="mb-4 p-2 shadow-xl">
             <h1 className="text-center text-lg">Seite 1</h1>
-            <ActiveSessionsCell terminals={['1', '2', '3']} />
+            <ActiveTerminalsCell terminals={['1', '2', '3']} />
           </div>
         )}
 
         {sideTwo && (
           <div className="p-2 shadow-xl">
             <h1 className="text-center text-lg">Seite 2</h1>
-            <ActiveSessionsCell terminals={['4', '5', '6']} />
+            <ActiveTerminalsCell terminals={['4', '5', '6']} />
           </div>
         )}
       </section>

@@ -22,8 +22,8 @@ const HomePage = () => {
             className="rounded bg-blue-300 py-2 px-4"
             to={
               terminal.length > 0
-                ? routes.buchen({ terminal })
-                : routes.terminal()
+                ? routes.terminal({ terminal })
+                : routes.terminals()
             }
           >
             Buchen

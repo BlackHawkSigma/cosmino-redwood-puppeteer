@@ -1,15 +1,15 @@
-import type { ActiveSessionsQuery } from 'types/graphql'
+import type { ActiveTerminalsQuery } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
-import LastFiveLogsByUserCell from 'src/components/LastFiveLogsByUserCell'
+import LastLogsByUserCell from 'src/components/LastLogsByUserCell'
 import SessionCard from 'src/components/SessionCard'
 
 export const QUERY = gql`
-  query ActiveSessionsQuery {
-    activeSessions {
+  query ActiveTerminalsQuery {
+    activeTerminals: terminals {
       id
-      terminal
+      name
       user {
         id
         name
@@ -40,28 +40,31 @@ type SuccessProps = {
 }
 
 export const Success = ({
-  activeSessions,
+  activeTerminals,
   terminals,
-}: CellSuccessProps<ActiveSessionsQuery> & SuccessProps) => {
+}: CellSuccessProps<ActiveTerminalsQuery> & SuccessProps) => {
   return (
     <div>
       <div className="grid grid-cols-3">
         {terminals.map((terminal) => {
-          const session = activeSessions.find(
-            (session) => session.terminal === terminal
+          const activeTerminal = activeTerminals.find(
+            (item) => item.name === terminal && item.user
           )
-          return session ? (
+          return activeTerminal ? (
             <div key={terminal} className="px-2 shadow">
               <p className="text-center text-lg">Terminal {terminal}</p>
               <div
                 className={`rounded-xl border-8 ${
-                  session.focused ? 'border-lime-500' : 'border-red-500'
+                  activeTerminal.focused ? 'border-lime-500' : 'border-red-500'
                 }`}
               >
-                <SessionCard {...session} />
+                <SessionCard
+                  user={activeTerminal.user}
+                  busy={activeTerminal.busy}
+                />
               </div>
 
-              {session.busy && (
+              {activeTerminal.busy && (
                 <div className="flex h-[415px] w-[600px] items-center justify-center">
                   <svg
                     className="animate-spin-slow h-24 w-24 text-blue-700"
@@ -86,11 +89,15 @@ export const Success = ({
                 </div>
               )}
 
-              {!session.busy && session.src && (
-                <img src={session.src} alt="letze scannung" />
+              {!activeTerminal.busy && activeTerminal.src && (
+                <img src={activeTerminal.src} alt="letze scannung" />
               )}
 
-              <LastFiveLogsByUserCell userId={session.user.id} key={terminal} />
+              <LastLogsByUserCell
+                userId={activeTerminal.user?.id}
+                count={5}
+                key={terminal}
+              />
             </div>
           ) : (
             <div key={terminal}></div>

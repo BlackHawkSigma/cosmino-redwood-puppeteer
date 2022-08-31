@@ -24,7 +24,8 @@ export const schema = gql`
   }
 
   input CreateBuchungInput {
-    terminal: String!
+    terminalId: Int!
+    username: String!
     code: String!
   }
 

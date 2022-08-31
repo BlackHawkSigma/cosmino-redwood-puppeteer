@@ -3,7 +3,10 @@ import type { MutationResolvers, QueryResolvers } from 'types/graphql'
 import { db } from 'src/lib/db'
 
 export const terminals: QueryResolvers['terminals'] = () => {
-  return db.terminal.findMany({ orderBy: { name: 'asc' } })
+  return db.terminal.findMany({
+    include: { user: true },
+    orderBy: { name: 'asc' },
+  })
 }
 
 export const terminalById: QueryResolvers['terminalById'] = ({ id }) => {
@@ -26,15 +29,16 @@ export const claimTerminal: MutationResolvers['claimTerminal'] = ({
 }) => {
   return db.terminal.update({
     where: { id },
-    data: { user: { connect: { id: userId } } },
+    data: { user: { connect: { id: userId } }, loggedInAt: new Date() },
   })
 }
 
-export const updateTerminal: MutationResolvers['updateTerminal'] = ({
+export const updateTerminal: MutationResolvers['updateTerminal'] = async ({
   id,
   input,
 }) => {
-  return db.terminal.update({ where: { id }, data: input })
+  const terminal = await db.terminal.update({ where: { id }, data: input })
+  return terminal
 }
 
 export const unclaimTerminal: MutationResolvers['unclaimTerminal'] = ({

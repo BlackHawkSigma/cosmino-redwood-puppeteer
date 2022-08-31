@@ -1,7 +1,7 @@
 import Buchung from './Buchung'
 
 export const generated = () => {
-  return <Buchung terminal="1" />
+  return <Buchung terminalId={1} username="John" />
 }
 
 export default { title: 'Components/Buchung' }

@@ -58,8 +58,8 @@ model Terminal {
   user   User? @relation(fields: [userId], references: [id])
   userId Int?  @unique
 
-  busy              Boolean
-  focused           Boolean
+  busy              Boolean   @default(false)
+  focused           Boolean   @default(false)
   lastSuccessImgUrl String?
   loggedInAt        DateTime?
 }

@@ -2078,6 +2078,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@envelop/response-cache@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@envelop/response-cache@npm:3.2.0"
+  dependencies:
+    "@graphql-tools/utils": ^8.8.0
+    fast-json-stable-stringify: ^2.1.0
+    lru-cache: ^6.0.0
+    tslib: ^2.4.0
+  peerDependencies:
+    "@envelop/core": ^2.6.0
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 251c857bac43b78a2c2e8db76bc0dce6ae783807a627bf4f82c4920bc896370e6fb3c52ba864a1c5b99b16605b678fa752e477b349153c346c1da51411e65050
+  languageName: node
+  linkType: hard
+
 "@envelop/types@npm:2.3.0":
   version: 2.3.0
   resolution: "@envelop/types@npm:2.3.0"
@@ -7257,6 +7272,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "api@workspace:api"
   dependencies:
+    "@envelop/response-cache": ^3.2.0
     "@redwoodjs/api": ^2.2.0
     "@redwoodjs/graphql-server": ^2.2.0
     "@types/async-lock": ^1.1.5
@@ -12224,7 +12240,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-json-stable-stringify@npm:^2.0.0":
+"fast-json-stable-stringify@npm:^2.0.0, fast-json-stable-stringify@npm:^2.1.0":
   version: 2.1.0
   resolution: "fast-json-stable-stringify@npm:2.1.0"
   checksum: 7f081eb0b8a64e0057b3bb03f974b3ef00135fbf36c1c710895cd9300f13c94ba809bb3a81cf4e1b03f6e5285610a61abbd7602d0652de423144dfee5a389c9b

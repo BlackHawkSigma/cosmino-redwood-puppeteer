@@ -1,5 +1,6 @@
 import { MutationResolvers } from 'types/graphql'
 
+import { emitter } from 'src/functions/graphql'
 import AsyncLock from 'src/lib/async-lock'
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
@@ -128,7 +129,8 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         message: 'Fehlgeschlagen. Bitte erneut scannen!',
       }
     } finally {
-      await updateTerminal({ id: input.terminalId, input: { busy: false } })
+      await updateTerminal({ id: input.terminalIdId, input: { busy: false } })
+      emitter.emit('invalidate', { type: 'BuchungsLog' })
     }
   })
 }

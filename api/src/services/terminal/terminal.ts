@@ -1,5 +1,6 @@
 import type { MutationResolvers, QueryResolvers } from 'types/graphql'
 
+import { emitter } from 'src/functions/graphql'
 import { db } from 'src/lib/db'
 
 export const terminals: QueryResolvers['terminals'] = () => {
@@ -38,12 +39,14 @@ export const updateTerminal: MutationResolvers['updateTerminal'] = async ({
   input,
 }) => {
   const terminal = await db.terminal.update({ where: { id }, data: input })
+  emitter.emit('invalidate', { type: 'Terminal', id })
   return terminal
 }
 
 export const unclaimTerminal: MutationResolvers['unclaimTerminal'] = ({
   id,
 }) => {
+  emitter.emit('invalidate', { type: 'BuchungsLog' })
   return db.terminal.update({
     where: { id },
     data: {

@@ -3,8 +3,8 @@ import { useCallback, useState } from 'react'
 import type {
   CreateBuchungMutation,
   CreateBuchungMutationVariables,
-  UpdateActiveSessionMutation,
-  UpdateActiveSessionMutationVariables,
+  UpdateTerminalMutation,
+  UpdateTerminalMutationVariables,
 } from 'types/graphql'
 
 import { FormError } from '@redwoodjs/forms'
@@ -27,9 +27,10 @@ const CREATE_BUCHUNG_MUTATION = gql`
   }
 `
 
-const UPDATE_ACTIVESESSION_MUTATION = gql`
-  mutation UpdateActiveSessionMutation($input: UpdateActiveSessionInput!) {
-    updateActiveSession(input: $input) {
+const UPDATE_TERMINAL_MUTATION = gql`
+  mutation UpdateTerminalMutation($id: Int!, $input: UpdateTerminalInput!) {
+    updateTerminal(id: $id, input: $input) {
+      id
       user {
         name
       }
@@ -38,10 +39,11 @@ const UPDATE_ACTIVESESSION_MUTATION = gql`
 `
 
 type BuchungProps = {
-  terminal: string
+  terminalId: number
+  username: string
 }
 
-const Buchung = ({ terminal }: BuchungProps) => {
+const Buchung = ({ terminalId, username }: BuchungProps) => {
   const [logs, setLogs] = useState<Logs[]>([])
 
   const [createBuchung, { loading, error, data }] = useMutation<
@@ -67,19 +69,20 @@ const Buchung = ({ terminal }: BuchungProps) => {
     },
   })
 
-  const [updateActiveSession] = useMutation<
-    UpdateActiveSessionMutation,
-    UpdateActiveSessionMutationVariables
-  >(UPDATE_ACTIVESESSION_MUTATION)
+  const [updateTerminal] = useMutation<
+    UpdateTerminalMutation,
+    UpdateTerminalMutationVariables
+  >(UPDATE_TERMINAL_MUTATION)
 
   const onSave = (input) => {
-    input = { ...input, terminal }
+    input = { ...input, terminalId, username }
     createBuchung({ variables: { input } })
   }
 
   const onFocusChange = useCallback(
-    (focused) => updateActiveSession({ variables: { input: { focused } } }),
-    [updateActiveSession]
+    (focused) =>
+      updateTerminal({ variables: { id: +terminalId, input: { focused } } }),
+    [terminalId, updateTerminal]
   )
 
   return (

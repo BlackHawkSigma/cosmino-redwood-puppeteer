@@ -8,7 +8,7 @@ import Buchung from './Buchung'
 describe('Buchung', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<Buchung terminal="1" />)
+      render(<Buchung terminalId={1} username="John" />)
     }).not.toThrow()
   })
 })

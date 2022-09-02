@@ -1,12 +1,8 @@
-import { Loading, Empty, Failure, Success } from './SettingsCell'
+import { Loading, Failure, Success } from './SettingsCell'
 import { standard } from './SettingsCell.mock'
 
 export const loading = (args) => {
   return Loading ? <Loading {...args} /> : null
-}
-
-export const empty = (args) => {
-  return Empty ? <Empty {...args} /> : null
 }
 
 export const failure = (args) => {

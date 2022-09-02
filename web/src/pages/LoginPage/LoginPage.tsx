@@ -24,8 +24,8 @@ const LoginPage = () => {
       hasRole('admin')
         ? navigate(routes.home())
         : terminal.length > 0
-        ? navigate(routes.buchen({ terminal }))
-        : navigate(routes.terminal())
+        ? navigate(routes.terminal({ terminal }))
+        : navigate(routes.terminals())
     }
   }, [hasRole, isAuthenticated, terminal])
 

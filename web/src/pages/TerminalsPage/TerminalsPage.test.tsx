@@ -1,14 +1,14 @@
 import { render } from '@redwoodjs/testing/web'
 
-import BuchenPage from './BuchenPage'
+import TerminalsPage from './TerminalsPage'
 
 //   Improve this test with help from the Redwood Testing Doc:
 //   https://redwoodjs.com/docs/testing#testing-pages-layouts
 
-describe('BuchenPage', () => {
+describe('TerminalsPage', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<BuchenPage />)
+      render(<TerminalsPage />)
     }).not.toThrow()
   })
 })

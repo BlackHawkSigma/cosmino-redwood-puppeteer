@@ -1,5 +1,6 @@
-import { Loading, Empty, Failure, Success } from './ActiveSessionsCell'
-import { standard } from './ActiveSessionsCell.mock'
+import { standard } from '../BuchungLog/BuchungLog.mock'
+
+import { Loading, Empty, Failure, Success } from './LastLogsByUserCell'
 
 export const loading = () => {
   return Loading ? <Loading /> : null
@@ -17,4 +18,4 @@ export const success = () => {
   return Success ? <Success {...standard()} /> : null
 }
 
-export default { title: 'Cells/ActiveSessionsCell' }
+export default { title: 'Cells/LastLogsByUserCell' }

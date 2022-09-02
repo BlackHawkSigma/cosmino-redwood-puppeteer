@@ -2,23 +2,24 @@ import type { QueryResolvers } from 'types/graphql'
 
 import { db } from 'src/lib/db'
 
-import { userSession } from '../sessions'
+import { terminalByUserId } from '../terminal'
 
-export const lastFiveLogsByUser: QueryResolvers['lastFiveLogsByUser'] = async ({
+export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = async ({
+  count,
   userId,
 }) => {
-  const session = await userSession({ userId })
+  const terminal = await terminalByUserId({ userId })
 
   return db.log
     .findMany({
       where: {
         AND: [
           { user: { id: userId } },
-          { createdAt: { gte: session.createdAt } },
+          { createdAt: { gte: terminal.loggedInAt } },
         ],
       },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: count,
     })
     .then((result) =>
       result.map((entry) => ({
@@ -41,7 +42,7 @@ type SuccessCountArgs = {
 export const successCount: QueryResolvers['successCount'] = async ({
   userId,
 }: SuccessCountArgs) => {
-  const session = await userSession({ userId })
+  const terminal = await terminalByUserId({ userId })
   const permission = (await db.user.findUnique({ where: { id: userId } }))
     .showSuccessCounter
 
@@ -51,7 +52,7 @@ export const successCount: QueryResolvers['successCount'] = async ({
           AND: [
             { user: { id: userId } },
             { type: 'success' },
-            { createdAt: { gte: session.createdAt } },
+            { createdAt: { gte: terminal.loggedInAt } },
           ],
         },
       })

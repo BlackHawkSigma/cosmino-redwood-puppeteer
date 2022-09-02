@@ -4,11 +4,7 @@ import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 
-const KILL_SESSION_MUTUTAION = gql`
-  mutation KillCosminoSessionMutation($username: String!) {
-    killSession(username: $username)
-  }
-`
+import { KILL_SESSION_MUTUTAION } from 'src/components/SessionCard'
 
 type MainLayoutProps = {
   children?: React.ReactNode

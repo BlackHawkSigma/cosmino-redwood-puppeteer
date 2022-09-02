@@ -4,4 +4,4 @@ export const generated = () => {
   return <TerminalPage />
 }
 
-export default { title: 'Pages/TerminalPage' }
+export default { title: 'Pages/BuchenPage' }

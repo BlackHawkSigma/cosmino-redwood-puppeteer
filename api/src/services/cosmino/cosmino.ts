@@ -129,7 +129,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         message: 'Fehlgeschlagen. Bitte erneut scannen!',
       }
     } finally {
-      await updateTerminal({ id: input.terminalIdId, input: { busy: false } })
+      await updateTerminal({ id: input.terminalId, input: { busy: false } })
       emitter.emit('invalidate', { type: 'BuchungsLog' })
     }
   })

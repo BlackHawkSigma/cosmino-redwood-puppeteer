@@ -15,9 +15,17 @@ import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
+import { useHasNewDeploy } from 'src/hooks/useHasNewDeploy'
+
 const LoginPage = () => {
   const { isAuthenticated, logIn, loading, hasRole } = useAuth()
   const [terminal] = useLocalStorage<string>('terminal', '')
+
+  // Refresh with every new deploy
+  const hasNewDeploy = useHasNewDeploy()
+  useEffect(() => {
+    hasNewDeploy && window.location.reload()
+  }, [hasNewDeploy])
 
   useEffect(() => {
     if (isAuthenticated) {

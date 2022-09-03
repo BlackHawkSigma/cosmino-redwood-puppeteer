@@ -1,9 +1,18 @@
+import { useEffect } from 'react'
+
 import { MetaTags } from '@redwoodjs/web'
 
 import ActiveTerminalsCell from 'src/components/ActiveTerminalsCell'
 import ServerStatusCell from 'src/components/ServerStatusCell'
+import { useHasNewDeploy } from 'src/hooks/useHasNewDeploy'
 
 const DashboardPage = ({ type }) => {
+  // Refresh with every new deploy
+  const hasNewDeploy = useHasNewDeploy()
+  useEffect(() => {
+    hasNewDeploy && window.location.reload()
+  }, [hasNewDeploy])
+
   const sideOne = type === 'alle' || type === '1'
   const sideTwo = type === 'alle' || type === '2'
 

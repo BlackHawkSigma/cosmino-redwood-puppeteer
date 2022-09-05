@@ -7,6 +7,7 @@ export const standard = (/* vars, { ctx, req } */) => ({
       user: { id: 1, name: 'John Doe' },
       busy: false,
       focused: true,
+      src: null,
     },
   ],
   terminals: ['1', '2', '3'],

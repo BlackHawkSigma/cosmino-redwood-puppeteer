@@ -15,6 +15,7 @@ import MainLayout from 'src/layouts/MainLayout'
 const Routes = () => {
   return (
     <Router>
+      <Route path="/fehlende-buchungen" page={MissingDataPage} name="missingData" />
       <Route path="/dashboard/{type:string}" page={DashboardPage} name="dashboard" />
       <Route path="/sessions" page={SessionsPage} name="sessions" />
 

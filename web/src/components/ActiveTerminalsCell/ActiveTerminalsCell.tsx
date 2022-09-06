@@ -22,7 +22,7 @@ export const QUERY = gql`
 `
 
 export const beforeQuery = (props) => {
-  return { variables: props, fetchPolicy: 'no-cache', pollInterval: 2_000 }
+  return { variables: props, fetchPolicy: 'no-cache', pollInterval: 500 }
 }
 
 export const Loading = () => <div>Loading...</div>

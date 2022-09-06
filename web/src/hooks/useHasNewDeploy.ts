@@ -22,7 +22,7 @@ export const useHasNewDeploy = () => {
     }
 
     versionRef.current = version
-  }, 3_000)
+  }, 60_000)
 
   return hasNewDeploy
 }

@@ -24,14 +24,16 @@ export const terminalByUserId: QueryResolvers['terminalByUserId'] = ({
   })
 }
 
-export const claimTerminal: MutationResolvers['claimTerminal'] = ({
+export const claimTerminal: MutationResolvers['claimTerminal'] = async ({
   id,
   userId,
 }) => {
-  return db.terminal.update({
+  const terminal = await db.terminal.update({
     where: { id },
     data: { user: { connect: { id: userId } }, loggedInAt: new Date() },
   })
+  emitter.emit('invalidate', { type: 'Terminal', id })
+  return terminal
 }
 
 export const updateTerminal: MutationResolvers['updateTerminal'] = async ({
@@ -43,11 +45,10 @@ export const updateTerminal: MutationResolvers['updateTerminal'] = async ({
   return terminal
 }
 
-export const unclaimTerminal: MutationResolvers['unclaimTerminal'] = ({
+export const unclaimTerminal: MutationResolvers['unclaimTerminal'] = async ({
   id,
 }) => {
-  emitter.emit('invalidate', { type: 'BuchungsLog' })
-  return db.terminal.update({
+  const terminal = await db.terminal.update({
     where: { id },
     data: {
       user: { disconnect: true },
@@ -57,6 +58,8 @@ export const unclaimTerminal: MutationResolvers['unclaimTerminal'] = ({
       loggedInAt: null,
     },
   })
+  emitter.emit('invalidate', { type: 'Terminal', id })
+  return terminal
 }
 
 // export const createTerminal: MutationResolvers['createTerminal'] = ({

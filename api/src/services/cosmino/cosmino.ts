@@ -16,18 +16,15 @@ import {
 
 import { unclaimTerminal, updateTerminal } from '../terminal'
 
-export const sessions = () => {
+export const cosminoSessions = () => {
   return [...contexts.entries()]
     .sort((a, b) => +a[0] - +b[0])
     .map((session) => {
       const username = session[0]
 
-      // todo: remove
-      const busy = false
-
       return {
+        id: username,
         user: username,
-        busy,
       }
     })
 }

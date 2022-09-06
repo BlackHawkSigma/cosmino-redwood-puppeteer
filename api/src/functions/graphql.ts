@@ -21,6 +21,10 @@ const useResponseCacheParameters: UseResponseCacheParameter = {
   cache,
   includeExtensionMetadata: true,
   session: (context) => String(context.currentUser?.id),
+  ttlPerSchemaCoordinate: {
+    'Query.serverStatus': 1_000,
+    'Query.cosminoSessions': 0,
+  },
 }
 
 export const emitter = new EventEmitter()
@@ -38,7 +42,7 @@ export const handler = createGraphQLHandler({
   getCurrentUser,
   loggerConfig: {
     logger,
-    options: { operationName: true, requestId: true, tracing: true },
+    options: { operationName: true, tracing: true },
   },
   directives,
   sdls,

@@ -1,14 +1,14 @@
-import type { SessionsQuery } from 'types/graphql'
+import type { CosminoSessionsQuery } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
 import SessionCard from 'src/components/SessionCard'
 
 export const QUERY = gql`
-  query SessionsQuery {
-    sessions {
+  query CosminoSessionsQuery {
+    cosminoSessions {
+      id
       user
-      busy
     }
   }
 `
@@ -25,17 +25,13 @@ export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error.message}</div>
 )
 
-export const Success = ({ sessions }: CellSuccessProps<SessionsQuery>) => {
+export const Success = ({
+  cosminoSessions,
+}: CellSuccessProps<CosminoSessionsQuery>) => {
   return (
     <div className="flex justify-around">
-      {sessions.map((session) => {
-        return (
-          <SessionCard
-            key={session.user}
-            user={{ name: session.user }}
-            busy={session.busy}
-          />
-        )
+      {cosminoSessions.map((session) => {
+        return <SessionCard key={session.id} user={{ name: session.user }} />
       })}
     </div>
   )

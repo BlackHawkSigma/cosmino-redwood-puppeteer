@@ -142,7 +142,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
             data: { checkedAt: result.data.abnahmebuchung.datum },
           })
         }
-      }, 60_000)
+      }, 5 * 60_000)
 
       await updateTerminal({ id: input.terminalId, input: { busy: false } })
     }

@@ -35,13 +35,9 @@ export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = async ({
     )
 }
 
-type SuccessCountArgs = {
-  userId: number
-}
-
 export const successCount: QueryResolvers['successCount'] = async ({
   userId,
-}: SuccessCountArgs) => {
+}) => {
   const terminal = await terminalByUserId({ userId })
   const permission = (await db.user.findUnique({ where: { id: userId } }))
     .showSuccessCounter
@@ -58,3 +54,25 @@ export const successCount: QueryResolvers['successCount'] = async ({
       })
     : null
 }
+
+export const missingTransactions: QueryResolvers['missingTransactions'] =
+  async ({ startTime, endTime }) => {
+    return db.log
+      .findMany({
+        include: { user: { select: { name: true } } },
+        where: {
+          AND: [
+            { createdAt: { gte: startTime } },
+            { createdAt: { lt: endTime } },
+            { checkedAt: null },
+          ],
+        },
+      })
+      .then((results) =>
+        results.map((result) => ({
+          ...result,
+          createdAt: result.createdAt.toISOString(),
+          personalnummer: result.user.name,
+        }))
+      )
+  }

@@ -1,3 +1,4 @@
+import { parseISO } from 'date-fns/fp'
 import type { MissingTransactionsQuery } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
@@ -25,10 +26,27 @@ export const Success = ({
   missingTransactions,
 }: CellSuccessProps<MissingTransactionsQuery>) => {
   return (
-    <ul>
-      {missingTransactions.map((item) => {
-        return <li key={item.id}>{JSON.stringify(item)}</li>
-      })}
-    </ul>
+    <div className="p-4">
+      <table className="w-1/2 table-auto">
+        <thead>
+          <tr>
+            <th>Scoop</th>
+            <th>Persnr.</th>
+            <th>Zeitpunkt</th>
+          </tr>
+        </thead>
+        <tbody>
+          {missingTransactions.map((item) => {
+            return (
+              <tr key={item.id}>
+                <td>{item.code}</td>
+                <td>{item.personalnummer}</td>
+                <td>{parseISO(item.createdAt).toLocaleString('de-DE')}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
   )
 }

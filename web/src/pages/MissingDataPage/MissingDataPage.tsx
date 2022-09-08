@@ -16,7 +16,7 @@ const MissingDataPage = () => {
 
   return (
     <>
-      <MetaTags title="MissingData" description="MissingData page" />
+      <MetaTags title="Fehlende Buchungen" description="Fehlende Buchungen" />
 
       <h1>Fehlende Buchungen</h1>
 

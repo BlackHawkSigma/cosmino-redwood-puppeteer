@@ -134,7 +134,6 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
       // Check if HU was registered by Cosmino
       setTimeout(async () => {
         const result = await checkHU(input.code)
-        console.log(JSON.stringify({ result, input }))
 
         if (result.data.abnahmebuchung !== null) {
           await db.log.update({

@@ -49,10 +49,12 @@ export const handler = async (event, context) => {
     // by the `logIn()` function from `useAuth()` in the form of:
     // `{ message: 'Error message' }`
     handler: async (user: User) => {
-      await createContextWithUser({
+      const success = await createContextWithUser({
         username: user.name,
         userpwd: user.password,
       })
+
+      if (!success) throw new Error('Anmeldung bei Cosmino fehlgeschlagen.')
 
       return user
     },

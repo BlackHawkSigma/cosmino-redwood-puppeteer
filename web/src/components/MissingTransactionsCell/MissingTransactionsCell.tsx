@@ -36,15 +36,17 @@ export const Success = ({
           </tr>
         </thead>
         <tbody>
-          {missingTransactions.map((item) => {
-            return (
-              <tr key={item.id}>
-                <td>{item.code}</td>
-                <td>{item.personalnummer}</td>
-                <td>{parseISO(item.createdAt).toLocaleString('de-DE')}</td>
-              </tr>
-            )
-          })}
+          {missingTransactions
+            .filter((item) => item.code.length === 9)
+            .map((item) => {
+              return (
+                <tr key={item.id}>
+                  <td>{item.code}</td>
+                  <td>{item.personalnummer}</td>
+                  <td>{parseISO(item.createdAt).toLocaleString('de-DE')}</td>
+                </tr>
+              )
+            })}
         </tbody>
       </table>
     </div>

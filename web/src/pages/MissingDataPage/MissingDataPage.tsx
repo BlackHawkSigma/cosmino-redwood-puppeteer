@@ -48,7 +48,9 @@ const MissingDataPage = () => {
         </button>
       </div>
 
-      <MissingTransactionsCell startTime={timeSet[0]} endTime={timeSet[1]} />
+      {timeSet.length === 2 && (
+        <MissingTransactionsCell startTime={timeSet[0]} endTime={timeSet[1]} />
+      )}
     </>
   )
 }

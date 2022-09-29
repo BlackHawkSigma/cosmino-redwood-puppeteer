@@ -2,8 +2,8 @@ export const schema = gql`
   type User {
     id: Int!
     name: String!
-    settings: UserSettings!
     password: String!
+    showSuccessCounter: Boolean!
   }
 
   type Query {

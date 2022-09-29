@@ -22,9 +22,7 @@ export const QUERY = gql`
       id
       name
       password
-      settings {
-        showSuccessCounter
-      }
+      showSuccessCounter
     }
   }
 `
@@ -32,9 +30,7 @@ export const QUERY = gql`
 const UPDATE_SETTINGS_MUTATION = gql`
   mutation UpdateSettings($userId: Int!, $input: UpdateUserInput!) {
     updateUser(id: $userId, input: $input) {
-      settings {
-        showSuccessCounter
-      }
+      showSuccessCounter
     }
   }
 `
@@ -82,7 +78,7 @@ export const Success = ({ user }: CellSuccessProps<SettingsQuery>) => {
                   name="showSuccessCounter"
                   className="rw-input"
                   errorClassName="rw-input rw-input-error"
-                  defaultChecked={user.settings.showSuccessCounter}
+                  defaultChecked={user.showSuccessCounter}
                   disabled={loading}
                 />
                 <FieldError

@@ -22,4 +22,5 @@ export const standard = () => ({
       type: 'success',
     },
   ],
+  successCount: 2,
 })

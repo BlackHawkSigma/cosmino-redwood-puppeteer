@@ -8,6 +8,7 @@ export const standard = defineScenario<Prisma.UserCreateArgs>({
         hashedPassword: 'String',
         password: 'String',
         salt: 'String',
+        showSuccessCounter: true,
       },
     },
     two: {
@@ -16,6 +17,7 @@ export const standard = defineScenario<Prisma.UserCreateArgs>({
         hashedPassword: 'String',
         password: 'String',
         salt: 'String',
+        showSuccessCounter: false,
       },
     },
   },

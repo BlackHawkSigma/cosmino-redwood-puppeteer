@@ -7,8 +7,19 @@ export const schema = gql`
     message: String!
   }
 
+  type MissingTransaction {
+    id: Int!
+    code: String!
+    personalnummer: String!
+    createdAt: DateTime!
+  }
+
   type Query {
     lastLogsByUser(userId: Int!, count: Int!): [BuchungsLog!]! @skipAuth
+    missingTransactions(
+      startTime: DateTime!
+      endTime: DateTime!
+    ): [MissingTransaction!]! @skipAuth
     successCount(userId: Int!): Int @skipAuth
   }
 `

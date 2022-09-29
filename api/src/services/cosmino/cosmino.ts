@@ -13,8 +13,8 @@ import {
   createContextWithUser,
   killContextWithUser,
 } from 'src/lib/puppeteer'
-
-import { unclaimTerminal, updateTerminal } from '../terminal'
+import { checkHU } from 'src/services/checkHU'
+import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
 export const cosminoSessions = () => {
   return [...contexts.entries()]
@@ -68,6 +68,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
   return userLock.acquire(name, async () => {
     await updateTerminal({ id: input.terminalId, input: { busy: true } })
 
+    let logId: number = null
     try {
       const result = await createBuchungWithUser({ username: name, ...input })
       const { message, type } = result
@@ -81,6 +82,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
           message,
         },
       })
+      logId = log.id
 
       if (result.type === 'success') {
         await updateTerminal({
@@ -117,6 +119,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
           message: error.message,
         },
       })
+      logId = log.id
 
       return {
         id: log.id,
@@ -126,6 +129,18 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         message: 'Fehlgeschlagen. Bitte erneut scannen!',
       }
     } finally {
+      // Check if HU was registered by Cosmino
+      setTimeout(async () => {
+        const result = await checkHU(input.code)
+
+        if (result.data.abnahmebuchung !== null) {
+          await db.log.update({
+            where: { id: logId },
+            data: { checkedAt: result.data.abnahmebuchung.datum },
+          })
+        }
+      }, 5 * 60_000)
+
       await updateTerminal({ id: input.terminalId, input: { busy: false } })
       emitter.emit('invalidate', { type: 'BuchungsLog' })
     }

@@ -2,7 +2,15 @@ import fetch from 'src/lib/fetch'
 
 const URL = 'http://srfawp0013:9090'
 
-export const checkHU = async (Barcode: string) => {
+type CheckHU = {
+  data: {
+    abnahmebuchung: null | {
+      datum: string
+    }
+  }
+}
+
+export const checkHU = async (Barcode: string): Promise<CheckHU> => {
   // return process.env.NODE_ENV === 'production' ?
   return fetch(URL, {
     method: 'POST',

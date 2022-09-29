@@ -4,6 +4,6 @@ export const standard = (/* vars, { ctx, req } */) => ({
     id: 1,
     name: 'John Doe',
     password: 'secret',
-    settings: { showSuccessCounter: true },
+    showSuccessCounter: true,
   },
 })

@@ -1,8 +1,7 @@
 import { copyFile } from 'fs/promises'
 
+import { db } from 'api/src/lib/db'
 import { subBusinessDays } from 'date-fns'
-
-import { db } from '$api/src/lib/db'
 
 export default async () => {
   // create a backup

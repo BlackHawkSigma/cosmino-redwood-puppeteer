@@ -24,6 +24,7 @@ const useResponseCacheParameters: UseResponseCacheParameter = {
   session: (context) => String(context.currentUser?.id),
   ttlPerSchemaCoordinate: {
     'Query.serverStatus': 1_000,
+    'Query.lastLogsByUser': 2_000,
     'Query.cosminoSessions': 0,
   },
 }

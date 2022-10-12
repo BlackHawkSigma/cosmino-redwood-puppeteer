@@ -3,7 +3,7 @@ import { User } from '@prisma/client'
 import { DbAuthHandler } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
-import { createContextWithUser } from 'src/lib/puppeteer'
+import { createBrowserWithUser } from 'src/lib/puppeteer'
 
 export const handler = async (event, context) => {
   const forgotPasswordOptions = {
@@ -49,9 +49,8 @@ export const handler = async (event, context) => {
     // by the `logIn()` function from `useAuth()` in the form of:
     // `{ message: 'Error message' }`
     handler: async (user: User) => {
-      const success = await createContextWithUser({
+      const success = await createBrowserWithUser({
         username: user.name,
-        userpwd: user.password,
       })
 
       if (!success) throw new Error('Anmeldung bei Cosmino fehlgeschlagen.')

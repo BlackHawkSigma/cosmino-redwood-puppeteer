@@ -1,143 +1,83 @@
-import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
+import puppeteer, { Browser, HandleFor } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
-import { emitter } from 'src/functions/graphql'
-import AsyncLock from 'src/lib/async-lock'
-import { logger } from 'src/lib/logger'
 import { setTimeoutPromise } from 'src/utils/timers'
 
 import { db } from './db'
 
-const puppeteerLogger = logger.child({ name: 'browser' })
-
-let browser: Browser | null = null
-const lock = new AsyncLock()
-
-type contextStore = {
-  username: string
-  userpwd: string
-  context: BrowserContext
-}
-
-export const contexts: Map<string, contextStore> = new Map()
-// export const contexts: Map<string, contextStore> = new Proxy(new Map(), {
-//   get(target, p) {
-//     return Reflect.get(target, p)
-//   },
-//   set(target, name, value) {
-//     emitter.emit('invalidate', { type: 'CosminoSession' })
-//     console.log('CosminoSession updated')
-
-//     return Reflect.set(target, name, value)
-//   },
-// })
+export const browserStore: Map<string, Browser> = new Map()
 
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
 const cosminoUrl = new URL(process.env.COSMINO_URL)
 
-export type CreateContextArgs = {
-  username: string
-  userpwd: string
-}
+export const createBrowserWithUser = async ({ username }): Promise<boolean> => {
+  if (browserStore.get(username)) {
+    return true
+  }
 
-export const createContextWithUser = async ({
-  username,
-  userpwd,
-}: CreateContextArgs): Promise<boolean> => {
-  if (!browser || !browser.isConnected()) {
-    browser = await puppeteer.launch({
+  try {
+    const browser = await puppeteer.launch({
       headless,
       slowMo: 10,
       defaultViewport: { width: 1280, height: 720 },
     })
-    puppeteerLogger.info('gestartet')
 
-    browser.on('disconnected', () => {
-      contexts.clear()
-      emitter.emit('invalidate', { type: 'CosminoSession', id: username })
-    })
-  } else {
-    const ctx = contexts.get(username)
-    if (ctx) return true
-  }
+    const { password } = await db.user.findUnique({ where: { name: username } })
 
-  const context = await browser.createIncognitoBrowserContext()
-  contexts.set(username, { username, userpwd, context })
-  emitter.emit('invalidate', { type: 'CosminoSession', id: username })
-
-  // context.on('targetdestroyed', () => contexts.delete(username))
-
-  try {
-    const page = await context.newPage()
-    await page.goto(process.env.COSMINO_URL)
-    await Promise.all([
-      page.waitForSelector('#username'),
-      page.waitForSelector('#userpwd'),
-    ])
-    puppeteerLogger.info('seite geladen')
+    const page = await browser.newPage()
+    await page.goto(cosminoUrl.toString(), { waitUntil: 'networkidle2' })
+    // await Promise.all([
+    //   page.waitForSelector('#username'),
+    //   page.waitForSelector('#userpwd'),
+    // ])
 
     await page.click('#username')
     await page.type('#username', username)
-    puppeteerLogger.info('name eingetragen')
 
     await page.click('#userpwd')
-    await page.type('#userpwd', userpwd)
-    puppeteerLogger.info('passwort eingetragen')
+    await page.type('#userpwd', password)
 
     await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle2' }),
       page.click('#bttlist_actLogin'),
-      page.waitForNavigation(),
     ])
-    puppeteerLogger.info('anmeldung...')
 
-    // Scann Fenster
     const mainFrame = await page.waitForFrame(
-      async (frame) => frame.name() === 'frameMain',
-      {
-        timeout: 5000,
-      }
+      async (frame) => frame.name() === 'frameMain'
     )
     await mainFrame.waitForSelector('#bttlistnav_actItemLookUp')
-    puppeteerLogger.info(`... ${username} angemeldet`)
 
     await Promise.all([
-      mainFrame.click('#bttlistnav_actItemLookUp'),
       mainFrame.waitForNavigation({ waitUntil: 'networkidle2' }),
+      mainFrame.click('#bttlistnav_actItemLookUp'),
     ])
 
     const filterFrame = await page.waitForFrame(
       async (frame) => frame.name() === 'frameFilter'
     )
     await filterFrame.waitForSelector('#txtOpWorkItemNo')
-    puppeteerLogger.info('bereit für Eingabe')
 
+    browserStore.set(username, browser)
     return true
   } catch (err) {
-    puppeteerLogger.error(err)
-    context.close()
-    contexts.delete(username)
-    emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+    console.error(err)
     return false
   }
 }
 
-export const killContextWithUser = async (
+export const killBrowserWithUser = async (
   username: string
 ): Promise<boolean> => {
-  const ctx = contexts.get(username)
-  if (!ctx) {
-    puppeteerLogger.info('kein context mehr vorhanden')
+  const browser = browserStore.get(username)
+  if (!browser) {
     return true
   }
 
-  const { context } = ctx
   try {
-    await context.close()
-    puppeteerLogger.info('context geschlossen')
+    await browser.close()
   } finally {
-    contexts.delete(username)
-    emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+    browserStore.delete(username)
   }
   return true
 }
@@ -155,74 +95,66 @@ export const createBuchungWithUser = async ({
   username,
   code,
 }: CreateBuchungArgs): Promise<CreateBuchungResult> => {
-  let ctx = contexts.get(username)
+  let browser = browserStore.get(username)
 
-  if (!ctx) {
+  if (!browser) {
     const user = await db.user.findUnique({ where: { name: username } })
     if (!user) throw new UserInputError(`user "${username}" unbekannt`)
-    puppeteerLogger.info('kein context gefunden, starte erneut')
 
-    await createContextWithUser({
-      username: user.name,
-      userpwd: user.password,
-    })
-    ctx = contexts.get(username)
+    await createBrowserWithUser({ username })
+    browser = browserStore.get(username)
   }
 
-  return lock.acquire<CreateBuchungResult>('cosmino', async () => {
-    const { context } = ctx
-    const pages = await context.pages()
-    const page = pages[0]
+  const pages = await browser.pages()
+  const page = pages[1]
 
-    const filterFrame = await page.waitForFrame(
-      async (frame) => frame.name() === 'frameFilter'
-    )
-    const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
-    await input.type(code)
-    await page.keyboard.press('Tab')
+  const filterFrame = await page.waitForFrame(
+    async (frame) => frame.name() === 'frameFilter'
+  )
+  const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
+  await input.type(code)
+  await page.keyboard.press('Tab')
 
-    const newWindow = await browser.waitForTarget(async (target) => {
-      const page = await target.page()
-      const title = await page?.title()
-      return title === 'Fehlererfassung' || title === 'Scan fehlgeschlagen.'
-    })
+  const newWindow = await browser.waitForTarget(async (target) => {
+    const page = await target.page()
+    const title = await page?.title()
+    return title === 'Fehlererfassung' || title === 'Scan fehlgeschlagen.'
+  })
 
-    const popupPage = await newWindow.page()
-    const title = await popupPage.title()
+  const popupPage = await newWindow.page()
+  const title = await popupPage.title()
 
-    switch (title) {
-      case 'Fehlererfassung': {
-        const label = await popupPage.$eval('#lbl_inspectionobj_name', (span) =>
-          span.textContent.toString()
-        )
-        puppeteerLogger.trace(label)
+  switch (title) {
+    case 'Fehlererfassung': {
+      const label = await popupPage.$eval('#lbl_inspectionobj_name', (span) =>
+        span.textContent.toString()
+      )
 
-        const imageSrc = await popupPage.$eval('img#pic01', (img) =>
-          img.getAttribute('src')
-        )
-        const imageUrl = `${cosminoUrl.origin}${imageSrc}`
-        await page.waitForNetworkIdle()
+      const imageSrc = await popupPage.$eval('img#pic01', (img) =>
+        img.getAttribute('src')
+      )
+      const imageUrl = `${cosminoUrl.origin}${imageSrc}`
+      await page.waitForNetworkIdle()
 
-        const ioButton = (await popupPage.$(
-          'button#bttlist_actwfl888'
-        )) as HandleFor<HTMLButtonElement>
-        await ioButton.click()
-        await page.waitForNetworkIdle()
-        await setTimeoutPromise(500)
+      const ioButton = (await popupPage.$(
+        'button#bttlist_actwfl888'
+      )) as HandleFor<HTMLButtonElement>
+      await ioButton.click()
+      await page.waitForNetworkIdle()
+      await setTimeoutPromise(500)
 
-        return { type: 'success', message: label, imageUrl }
-      }
-      case 'Scan fehlgeschlagen.': {
-        const cancelButton = await popupPage.$('button#bttlist_formcancel')
-        await cancelButton.click()
-        await page.waitForNetworkIdle()
-        await setTimeoutPromise(500)
+      return { type: 'success', message: label, imageUrl }
+    }
+    case 'Scan fehlgeschlagen.': {
+      const cancelButton = await popupPage.$('button#bttlist_formcancel')
+      await cancelButton.click()
+      await page.waitForNetworkIdle()
+      await setTimeoutPromise(500)
 
-        return {
-          type: 'error',
-          message: 'Bearbeitungseinheit nicht gefunden!',
-        }
+      return {
+        type: 'error',
+        message: 'Bearbeitungseinheit nicht gefunden!',
       }
     }
-  })
+  }
 }

@@ -14,6 +14,10 @@ export const beforeQuery = (props) => {
   return { variables: props, fetchPolicy: 'no-cache', pollInterval: 30_000 }
 }
 
+export const Failure = () => {
+  return <div className="text-gray-600">Server Auslastung unbekannt</div>
+}
+
 export const Success = ({
   serverStatus: { memoryUsage },
 }: CellSuccessProps<ServerStatusQuery>) => {

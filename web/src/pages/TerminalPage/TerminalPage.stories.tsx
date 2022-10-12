@@ -1,7 +1,13 @@
 import TerminalPage from './TerminalPage'
 
 export const generated = () => {
-  return <TerminalPage />
+  mockCurrentUser({
+    id: 1,
+    name: 'Alice',
+    userRoles: [{ userRole: { id: 1, name: 'user' } }],
+  })
+
+  return <TerminalPage terminal={1} />
 }
 
-export default { title: 'Pages/BuchenPage' }
+export default { title: 'Pages/TerminalPage' }

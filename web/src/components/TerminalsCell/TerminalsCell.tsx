@@ -67,6 +67,7 @@ export const Success = ({ terminals }: CellSuccessProps<TerminalsQuery>) => {
             </Link>
           ) : (
             <button
+              key={id}
               className="rounded border bg-slate-400 px-4 py-2 text-center text-xl"
               onClick={() => handleLogoff(user.name)}
             >

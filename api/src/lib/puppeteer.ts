@@ -2,6 +2,7 @@ import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
+import { emitter } from 'src/functions/graphql'
 import AsyncLock from 'src/lib/async-lock'
 import { logger } from 'src/lib/logger'
 import { setTimeoutPromise } from 'src/utils/timers'
@@ -20,6 +21,17 @@ type contextStore = {
 }
 
 export const contexts: Map<string, contextStore> = new Map()
+// export const contexts: Map<string, contextStore> = new Proxy(new Map(), {
+//   get(target, p) {
+//     return Reflect.get(target, p)
+//   },
+//   set(target, name, value) {
+//     emitter.emit('invalidate', { type: 'CosminoSession' })
+//     console.log('CosminoSession updated')
+
+//     return Reflect.set(target, name, value)
+//   },
+// })
 
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
 const cosminoUrl = new URL(process.env.COSMINO_URL)
@@ -41,7 +53,10 @@ export const createContextWithUser = async ({
     })
     puppeteerLogger.info('gestartet')
 
-    browser.on('disconnected', () => contexts.clear())
+    browser.on('disconnected', () => {
+      contexts.clear()
+      emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+    })
   } else {
     const ctx = contexts.get(username)
     if (ctx) return true
@@ -49,6 +64,7 @@ export const createContextWithUser = async ({
 
   const context = await browser.createIncognitoBrowserContext()
   contexts.set(username, { username, userpwd, context })
+  emitter.emit('invalidate', { type: 'CosminoSession', id: username })
 
   // context.on('targetdestroyed', () => contexts.delete(username))
 
@@ -101,6 +117,7 @@ export const createContextWithUser = async ({
     puppeteerLogger.error(err)
     context.close()
     contexts.delete(username)
+    emitter.emit('invalidate', { type: 'CosminoSession', id: username })
     return false
   }
 }
@@ -120,6 +137,7 @@ export const killContextWithUser = async (
     puppeteerLogger.info('context geschlossen')
   } finally {
     contexts.delete(username)
+    emitter.emit('invalidate', { type: 'CosminoSession', id: username })
   }
   return true
 }

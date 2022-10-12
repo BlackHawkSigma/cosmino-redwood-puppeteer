@@ -13,7 +13,7 @@ type MainLayoutProps = {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { isAuthenticated, currentUser, logOut } = useAuth()
   const [killSession] = useMutation(KILL_SESSION_MUTUTAION, {
-    variables: { username: currentUser.name },
+    variables: { username: currentUser?.name },
     onCompleted: () => logOut(),
     onError: () => logOut(),
   })

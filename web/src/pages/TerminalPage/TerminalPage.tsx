@@ -8,7 +8,7 @@ import type {
 } from 'types/graphql'
 
 import { useAuth } from '@redwoodjs/auth'
-import { Link, routes, useParams } from '@redwoodjs/router'
+import { Link, routes } from '@redwoodjs/router'
 import { MetaTags, useMutation } from '@redwoodjs/web'
 
 import Buchung from 'src/components/Buchung'
@@ -35,14 +35,13 @@ const RELEASE_TERMINAL = gql`
   }
 `
 
-const TerminalPage = () => {
+const TerminalPage = ({ terminal }) => {
   const { currentUser } = useAuth()
-  const { terminal } = useParams()
   const [claim, { data, loading }] = useMutation<
     ClaimTerminalMutation,
     ClaimTerminalMutationVariables
   >(CLAIM_TERMINAL, {
-    variables: { id: +terminal, userId: currentUser.id },
+    variables: { id: +terminal, userId: currentUser?.id },
   })
 
   const [free] = useMutation<
@@ -78,7 +77,9 @@ const TerminalPage = () => {
           </span>
         </h1>
         <div>
-          <Buchung terminalId={+terminal} username={currentUser.name} />
+          {currentUser && (
+            <Buchung terminalId={+terminal} username={currentUser.name} />
+          )}
         </div>
       </div>
     </>

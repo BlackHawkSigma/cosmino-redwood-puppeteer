@@ -1,4 +1,4 @@
-import { render } from '@redwoodjs/testing/web'
+import { render, mockCurrentUser, waitFor } from '@redwoodjs/testing/web'
 
 import TerminalPage from './TerminalPage'
 
@@ -6,9 +6,13 @@ import TerminalPage from './TerminalPage'
 //   https://redwoodjs.com/docs/testing#testing-pages-layouts
 
 describe('BuchenPage', () => {
-  it('renders successfully', () => {
-    expect(() => {
-      render(<TerminalPage />)
-    }).not.toThrow()
+  it('renders successfully', async () => {
+    mockCurrentUser({ id: 1, name: 'Alice' })
+
+    await waitFor(() => {
+      expect(async () => {
+        render(<TerminalPage terminal={1} />)
+      }).not.toThrow()
+    })
   })
 })

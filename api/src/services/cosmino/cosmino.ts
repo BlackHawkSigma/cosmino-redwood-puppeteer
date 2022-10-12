@@ -1,5 +1,6 @@
 import { MutationResolvers } from 'types/graphql'
 
+import { emitter } from 'src/functions/graphql'
 import AsyncLock from 'src/lib/async-lock'
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
@@ -15,18 +16,15 @@ import {
 import { checkHU } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
-export const sessions = () => {
+export const cosminoSessions = () => {
   return [...contexts.entries()]
     .sort((a, b) => +a[0] - +b[0])
     .map((session) => {
       const username = session[0]
 
-      // todo: remove
-      const busy = false
-
       return {
+        id: username,
         user: username,
-        busy,
       }
     })
 }
@@ -144,6 +142,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
       }, 5 * 60_000)
 
       await updateTerminal({ id: input.terminalId, input: { busy: false } })
+      emitter.emit('invalidate', { type: 'BuchungsLog' })
     }
   })
 }

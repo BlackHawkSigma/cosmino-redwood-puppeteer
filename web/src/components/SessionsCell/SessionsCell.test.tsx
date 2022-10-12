@@ -36,7 +36,7 @@ describe('SessionsCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success sessions={standard().sessions} />)
+      render(<Success cosminoSessions={standard().cosminoSessions} />)
     }).not.toThrow()
   })
 })

@@ -21,6 +21,10 @@ export const createBrowserWithUser = async ({ username }): Promise<boolean> => {
       defaultViewport: { width: 1280, height: 720 },
     })
 
+    browser.on('disconnected', () => {
+      browserStore.delete(username)
+    })
+
     const { password } = await db.user.findUnique({ where: { name: username } })
 
     const page = await browser.newPage()

@@ -2,8 +2,6 @@ import puppeteer, { Browser, HandleFor } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
-import { setTimeoutPromise } from 'src/utils/timers'
-
 import { db } from './db'
 
 export const browserStore: Map<string, Browser> = new Map()
@@ -141,7 +139,9 @@ export const createBuchungWithUser = async ({
       )) as HandleFor<HTMLButtonElement>
       await ioButton.click()
       await page.waitForNetworkIdle()
-      await setTimeoutPromise(500)
+      await filterFrame.waitForFunction(
+        'document.querySelector("#lblMessage").innerText.length === 0'
+      )
 
       return { type: 'success', message: label, imageUrl }
     }
@@ -149,7 +149,9 @@ export const createBuchungWithUser = async ({
       const cancelButton = await popupPage.$('button#bttlist_formcancel')
       await cancelButton.click()
       await page.waitForNetworkIdle()
-      await setTimeoutPromise(500)
+      await filterFrame.waitForFunction(
+        'document.querySelector("#lblMessage").innerText.length === 0'
+      )
 
       return {
         type: 'error',

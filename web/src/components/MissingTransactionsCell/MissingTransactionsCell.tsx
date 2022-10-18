@@ -14,9 +14,9 @@ export const QUERY = gql`
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = () => <div>Lade Daten...</div>
 
-export const Empty = () => <div>Empty</div>
+export const Empty = () => <div>Keine Daten gefunden</div>
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error.message}</div>
@@ -30,7 +30,7 @@ export const Success = ({
       <table className="w-1/2 table-auto">
         <thead>
           <tr>
-            <th>Scoop</th>
+            <th>Barcode (HU)</th>
             <th>Persnr.</th>
             <th>Zeitpunkt</th>
           </tr>

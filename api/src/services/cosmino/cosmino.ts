@@ -6,17 +6,18 @@ import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
 import {
-  browserStore,
+  contexts,
   CreateBuchungArgs,
   createBuchungWithUser,
-  createBrowserWithUser,
-  killBrowserWithUser,
+  CreateContextArgs,
+  createContextWithUser,
+  killContextWithUser,
 } from 'src/lib/puppeteer'
 import { checkHU } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
 export const cosminoSessions = () => {
-  return [...browserStore.entries()]
+  return [...contexts.entries()]
     .sort((a, b) => +a[0] - +b[0])
     .map((session) => {
       const username = session[0]
@@ -29,13 +30,13 @@ export const cosminoSessions = () => {
 }
 
 type CreateSessionInput = {
-  input: { username: string }
+  input: CreateContextArgs
 }
 
 export const createSession = ({ input }: CreateSessionInput) => {
   requireAuth({ roles: 'user' })
 
-  return createBrowserWithUser(input)
+  return createContextWithUser(input)
 }
 
 export const killSession: MutationResolvers['killSession'] = async ({
@@ -46,7 +47,7 @@ export const killSession: MutationResolvers['killSession'] = async ({
 
   const [unclaimed, killed] = await Promise.all([
     terminal ? unclaimTerminal({ id: terminal.id }) : Promise.resolve(true),
-    killBrowserWithUser(username),
+    killContextWithUser(username),
   ])
 
   return unclaimed && killed

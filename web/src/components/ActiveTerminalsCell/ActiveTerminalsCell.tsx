@@ -1,28 +1,38 @@
-import type { ActiveTerminalsQuery } from 'types/graphql'
+import type { DashboardQuery } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
-import LastLogsByUserCell from 'src/components/LastLogsByUserCell'
+import BuchungLog from 'src/components/BuchungLog'
 import SessionCard from 'src/components/SessionCard'
 
 export const QUERY = gql`
-  query ActiveTerminalsQuery {
-    activeTerminals: terminals {
-      id
-      name
-      user {
+  query DashboardQuery {
+    dashboard {
+      terminal: Terminal {
         id
         name
+        user {
+          id
+          name
+        }
+        busy
+        focused
+        src: lastSuccessImgUrl
       }
-      busy
-      focused
-      src: lastSuccessImgUrl
+      logs: Logs {
+        id
+        timestamp
+        code
+        message
+        type
+      }
+      successCount
     }
   }
 `
 
 export const beforeQuery = (props) => {
-  return { variables: props, fetchPolicy: 'no-cache', pollInterval: 500 }
+  return { variables: props, fetchPolicy: 'no-cache', pollInterval: 1_000 }
 }
 
 export const Loading = () => <div>Loading...</div>
@@ -40,31 +50,33 @@ type SuccessProps = {
 }
 
 export const Success = ({
-  activeTerminals,
+  dashboard,
   terminals,
-}: CellSuccessProps<ActiveTerminalsQuery> & SuccessProps) => {
+}: CellSuccessProps<DashboardQuery> & SuccessProps) => {
   return (
     <div>
       <div className="grid grid-cols-3">
         {terminals.map((terminal) => {
-          const activeTerminal = activeTerminals.find(
-            (item) => item.name === terminal && item.user
+          const activeTerminal = dashboard.find(
+            (item) => item.terminal.name === terminal && item.terminal.user
           )
           return activeTerminal ? (
             <div key={terminal} className="px-2 shadow">
               <p className="text-center text-lg">Terminal {terminal}</p>
               <div
                 className={`rounded-xl border-8 ${
-                  activeTerminal.focused ? 'border-lime-500' : 'border-red-500'
+                  activeTerminal.terminal.focused
+                    ? 'border-lime-500'
+                    : 'border-red-500'
                 }`}
               >
                 <SessionCard
-                  user={activeTerminal.user}
-                  busy={activeTerminal.busy}
+                  user={activeTerminal.terminal.user}
+                  busy={activeTerminal.terminal.busy}
                 />
               </div>
 
-              {activeTerminal.busy && (
+              {activeTerminal.terminal.busy && (
                 <div className="flex h-[415px] w-[600px] items-center justify-center">
                   <svg
                     className="animate-spin-slow h-24 w-24 text-blue-700"
@@ -89,15 +101,23 @@ export const Success = ({
                 </div>
               )}
 
-              {!activeTerminal.busy && activeTerminal.src && (
-                <img src={activeTerminal.src} alt="letze scannung" />
+              {!activeTerminal.terminal.busy && activeTerminal.terminal.src && (
+                <img src={activeTerminal.terminal.src} alt="letze scannung" />
               )}
 
-              <LastLogsByUserCell
-                userId={activeTerminal.user?.id}
-                count={5}
-                key={terminal}
-              />
+              <div className="text-xl">
+                {activeTerminal.successCount && (
+                  <div className="rounded bg-emerald-50 p-2 text-center text-lg">
+                    {activeTerminal.successCount} erfolgreiche{' '}
+                    {`${
+                      activeTerminal.successCount === 1
+                        ? 'Buchung'
+                        : 'Buchungen'
+                    }`}
+                  </div>
+                )}
+                <BuchungLog logs={activeTerminal.logs} />
+              </div>
             </div>
           ) : (
             <div key={terminal}></div>

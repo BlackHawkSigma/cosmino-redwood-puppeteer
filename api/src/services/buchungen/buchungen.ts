@@ -1,13 +1,13 @@
-import type { QueryResolvers } from 'types/graphql'
+import type { QuerylastLogsByUserArgs, QueryResolvers } from 'types/graphql'
 
 import { db } from 'src/lib/db'
 
 import { terminalByUserId } from '../terminal'
 
-export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = async ({
+export const getLastLogsByUser = async ({
   count,
   userId,
-}) => {
+}: QuerylastLogsByUserArgs) => {
   const terminal = await terminalByUserId({ userId })
 
   return db.log
@@ -35,9 +35,12 @@ export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = async ({
     )
 }
 
-export const successCount: QueryResolvers['successCount'] = async ({
+export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = ({
+  count,
   userId,
-}) => {
+}) => getLastLogsByUser({ count, userId })
+
+export const getSuccessCount = async ({ userId }) => {
   const terminal = await terminalByUserId({ userId })
   const permission = (await db.user.findUnique({ where: { id: userId } }))
     .showSuccessCounter
@@ -54,6 +57,8 @@ export const successCount: QueryResolvers['successCount'] = async ({
       })
     : null
 }
+export const successCount: QueryResolvers['successCount'] = ({ userId }) =>
+  getSuccessCount({ userId })
 
 export const missingTransactions: QueryResolvers['missingTransactions'] =
   async ({ startTime, endTime }) => {

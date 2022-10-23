@@ -3,12 +3,14 @@ import type { MutationResolvers, QueryResolvers } from 'types/graphql'
 import { emitter } from 'src/functions/graphql'
 import { db } from 'src/lib/db'
 
-export const terminals: QueryResolvers['terminals'] = () => {
+export const getTerminals = () => {
   return db.terminal.findMany({
     include: { user: true },
     orderBy: { name: 'asc' },
   })
 }
+
+export const terminals: QueryResolvers['terminals'] = () => getTerminals()
 
 export const terminalById: QueryResolvers['terminalById'] = ({ id }) => {
   return db.terminal.findUnique({

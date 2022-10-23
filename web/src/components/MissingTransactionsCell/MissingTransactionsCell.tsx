@@ -28,7 +28,7 @@ export const Success = ({
   return (
     <div className="p-4">
       <table className="w-1/2 table-auto">
-        <thead>
+        <thead className="text-left">
           <tr>
             <th>Barcode (HU)</th>
             <th>Persnr.</th>

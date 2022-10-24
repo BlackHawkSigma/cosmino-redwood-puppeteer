@@ -1,16 +1,27 @@
+import type { Log } from '@prisma/client'
 import type { QuerylastLogsByUserArgs, QueryResolvers } from 'types/graphql'
 
 import { db } from 'src/lib/db'
+import { terminalByUserId } from 'src/services/terminal'
 
-import { terminalByUserId } from '../terminal'
+type LogsMap = Log & {
+  timestamp: string
+}
+
+const logsMap = new Map<number, LogsMap[]>()
+const successCounterMap = new Map<number, number | null>()
 
 export const getLastLogsByUser = async ({
   count,
   userId,
 }: QuerylastLogsByUserArgs) => {
+  if (logsMap.has(userId)) {
+    return logsMap.get(userId)
+  }
+
   const terminal = await terminalByUserId({ userId })
 
-  return db.log
+  const result = await db.log
     .findMany({
       where: {
         AND: [
@@ -21,18 +32,10 @@ export const getLastLogsByUser = async ({
       orderBy: { createdAt: 'desc' },
       take: count,
     })
-    .then((result) =>
-      result.map((entry) => ({
-        ...entry,
-        message:
-          entry.type === 'success'
-            ? entry.message
-            : entry.message === 'Bearbeitungseinheit nicht gefunden!'
-            ? 'Bearbeitungseinheit nicht gefunden!'
-            : 'Fehlgeschlagen. Bitte erneut scannen!',
-        timestamp: entry.createdAt.toISOString(),
-      }))
-    )
+    .then((result) => result.map(extentResult))
+
+  logsMap.set(userId, result)
+  return result
 }
 
 export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = ({
@@ -41,12 +44,18 @@ export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = ({
 }) => getLastLogsByUser({ count, userId })
 
 export const getSuccessCount = async ({ userId }) => {
+  if (successCounterMap.has(userId)) {
+    console.log(successCounterMap.entries())
+
+    return successCounterMap.get(userId)
+  }
+
   const terminal = await terminalByUserId({ userId })
   const permission = (await db.user.findUnique({ where: { id: userId } }))
     .showSuccessCounter
 
-  return permission
-    ? db.log.count({
+  const result = permission
+    ? await db.log.count({
         where: {
           AND: [
             { user: { id: userId } },
@@ -56,6 +65,10 @@ export const getSuccessCount = async ({ userId }) => {
         },
       })
     : null
+
+  successCounterMap.set(userId, result)
+
+  return result
 }
 export const successCount: QueryResolvers['successCount'] = ({ userId }) =>
   getSuccessCount({ userId })
@@ -81,3 +94,31 @@ export const missingTransactions: QueryResolvers['missingTransactions'] =
         }))
       )
   }
+
+export const updateLogAndCounter = async ({ userId, logId }) => {
+  const log = await db.log
+    .findUnique({ where: { id: logId } })
+    .then(extentResult)
+
+  const currentLogs = logsMap.get(userId) ?? []
+  currentLogs.push(log)
+  logsMap.set(userId, currentLogs.slice(-5))
+
+  const permission = (await db.user.findUnique({ where: { id: userId } }))
+    .showSuccessCounter
+
+  if (permission && log.type === 'success') {
+    successCounterMap.set(userId, (successCounterMap.get(userId) ?? 0) + 1)
+  }
+}
+
+const extentResult = (entry: Log) => ({
+  ...entry,
+  message:
+    entry.type === 'success'
+      ? entry.message
+      : entry.message === 'Bearbeitungseinheit nicht gefunden!'
+      ? 'Bearbeitungseinheit nicht gefunden!'
+      : 'Fehlgeschlagen. Bitte erneut scannen!',
+  timestamp: entry.createdAt.toISOString(),
+})

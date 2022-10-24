@@ -13,6 +13,7 @@ import {
   createContextWithUser,
   killContextWithUser,
 } from 'src/lib/puppeteer'
+import { updateLogAndCounter } from 'src/services/buchungen'
 import { checkHU } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
@@ -142,6 +143,8 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
       }, 5 * 60_000)
 
       await updateTerminal({ id: input.terminalId, input: { busy: false } })
+      await updateLogAndCounter({ userId: id, logId })
+
       emitter.emit('invalidate', { type: 'BuchungsLog' })
     }
   })

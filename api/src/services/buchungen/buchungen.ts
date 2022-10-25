@@ -4,19 +4,37 @@ import type { QuerylastLogsByUserArgs, QueryResolvers } from 'types/graphql'
 import { db } from 'src/lib/db'
 import { terminalByUserId } from 'src/services/terminal'
 
-type LogsMap = Log & {
+type LogWithTimestamp = Log & {
   timestamp: string
 }
+type LogsMap = {
+  created: number
+  logs: LogWithTimestamp[]
+}
 
-const logsMap = new Map<number, LogsMap[]>()
-const successCounterMap = new Map<number, number | null>()
+type SuccessCounterMap = {
+  created: number
+  count: number | null
+}
+
+const logsMap = new Map<number, LogsMap>()
+const successCounterMap = new Map<number, SuccessCounterMap>()
+
+const TTL = 3_600_000
 
 export const getLastLogsByUser = async ({
   count,
   userId,
 }: QuerylastLogsByUserArgs) => {
   if (logsMap.has(userId)) {
-    return logsMap.get(userId)
+    const map = logsMap.get(userId)
+    const now = new Date().valueOf()
+
+    if (now - map.created > TTL) {
+      logsMap.delete(userId)
+    } else {
+      return map.logs
+    }
   }
 
   const terminal = await terminalByUserId({ userId })
@@ -34,7 +52,7 @@ export const getLastLogsByUser = async ({
     })
     .then((result) => result.map(extentResult))
 
-  logsMap.set(userId, result)
+  logsMap.set(userId, { logs: result, created: new Date().valueOf() })
   return result
 }
 
@@ -45,9 +63,14 @@ export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = ({
 
 export const getSuccessCount = async ({ userId }) => {
   if (successCounterMap.has(userId)) {
-    console.log(successCounterMap.entries())
+    const map = successCounterMap.get(userId)
+    const now = new Date().valueOf()
 
-    return successCounterMap.get(userId)
+    if (now - map.created > TTL) {
+      successCounterMap.delete(userId)
+    } else {
+      return map.count
+    }
   }
 
   const terminal = await terminalByUserId({ userId })
@@ -66,7 +89,10 @@ export const getSuccessCount = async ({ userId }) => {
       })
     : null
 
-  successCounterMap.set(userId, result)
+  successCounterMap.set(userId, {
+    count: result,
+    created: new Date().valueOf(),
+  })
 
   return result
 }
@@ -100,15 +126,19 @@ export const updateLogAndCounter = async ({ userId, logId }) => {
     .findUnique({ where: { id: logId } })
     .then(extentResult)
 
-  const currentLogs = logsMap.get(userId) ?? []
+  const currentLogs = logsMap.get(userId).logs ?? []
   currentLogs.push(log)
-  logsMap.set(userId, currentLogs.slice(-5))
+  logsMap.set(userId, {
+    logs: currentLogs.slice(-5),
+    created: new Date().valueOf(),
+  })
 
   const permission = (await db.user.findUnique({ where: { id: userId } }))
     .showSuccessCounter
 
   if (permission && log.type === 'success') {
-    successCounterMap.set(userId, (successCounterMap.get(userId) ?? 0) + 1)
+    const count = (successCounterMap.get(userId).count ?? 0) + 1
+    successCounterMap.set(userId, { count, created: new Date().valueOf() })
   }
 }
 

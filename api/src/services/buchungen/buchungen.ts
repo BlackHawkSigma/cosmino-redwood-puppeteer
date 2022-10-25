@@ -45,8 +45,6 @@ export const lastLogsByUser: QueryResolvers['lastLogsByUser'] = ({
 
 export const getSuccessCount = async ({ userId }) => {
   if (successCounterMap.has(userId)) {
-    console.log(successCounterMap.entries())
-
     return successCounterMap.get(userId)
   }
 

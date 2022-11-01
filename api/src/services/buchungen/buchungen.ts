@@ -126,7 +126,7 @@ export const updateLogAndCounter = async ({ userId, logId }) => {
     .findUnique({ where: { id: logId } })
     .then(extentResult)
 
-  const currentLogs = logsMap.get(userId).logs ?? []
+  const currentLogs = logsMap.get(userId)?.logs ?? []
   currentLogs.push(log)
   logsMap.set(userId, {
     logs: currentLogs.slice(-5),
@@ -137,7 +137,7 @@ export const updateLogAndCounter = async ({ userId, logId }) => {
     .showSuccessCounter
 
   if (permission && log.type === 'success') {
-    const count = (successCounterMap.get(userId).count ?? 0) + 1
+    const count = (successCounterMap.get(userId)?.count ?? 0) + 1
     successCounterMap.set(userId, { count, created: new Date().valueOf() })
   }
 }

@@ -22,6 +22,7 @@ model User {
 
   // Settings
   showSuccessCounter Boolean @default(true)
+  directMode         Boolean @default(false)
 }
 
 model UserRole {

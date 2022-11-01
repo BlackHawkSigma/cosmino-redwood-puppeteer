@@ -4,6 +4,7 @@ export const schema = gql`
     name: String!
     password: String!
     showSuccessCounter: Boolean!
+    directMode: Boolean!
   }
 
   type Query {
@@ -15,6 +16,7 @@ export const schema = gql`
     name: String
     showSuccessCounter: Boolean
     password: String
+    directMode: Boolean
   }
 
   type Mutation {

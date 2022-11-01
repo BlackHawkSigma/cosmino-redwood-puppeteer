@@ -34,10 +34,15 @@ type CreateSessionInput = {
   input: CreateContextArgs
 }
 
-export const createSession = ({ input }: CreateSessionInput) => {
+export const createSession = async ({ input }: CreateSessionInput) => {
   requireAuth({ roles: 'user' })
 
-  return createContextWithUser(input)
+  const { directMode } = await db.user.findUnique({
+    where: { name: input.username },
+  })
+  const type = directMode ? 'direct' : 'popup'
+
+  return createContextWithUser({ ...input, type })
 }
 
 export const killSession: MutationResolvers['killSession'] = async ({

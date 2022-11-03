@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { format, isValid, startOfHour, subMinutes } from 'date-fns'
 import type { StartReruns, StartRerunsVariables } from 'types/graphql'
 
 import { MetaTags, useMutation } from '@redwoodjs/web'
@@ -13,8 +14,8 @@ const RERUN_MUTATION = gql`
 `
 
 const MissingDataPage = () => {
-  const [startTime, setStartTime] = useState<Date>(new Date())
-  const [endTime, setEndTime] = useState<Date>(new Date())
+  const [startTime, setStartTime] = useState<Date>(startOfHour(new Date()))
+  const [endTime, setEndTime] = useState<Date>(subMinutes(new Date(), 5))
   const [nachbuchenIsEnabled, setNachbuchenIsEnabled] = useState(false)
 
   const [timeSet, setTimeSet] = useState([])
@@ -36,6 +37,10 @@ const MissingDataPage = () => {
       },
     })
   }
+
+  const formatToDatetimeLocal = (date: Date): string =>
+    format(date, "yyyy-MM-dd'T'hh:mm")
+
   return (
     <>
       <MetaTags title="Fehlende Buchungen" description="Fehlende Buchungen" />
@@ -43,15 +48,20 @@ const MissingDataPage = () => {
       <section className="container mx-auto pt-6">
         <h1 className="text-xl">Fehlende Buchungen</h1>
 
-        <div className="flex w-72 flex-col">
+        <div className="flex w-72 flex-col gap-2">
           <label className="rw-label">
             Von{' '}
             <input
               type="datetime-local"
               className="rw-input"
-              defaultValue={startTime.toISOString().substring(0, 16)}
-              // @ts-expect-error value does not exist
-              onInput={({ target }) => setStartTime(new Date(target.value))}
+              defaultValue={formatToDatetimeLocal(startTime)}
+              onInput={({ target }) => {
+                // @ts-expect-error value does not exist
+                if (isValid(new Date(target.value))) {
+                  // @ts-expect-error value does not exist
+                  setStartTime(new Date(target.value))
+                }
+              }}
             />
           </label>
           <label className="rw-label">
@@ -59,9 +69,15 @@ const MissingDataPage = () => {
             <input
               type="datetime-local"
               className="rw-input"
-              defaultValue={endTime.toISOString().substring(0, 16)}
-              // @ts-expect-error value does not exist
-              onInput={({ target }) => setEndTime(new Date(target.value))}
+              max={formatToDatetimeLocal(subMinutes(new Date(), 5))}
+              defaultValue={formatToDatetimeLocal(endTime)}
+              onInput={({ target }) => {
+                // @ts-expect-error value does not exist
+                if (isValid(new Date(target.value))) {
+                  // @ts-expect-error value does not exist
+                  setEndTime(new Date(target.value))
+                }
+              }}
             />
           </label>
           <button className="rw-button rw-button-blue" onClick={handleClick}>

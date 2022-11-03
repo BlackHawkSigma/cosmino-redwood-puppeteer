@@ -1,12 +1,21 @@
 import { useState } from 'react'
 
-import { MetaTags } from '@redwoodjs/web'
+import type { StartReruns, StartRerunsVariables } from 'types/graphql'
+
+import { MetaTags, useMutation } from '@redwoodjs/web'
 
 import MissingTransactionsCell from 'src/components/MissingTransactionsCell'
+
+const RERUN_MUTATION = gql`
+  mutation StartReruns($startTime: DateTime!, $endTime: DateTime!) {
+    rerunMissingTransactions(startTime: $startTime, endTime: $endTime)
+  }
+`
 
 const MissingDataPage = () => {
   const [startTime, setStartTime] = useState<Date>(new Date())
   const [endTime, setEndTime] = useState<Date>(new Date())
+  const [nachbuchenIsEnabled, setNachbuchenIsEnabled] = useState(false)
 
   const [timeSet, setTimeSet] = useState([])
 
@@ -14,6 +23,19 @@ const MissingDataPage = () => {
     setTimeSet([startTime.toISOString(), endTime.toISOString()])
   }
 
+  const [mutation, { loading, error }] = useMutation<
+    StartReruns,
+    StartRerunsVariables
+  >(RERUN_MUTATION, {})
+
+  const startRerun = () => {
+    mutation({
+      variables: {
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+      },
+    })
+  }
   return (
     <>
       <MetaTags title="Fehlende Buchungen" description="Fehlende Buchungen" />
@@ -45,9 +67,22 @@ const MissingDataPage = () => {
           <button className="rw-button rw-button-blue" onClick={handleClick}>
             laden
           </button>
+          {nachbuchenIsEnabled && (
+            <button
+              disabled={loading}
+              className="rw-button rw-button-red disabled:pointer-events-none disabled:cursor-not-allowed"
+              onClick={startRerun}
+            >
+              {loading ? 'läuft' : 'nachbuchen'}
+            </button>
+          )}
         </div>
+
+        <div>{error && <span>{error.message}</span>}</div>
+
         {timeSet.length === 2 && (
           <MissingTransactionsCell
+            hasItems={setNachbuchenIsEnabled}
             startTime={timeSet[0]}
             endTime={timeSet[1]}
           />

@@ -1,7 +1,13 @@
+import { useEffect } from 'react'
+
 import { parseISO } from 'date-fns/fp'
 import type { MissingTransactionsQuery } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
+
+type CellProps = {
+  hasItems: (hasItems: boolean) => void
+}
 
 export const QUERY = gql`
   query MissingTransactionsQuery($startTime: DateTime!, $endTime: DateTime!) {
@@ -14,9 +20,17 @@ export const QUERY = gql`
   }
 `
 
-export const Loading = () => <div>Lade Daten...</div>
+export const Loading = ({ hasItems }: CellProps) => {
+  useEffect(() => hasItems(false), [hasItems])
 
-export const Empty = () => <div>Keine Daten gefunden</div>
+  return <div>Lade Daten...</div>
+}
+
+export const Empty = ({ hasItems }: CellFailureProps & CellProps) => {
+  useEffect(() => hasItems(false), [hasItems])
+
+  return <div>Keine Daten gefunden</div>
+}
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error.message}</div>
@@ -24,7 +38,11 @@ export const Failure = ({ error }: CellFailureProps) => (
 
 export const Success = ({
   missingTransactions,
-}: CellSuccessProps<MissingTransactionsQuery>) => {
+  hasItems,
+}: CellSuccessProps<MissingTransactionsQuery> & CellProps) => {
+  useEffect(() => {
+    hasItems(missingTransactions.length > 0)
+  }, [hasItems, missingTransactions])
   return (
     <div className="p-4">
       <table className="w-1/2 table-auto">

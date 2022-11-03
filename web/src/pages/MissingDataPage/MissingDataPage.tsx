@@ -1,7 +1,12 @@
 import { useState } from 'react'
 
 import { format, isValid, startOfHour, subMinutes } from 'date-fns'
-import type { StartReruns, StartRerunsVariables } from 'types/graphql'
+import type {
+  StartReruns,
+  StartRerunsVariables,
+  StartRecheck,
+  StartRecheckVariables,
+} from 'types/graphql'
 
 import { MetaTags, useMutation } from '@redwoodjs/web'
 
@@ -10,6 +15,12 @@ import MissingTransactionsCell from 'src/components/MissingTransactionsCell'
 const RERUN_MUTATION = gql`
   mutation StartReruns($startTime: DateTime!, $endTime: DateTime!) {
     rerunMissingTransactions(startTime: $startTime, endTime: $endTime)
+  }
+`
+
+const RECHECK_MUTATION = gql`
+  mutation StartRecheck($startTime: DateTime!, $endTime: DateTime!) {
+    recheckMissingTransactions(startTime: $startTime, endTime: $endTime)
   }
 `
 
@@ -24,19 +35,25 @@ const MissingDataPage = () => {
     setTimeSet([startTime.toISOString(), endTime.toISOString()])
   }
 
-  const [mutation, { loading, error }] = useMutation<
+  const [rerunMutation, { loading: rerunLoading, error }] = useMutation<
     StartReruns,
     StartRerunsVariables
-  >(RERUN_MUTATION, {})
+  >(RERUN_MUTATION, {
+    variables: {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+    },
+  })
 
-  const startRerun = () => {
-    mutation({
-      variables: {
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-      },
-    })
-  }
+  const [recheckMutation, { loading: recheckLoading }] = useMutation<
+    StartRecheck,
+    StartRecheckVariables
+  >(RECHECK_MUTATION, {
+    variables: {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+    },
+  })
 
   const formatToDatetimeLocal = (date: Date): string =>
     format(date, "yyyy-MM-dd'T'hh:mm")
@@ -85,11 +102,20 @@ const MissingDataPage = () => {
           </button>
           {nachbuchenIsEnabled && (
             <button
-              disabled={loading}
-              className="rw-button rw-button-red disabled:pointer-events-none disabled:cursor-not-allowed"
-              onClick={startRerun}
+              disabled={recheckLoading}
+              className="rw-button rw-button-green disabled:pointer-events-none disabled:cursor-not-allowed"
+              onClick={() => recheckMutation()}
             >
-              {loading ? 'läuft' : 'nachbuchen'}
+              {recheckLoading ? 'läuft' : 'erneut prüfen'}
+            </button>
+          )}
+          {nachbuchenIsEnabled && (
+            <button
+              disabled={rerunLoading}
+              className="rw-button rw-button-red disabled:pointer-events-none disabled:cursor-not-allowed"
+              onClick={() => rerunMutation()}
+            >
+              {rerunLoading ? 'läuft' : 'nachbuchen'}
             </button>
           )}
         </div>

@@ -45,7 +45,7 @@ export const Success = ({
   }, [hasItems, missingTransactions])
   return (
     <div className="p-4">
-      <table className="w-1/2 table-auto">
+      <table className="w-full table-auto">
         <thead className="text-left">
           <tr>
             <th>Barcode (HU)</th>

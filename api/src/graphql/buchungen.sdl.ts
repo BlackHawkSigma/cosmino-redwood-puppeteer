@@ -22,4 +22,13 @@ export const schema = gql`
     ): [MissingTransaction!]! @skipAuth
     successCount(userId: Int!): Int @skipAuth
   }
+
+  type Mutation {
+    rerunMissingTransactions(startTime: DateTime!, endTime: DateTime!): Int!
+      @requireAuth(roles: "admin")
+    recheckMissingTransactions(
+      startTime: DateTime!
+      endTime: DateTime!
+    ): Boolean! @skipAuth
+  }
 `

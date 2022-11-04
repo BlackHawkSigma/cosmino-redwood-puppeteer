@@ -52,6 +52,7 @@ export const handler = async (event, context) => {
       const success = await createContextWithUser({
         username: user.name,
         userpwd: user.password,
+        type: user.directMode ? 'direct' : 'popup',
       })
 
       if (!success) throw new Error('Anmeldung bei Cosmino fehlgeschlagen.')

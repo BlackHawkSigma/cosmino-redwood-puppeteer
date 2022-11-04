@@ -1,7 +1,16 @@
 import type { Log } from '@prisma/client'
-import type { QuerylastLogsByUserArgs, QueryResolvers } from 'types/graphql'
+import type {
+  MutationResolvers,
+  QuerylastLogsByUserArgs,
+  QueryResolvers,
+} from 'types/graphql'
 
+import { emitter } from 'src/functions/graphql'
 import { db } from 'src/lib/db'
+import { logger } from 'src/lib/logger'
+import { createBuchungWithUser, killContextWithUser } from 'src/lib/puppeteer'
+import { checkHU } from 'src/services/checkHU'
+import { cosminoSessions } from 'src/services/cosmino'
 import { terminalByUserId } from 'src/services/terminal'
 
 type LogWithTimestamp = Log & {
@@ -126,7 +135,7 @@ export const updateLogAndCounter = async ({ userId, logId }) => {
     .findUnique({ where: { id: logId } })
     .then(extentResult)
 
-  const currentLogs = logsMap.get(userId).logs ?? []
+  const currentLogs = logsMap.get(userId)?.logs ?? []
   currentLogs.push(log)
   logsMap.set(userId, {
     logs: currentLogs.slice(-5),
@@ -137,7 +146,7 @@ export const updateLogAndCounter = async ({ userId, logId }) => {
     .showSuccessCounter
 
   if (permission && log.type === 'success') {
-    const count = (successCounterMap.get(userId).count ?? 0) + 1
+    const count = (successCounterMap.get(userId)?.count ?? 0) + 1
     successCounterMap.set(userId, { count, created: new Date().valueOf() })
   }
 }
@@ -152,3 +161,74 @@ const extentResult = (entry: Log) => ({
       : 'Fehlgeschlagen. Bitte erneut scannen!',
   timestamp: entry.createdAt.toISOString(),
 })
+
+export const rerunMissingTransactions: MutationResolvers['rerunMissingTransactions'] =
+  async ({ startTime, endTime }) => {
+    const list = await db.log.findMany({
+      include: { user: { select: { name: true } } },
+      where: {
+        AND: [
+          { createdAt: { gte: startTime } },
+          { createdAt: { lt: endTime } },
+          { checkedAt: null },
+        ],
+      },
+    })
+
+    let successCount = 0
+    const aktiveSessions = cosminoSessions()
+
+    for (const item of list) {
+      try {
+        const result = await createBuchungWithUser({
+          username: item.user.name,
+          code: item.code,
+        })
+        if (result.type === 'success') {
+          successCount++
+        }
+      } catch (err) {
+        logger.error(err)
+      }
+    }
+
+    const usedSessions = new Set(list.map((item) => item.user.name))
+
+    for (const session of aktiveSessions) {
+      usedSessions.delete(session.user)
+    }
+
+    for (const username of usedSessions) {
+      killContextWithUser(username)
+    }
+
+    return successCount
+  }
+
+export const recheckMissingTransactions: MutationResolvers['recheckMissingTransactions'] =
+  async ({ startTime, endTime }) => {
+    const list = await db.log.findMany({
+      where: {
+        AND: [
+          { createdAt: { gte: startTime } },
+          { createdAt: { lt: endTime } },
+          { checkedAt: null },
+        ],
+      },
+    })
+
+    for (const item of list) {
+      const result = await checkHU(item.code)
+
+      if (result.data.abnahmebuchung !== null) {
+        await db.log.update({
+          where: { id: item.id },
+          data: { checkedAt: new Date() },
+        })
+      }
+    }
+
+    emitter.emit('invalidate', { type: 'MissingTransaction' })
+
+    return true
+  }

@@ -23,6 +23,7 @@ export const QUERY = gql`
       name
       password
       showSuccessCounter
+      directMode
     }
   }
 `
@@ -30,7 +31,9 @@ export const QUERY = gql`
 const UPDATE_SETTINGS_MUTATION = gql`
   mutation UpdateSettings($userId: Int!, $input: UpdateUserInput!) {
     updateUser(id: $userId, input: $input) {
+      id
       showSuccessCounter
+      directMode
     }
   }
 `
@@ -73,7 +76,7 @@ export const Success = ({ user }: CellSuccessProps<SettingsQuery>) => {
                 listClassName="rw-form-error-list"
               />
 
-              <div className="flex items-baseline justify-start gap-4 rounded bg-slate-100">
+              <div className="flex items-baseline justify-start gap-4 ">
                 <CheckboxField
                   name="showSuccessCounter"
                   className="rw-input"
@@ -87,10 +90,28 @@ export const Success = ({ user }: CellSuccessProps<SettingsQuery>) => {
                 />
                 <Label
                   name="showSuccessCounter"
-                  className="rw-label rounded bg-slate-200 p-4"
+                  className="rw-label"
                   errorClassName="rw-label p-4 rw-label-error"
                 >
                   Zähler auf Monitor anzeigen
+                </Label>
+              </div>
+
+              <div className="flex items-baseline justify-start gap-4 ">
+                <CheckboxField
+                  name="directMode"
+                  className="rw-input"
+                  errorClassName="rw-input rw-input-error"
+                  defaultChecked={user.directMode}
+                  disabled={loading}
+                />
+                <FieldError name="directMode" className="rw-field-error" />
+                <Label
+                  name="directMode"
+                  className="rw-label"
+                  errorClassName="rw-label rw-label-error"
+                >
+                  Direkter Modus
                 </Label>
               </div>
 

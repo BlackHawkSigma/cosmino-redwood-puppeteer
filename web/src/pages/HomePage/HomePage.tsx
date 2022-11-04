@@ -9,7 +9,7 @@ const HomePage = () => {
     <>
       <MetaTags title="Home" description="Home page" />
 
-      <div className="p-4">
+      <div className="container mx-auto">
         <h1 className="text-center text-lg">Übersicht</h1>
         <div className="flex flex-col gap-4 underline">
           <Link
@@ -35,23 +35,32 @@ const HomePage = () => {
           >
             Sessions
           </Link>
+
+          <div className="flex gap-4">
+            <Link
+              className="rounded bg-blue-100 py-2 px-4"
+              to={routes.dashboard({ type: '1' })}
+            >
+              Übersicht Seite 1
+            </Link>
+            <Link
+              className="rounded bg-blue-100 py-2 px-4"
+              to={routes.dashboard({ type: '2' })}
+            >
+              Übersicht Seite 2
+            </Link>
+            <Link
+              className="rounded bg-blue-100 py-2 px-4"
+              to={routes.dashboard({ type: 'alle' })}
+            >
+              Übersicht gesammt
+            </Link>
+          </div>
           <Link
             className="rounded bg-blue-100 py-2 px-4"
-            to={routes.dashboard({ type: '1' })}
+            to={routes.missingData()}
           >
-            Übersicht Seite 1
-          </Link>
-          <Link
-            className="rounded bg-blue-100 py-2 px-4"
-            to={routes.dashboard({ type: '2' })}
-          >
-            Übersicht Seite 2
-          </Link>
-          <Link
-            className="rounded bg-blue-100 py-2 px-4"
-            to={routes.dashboard({ type: 'alle' })}
-          >
-            Übersicht gesammt
+            fehlende Buchungen
           </Link>
         </div>
       </div>

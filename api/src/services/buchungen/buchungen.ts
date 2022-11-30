@@ -175,10 +175,13 @@ export const rerunMissingTransactions: MutationResolvers['rerunMissingTransactio
       },
     })
 
+    // Remove items that can't be valid codes
+    const filteredList = list.filter((item) => item.code.length === 9)
+
     let successCount = 0
     const aktiveSessions = cosminoSessions()
 
-    for (const item of list) {
+    for (const item of filteredList) {
       try {
         const result = await createBuchungWithUser({
           username: item.user.name,

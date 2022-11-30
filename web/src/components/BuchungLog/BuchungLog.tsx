@@ -13,12 +13,14 @@ type BuchenLogProps = {
 }
 
 const BuchungLog = ({ logs }: BuchenLogProps) => {
+  const sortedLogs = logs
+    .map((log) => ({ ...log, date: parseISO(log.timestamp) }))
+    .sort((a, b) => b.date.valueOf() - a.date.valueOf())
+
   return (
     <div className="p-4">
       <ol className="flex flex-col gap-3">
-        {logs.map(({ id, timestamp, code, message, type }) => {
-          const date = parseISO(timestamp)
-
+        {sortedLogs.map(({ id, date, code, message, type }) => {
           return (
             <li
               key={id}

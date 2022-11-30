@@ -43,9 +43,21 @@ export const Success = ({
   useEffect(() => {
     hasItems(missingTransactions.length > 0)
   }, [hasItems, missingTransactions])
+
+  const countValidCodes = missingTransactions.filter(
+    (item) => item.code.length === 9
+  ).length
+  const countInvalidCodes = missingTransactions.filter(
+    (item) => item.code.length !== 9
+  ).length
+
   return (
     <div className="p-4">
       <table className="w-full table-auto">
+        <caption>
+          {countValidCodes} fehlende und {countInvalidCodes} fehlerhafte
+          Buchungen
+        </caption>
         <thead className="text-left">
           <tr>
             <th>Barcode (HU)</th>
@@ -54,17 +66,20 @@ export const Success = ({
           </tr>
         </thead>
         <tbody>
-          {missingTransactions
-            .filter((item) => item.code.length === 9)
-            .map((item) => {
-              return (
-                <tr key={item.id}>
-                  <td>{item.code}</td>
-                  <td>{item.personalnummer}</td>
-                  <td>{parseISO(item.createdAt).toLocaleString('de-DE')}</td>
-                </tr>
-              )
-            })}
+          {missingTransactions.map((item) => {
+            const isInvalid = item.code.length !== 9
+
+            return (
+              <tr
+                key={item.id}
+                className={isInvalid ? 'bg-red-100 text-red-700' : null}
+              >
+                <td>{item.code}</td>
+                <td>{item.personalnummer}</td>
+                <td>{parseISO(item.createdAt).toLocaleString('de-DE')}</td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

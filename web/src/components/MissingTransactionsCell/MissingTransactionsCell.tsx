@@ -40,16 +40,16 @@ export const Success = ({
   missingTransactions,
   hasItems,
 }: CellSuccessProps<MissingTransactionsQuery> & CellProps) => {
-  useEffect(() => {
-    hasItems(missingTransactions.length > 0)
-  }, [hasItems, missingTransactions])
-
   const countValidCodes = missingTransactions.filter(
     (item) => item.code.length === 9
   ).length
   const countInvalidCodes = missingTransactions.filter(
     (item) => item.code.length !== 9
   ).length
+
+  useEffect(() => {
+    hasItems(countValidCodes > 0)
+  }, [countValidCodes, hasItems])
 
   return (
     <div className="p-4">
@@ -72,7 +72,9 @@ export const Success = ({
             return (
               <tr
                 key={item.id}
-                className={isInvalid ? 'bg-red-100 text-red-700' : null}
+                className={`${
+                  isInvalid ? 'bg-red-100 text-red-700' : 'bg-white'
+                } hover:brightness-75`}
               >
                 <td>{item.code}</td>
                 <td>{item.personalnummer}</td>

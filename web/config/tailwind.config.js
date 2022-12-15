@@ -6,6 +6,10 @@ module.exports = {
       animation: {
         'spin-slow': 'spin 3s linear infinite',
       },
+      fontFamily: {
+        comfortaa: 'Comfortaa',
+        franklin: 'Franklin Gothic Book, Libre Franklin',
+      },
     },
   },
   plugins: [],

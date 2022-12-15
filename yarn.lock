@@ -2070,6 +2070,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource/comfortaa@npm:^4.5.10":
+  version: 4.5.10
+  resolution: "@fontsource/comfortaa@npm:4.5.10"
+  checksum: 5a1068caea3637f6fdbf98fe2c3f9823c49b45b522fa29ebc9c23c7a837b70cda7815dc309ee2c1132c534268652f8bcaa1feb279883f749e9b0b7dc7fba81d0
+  languageName: node
+  linkType: hard
+
+"@fontsource/libre-franklin@npm:^4.5.10":
+  version: 4.5.10
+  resolution: "@fontsource/libre-franklin@npm:4.5.10"
+  checksum: 78276b984c5f82884d18630192e6528e2b82b3f297948675e80fb9e98979fbee5265dc58232aabe1dac6a2c5076340c7ef9b99c25a6e380fe2ecab2bf6cce2c6
+  languageName: node
+  linkType: hard
+
 "@gar/promisify@npm:^1.0.1, @gar/promisify@npm:^1.1.3":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -20696,6 +20710,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
+    "@fontsource/comfortaa": ^4.5.10
+    "@fontsource/libre-franklin": ^4.5.10
     "@redwoodjs/core": ^3.0.3
   languageName: unknown
   linkType: soft

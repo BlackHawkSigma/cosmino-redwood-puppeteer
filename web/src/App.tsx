@@ -10,6 +10,9 @@ import Routes from 'src/Routes'
 import './scaffold.css'
 import './index.css'
 
+import '@fontsource/comfortaa'
+import '@fontsource/libre-franklin/300.css'
+
 const App = () => (
   <FatalErrorBoundary page={FatalErrorPage}>
     <RedwoodProvider titleTemplate="%PageTitle | %AppTitle">

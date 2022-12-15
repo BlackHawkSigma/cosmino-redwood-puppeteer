@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
@@ -10,6 +10,12 @@ type MainLayoutProps = {
   children?: React.ReactNode
 }
 
+const REFRESH_SESSION_MUTATION = gql`
+  mutation RefreshCosminoSession($username: String!) {
+    refreshSession(username: $username)
+  }
+`
+
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { isAuthenticated, currentUser, logOut } = useAuth()
   const [killSession] = useMutation(KILL_SESSION_MUTUTAION, {
@@ -17,6 +23,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     onCompleted: () => logOut(),
     onError: () => logOut(),
   })
+  const [refreshSession, { loading: isRefreshing }] = useMutation(
+    REFRESH_SESSION_MUTATION,
+    { variables: { username: currentUser?.name } }
+  )
+  const [isBreak, setIsBreak] = useState(false)
 
   useEffect(() => {
     const onUnload = () => killSession()
@@ -42,21 +53,48 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               </Link>
             </li>
 
-            <li>
-              {isAuthenticated && (
-                <button
-                  type="button"
-                  onClick={() => killSession()}
-                  className="rw-button rw-button-blue text-xl"
-                >
-                  {currentUser.name} abmelden
-                </button>
-              )}
-            </li>
+            {isAuthenticated && (
+              <>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => killSession()}
+                    className="rw-button rw-button-blue text-xl"
+                  >
+                    {currentUser.name} abmelden
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isBreak) {
+                        refreshSession()
+                      }
+                      setIsBreak(!isBreak)
+                    }}
+                    disabled={isRefreshing}
+                    className="rw-button text-xl disabled:pointer-events-none"
+                  >
+                    Pause {isBreak ? 'Beenden' : 'Starten'}
+                  </button>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
       </header>
       <main>{children}</main>
+      {isBreak && (
+        <div className="absolute top-0 bottom-0 left-0 right-0 bg-neutral-800/20 backdrop-blur-lg">
+          <button className="h-full w-full" onClick={() => setIsBreak(false)}>
+            <span className="font-comfortaa block p-8 text-8xl">Pause</span>
+            <span className="font-franklin text-6xl">
+              Bildschirm berühren zum fortfahren
+            </span>
+          </button>
+        </div>
+      )}
     </>
   )
 }

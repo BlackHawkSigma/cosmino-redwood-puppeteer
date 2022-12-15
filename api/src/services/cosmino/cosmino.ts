@@ -59,6 +59,19 @@ export const killSession: MutationResolvers['killSession'] = async ({
   return unclaimed && killed
 }
 
+export const refreshSession: MutationResolvers['refreshSession'] = async ({
+  username,
+}) => {
+  const user = await db.user.findUnique({ where: { name: username } })
+
+  await killContextWithUser(username)
+  return await createContextWithUser({
+    username,
+    userpwd: user.password,
+    type: user.directMode ? 'direct' : 'popup',
+  })
+}
+
 type CreateBuchungInput = {
   input: CreateBuchungArgs & { terminalId: number }
 }

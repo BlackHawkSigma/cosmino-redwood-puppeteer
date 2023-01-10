@@ -1,6 +1,6 @@
 import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
 
-import { UserInputError } from '@redwoodjs/graphql-server'
+import { UserInputError, RedwoodGraphQLError } from '@redwoodjs/graphql-server'
 
 import { emitter } from 'src/functions/graphql'
 import AsyncLock from 'src/lib/async-lock'
@@ -8,6 +8,12 @@ import { logger } from 'src/lib/logger'
 import { setTimeoutPromise } from 'src/utils/timers'
 
 import { db } from './db'
+
+class PuppeteerError extends RedwoodGraphQLError {
+  constructor(message: string, extensions?: Record<string, unknown>) {
+    super(message, extensions)
+  }
+}
 
 const puppeteerLogger = logger.child({ name: 'browser' })
 
@@ -218,110 +224,122 @@ export const createBuchungWithUser = async ({
   switch (ctx.type) {
     case 'popup':
       return lock.acquire<CreateBuchungResult>('cosmino', async () => {
-        const { context } = ctx
-        const pages = await context.pages()
-        const page = pages[0]
+        try {
+          const { context } = ctx
+          const pages = await context.pages()
+          const page = pages[0]
 
-        const filterFrame = await page.waitForFrame(
-          async (frame) => frame.name() === 'frameFilter'
-        )
-        const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
-        await input.type(code)
-        await page.keyboard.press('Tab')
+          const filterFrame = await page.waitForFrame(
+            async (frame) => frame.name() === 'frameFilter'
+          )
+          const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
+          await input.type(code)
+          await page.keyboard.press('Tab')
 
-        const newWindow = await browser.waitForTarget(async (target) => {
-          const page = await target.page()
-          const title = await page?.title()
-          return title === 'Fehlererfassung' || title === 'Scan fehlgeschlagen.'
-        })
-
-        const popupPage = await newWindow.page()
-        const title = await popupPage.title()
-
-        switch (title) {
-          case 'Fehlererfassung': {
-            const label = await popupPage.$eval(
-              '#lbl_inspectionobj_name',
-              (span) => span.textContent.toString()
+          const newWindow = await browser.waitForTarget(async (target) => {
+            const page = await target.page()
+            const title = await page?.title()
+            return (
+              title === 'Fehlererfassung' || title === 'Scan fehlgeschlagen.'
             )
-            puppeteerLogger.trace(label)
+          })
 
-            const imageSrc = await popupPage.$eval('img#pic01', (img) =>
-              img.getAttribute('src')
-            )
-            const imageUrl = `${cosminoUrl.origin}${imageSrc}`
-            await page.waitForNetworkIdle()
+          const popupPage = await newWindow.page()
+          const title = await popupPage.title()
 
-            const ioButton = (await popupPage.$(
-              'button#bttlist_actwfl888'
-            )) as HandleFor<HTMLButtonElement>
-            await ioButton.click()
-            await page.waitForNetworkIdle()
-            await setTimeoutPromise(500)
+          switch (title) {
+            case 'Fehlererfassung': {
+              const label = await popupPage.$eval(
+                '#lbl_inspectionobj_name',
+                (span) => span.textContent.toString()
+              )
+              puppeteerLogger.trace(label)
 
-            return { type: 'success', message: label, imageUrl }
+              const imageSrc = await popupPage.$eval('img#pic01', (img) =>
+                img.getAttribute('src')
+              )
+              const imageUrl = `${cosminoUrl.origin}${imageSrc}`
+              await page.waitForNetworkIdle()
+
+              const ioButton = (await popupPage.$(
+                'button#bttlist_actwfl888'
+              )) as HandleFor<HTMLButtonElement>
+              await ioButton.click()
+              await page.waitForNetworkIdle()
+              await setTimeoutPromise(500)
+
+              return { type: 'success', message: label, imageUrl }
+            }
+            case 'Scan fehlgeschlagen.': {
+              const cancelButton = await popupPage.$(
+                'button#bttlist_formcancel'
+              )
+              await cancelButton.click()
+              await page.waitForNetworkIdle()
+              await setTimeoutPromise(500)
+
+              return {
+                type: 'error',
+                message: 'Bearbeitungseinheit nicht gefunden!',
+              }
+            }
           }
-          case 'Scan fehlgeschlagen.': {
-            const cancelButton = await popupPage.$('button#bttlist_formcancel')
-            await cancelButton.click()
-            await page.waitForNetworkIdle()
-            await setTimeoutPromise(500)
+        } catch (err) {
+          throw new PuppeteerError(JSON.stringify(err))
+        }
+      })
+    case 'direct':
+      return lock.acquire<CreateBuchungResult>('cosmino', async () => {
+        try {
+          const { context } = ctx
+          const pages = await context.pages()
+          const page = pages[0]
+
+          const input = await page.waitForSelector('#txtOpWorkItemNo')
+          await input.type(code)
+          await page.keyboard.press('Tab')
+
+          const nok = async () => {
+            await page.waitForSelector('#scan_visual.scan_visual_red')
+
+            const newWindow = await browser.waitForTarget(async (target) => {
+              const page = await target?.page()
+              const title = await page?.title()
+              return title === 'Scan fehlgeschlagen.'
+            })
+
+            const popupPage = await newWindow?.page()
+
+            const cancelButton = await popupPage?.$('button#bttlist_formcancel')
+            await cancelButton?.click()
+
+            await page?.waitForNetworkIdle()
+            await page?.waitForFunction(
+              'document.querySelector("#lblMessage").innerText.length === 0'
+            )
 
             return {
               type: 'error',
               message: 'Bearbeitungseinheit nicht gefunden!',
             }
           }
-        }
-      })
-    case 'direct':
-      return lock.acquire<CreateBuchungResult>('cosmino', async () => {
-        const { context } = ctx
-        const pages = await context.pages()
-        const page = pages[0]
 
-        const input = await page.waitForSelector('#txtOpWorkItemNo')
-        await input.type(code)
-        await page.keyboard.press('Tab')
-
-        const nok = async () => {
-          await page.waitForSelector('#scan_visual.scan_visual_red')
-
-          const newWindow = await browser.waitForTarget(async (target) => {
-            const page = await target?.page()
-            const title = await page?.title()
-            return title === 'Scan fehlgeschlagen.'
-          })
-
-          const popupPage = await newWindow?.page()
-
-          const cancelButton = await popupPage?.$('button#bttlist_formcancel')
-          await cancelButton?.click()
-
-          await page?.waitForNetworkIdle()
-          await page?.waitForFunction(
-            'document.querySelector("#lblMessage").innerText.length === 0'
-          )
-
-          return {
-            type: 'error',
-            message: 'Bearbeitungseinheit nicht gefunden!',
+          const ok = async () => {
+            await page.waitForSelector('#scan_visual.scan_visual_green')
+            await page.waitForNetworkIdle()
+            await page.waitForFunction(
+              'document.querySelector("#lblMessage").innerText.length === 0'
+            )
+            return {
+              type: 'success',
+              message: code,
+            }
           }
-        }
 
-        const ok = async () => {
-          await page.waitForSelector('#scan_visual.scan_visual_green')
-          await page.waitForNetworkIdle()
-          await page.waitForFunction(
-            'document.querySelector("#lblMessage").innerText.length === 0'
-          )
-          return {
-            type: 'success',
-            message: code,
-          }
+          return Promise.race([nok(), ok()])
+        } catch (err) {
+          throw new PuppeteerError(JSON.stringify(err))
         }
-
-        return Promise.race([nok(), ok()])
       })
     default:
       throw new Error('unknown type')

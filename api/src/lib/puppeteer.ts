@@ -22,17 +22,6 @@ type contextStore = {
 }
 
 export const contexts: Map<string, contextStore> = new Map()
-// export const contexts: Map<string, contextStore> = new Proxy(new Map(), {
-//   get(target, p) {
-//     return Reflect.get(target, p)
-//   },
-//   set(target, name, value) {
-//     emitter.emit('invalidate', { type: 'CosminoSession' })
-//     console.log('CosminoSession updated')
-
-//     return Reflect.set(target, name, value)
-//   },
-// })
 
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
 const cosminoUrl = new URL(process.env.COSMINO_URL)
@@ -52,7 +41,7 @@ export const createContextWithUser = async ({
   if (!browser || !browser.isConnected()) {
     browser = await puppeteer.launch({
       headless,
-      slowMo: 10,
+      slowMo: 5,
       defaultViewport: { width: 1280, height: 720 },
     })
     puppeteerLogger.info('gestartet')
@@ -100,10 +89,8 @@ export const createContextWithUser = async ({
 
         // Scann Fenster
         const mainFrame = await page.waitForFrame(
-          async (frame) => frame.name() === 'frameMain',
-          {
-            timeout: 5000,
-          }
+          (frame) => frame.name() === 'frameMain',
+          { timeout: 5_000 }
         )
         await mainFrame.waitForSelector('#bttlistnav_actItemLookUp')
         puppeteerLogger.info(`... ${username} angemeldet`)
@@ -114,7 +101,7 @@ export const createContextWithUser = async ({
         ])
 
         const filterFrame = await page.waitForFrame(
-          async (frame) => frame.name() === 'frameFilter'
+          (frame) => frame.name() === 'frameFilter'
         )
         await filterFrame.waitForSelector('#txtOpWorkItemNo')
         puppeteerLogger.info('bereit für Eingabe')
@@ -224,15 +211,15 @@ export const createBuchungWithUser = async ({
 
         const pageURL = new URL(page.url())
         const sessionID = pageURL.searchParams.get('sid')
-        console.log({ sessionID })
+        puppeteerLogger.info({ sessionID })
 
         const filterFrame = await page.waitForFrame(
-          async (frame) => frame.name() === 'frameFilter'
+          (frame) => frame.name() === 'frameFilter'
         )
         const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
         await input.type(code)
 
-        const nav = new Promise((res) => browser.on('targetcreated', res))
+        const nav = new Promise<void>((res) => browser.on('targetcreated', res))
 
         await page.keyboard.press('Tab')
 
@@ -264,20 +251,6 @@ export const createBuchungWithUser = async ({
         // &ProcessId=696
         // `
 
-        //     const sid = windowURL.searchParams.get('sid')
-        //     const NotFoundNo = windowURL.searchParams.get('NotFoundNo')
-        //     const WorkItemId = windowURL.searchParams.get('WorkItemId')
-
-        //     console.log({ sid, NotFoundNo, WorkItemId })
-
-        //     return (
-        //       sid?.startsWith(sessionID) &&
-        //       (NotFoundNo !== null || WorkItemId !== null)
-        //     )
-        //   },
-        //   { timeout: 5_000 }
-        // )
-
         const newPages = await context.pages()
 
         const popupPage = newPages.find((page) => {
@@ -287,17 +260,16 @@ export const createBuchungWithUser = async ({
           const NotFoundNo = windowURL.searchParams.get('NotFoundNo')
           const WorkItemId = windowURL.searchParams.get('WorkItemId')
 
-          console.log({ sid, NotFoundNo, WorkItemId })
-
           return (
             sid?.startsWith(sessionID) &&
             (NotFoundNo !== null || WorkItemId !== null)
           )
         })
-        const title = await popupPage.title()
 
+        const title = await popupPage.title()
         switch (title) {
           case 'Fehlererfassung': {
+            await popupPage.waitForSelector('#lbl_inspectionobj_name')
             const label = await popupPage.$eval(
               '#lbl_inspectionobj_name',
               (span) => span.textContent.toString()
@@ -320,6 +292,7 @@ export const createBuchungWithUser = async ({
             return { type: 'success', message: label, imageUrl }
           }
           case 'Scan fehlgeschlagen.': {
+            await popupPage.waitForSelector('button#bttlist_formcancel')
             const cancelButton = await popupPage.$('button#bttlist_formcancel')
             await cancelButton.click()
             await page.waitForNetworkIdle()
@@ -345,6 +318,7 @@ export const createBuchungWithUser = async ({
         const nok = async () => {
           await page.waitForSelector('#scan_visual.scan_visual_red')
 
+          // todo: remove async callback
           const newWindow = await browser.waitForTarget(async (target) => {
             const page = await target?.page()
             const title = await page?.title()

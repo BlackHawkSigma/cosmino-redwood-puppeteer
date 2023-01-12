@@ -109,9 +109,12 @@ export const createContextWithUser = async ({
         return true
       } catch (err) {
         puppeteerLogger.error(err)
-        context.close()
-        contexts.delete(username)
-        emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+        try {
+          await context.close()
+        } finally {
+          contexts.delete(username)
+          emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+        }
         return false
       }
     case 'direct':
@@ -144,9 +147,12 @@ export const createContextWithUser = async ({
         return true
       } catch (err) {
         puppeteerLogger.error(err)
-        context.close()
-        contexts.delete(username)
-        emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+        try {
+          await context.close()
+        } finally {
+          contexts.delete(username)
+          emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+        }
         return false
       }
     default:

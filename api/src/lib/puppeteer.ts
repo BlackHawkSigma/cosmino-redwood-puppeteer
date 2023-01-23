@@ -24,6 +24,7 @@ type contextStore = {
 export const contexts: Map<string, contextStore> = new Map()
 
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
+const slowMo = parseInt(process.env.PUPETEER_BROWSER_SLOWMO ?? '10')
 const cosminoUrl = new URL(process.env.COSMINO_URL)
 const cosminoDirectUrl = new URL(process.env.COSMINO_DIRECT_URL)
 
@@ -41,7 +42,7 @@ export const createContextWithUser = async ({
   if (!browser || !browser.isConnected()) {
     browser = await puppeteer.launch({
       headless,
-      slowMo: 5,
+      slowMo,
       defaultViewport: { width: 1280, height: 720 },
     })
     puppeteerLogger.info('gestartet')

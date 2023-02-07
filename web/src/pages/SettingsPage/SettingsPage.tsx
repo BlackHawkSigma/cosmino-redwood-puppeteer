@@ -1,6 +1,6 @@
-import { useAuth } from '@redwoodjs/auth'
 import { MetaTags } from '@redwoodjs/web'
 
+import { useAuth } from 'src/auth'
 import SettingsCell from 'src/components/SettingsCell'
 
 const SettingsPage = () => {

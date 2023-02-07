@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 
 import { useLocalStorage } from 'usehooks-ts'
 
-import { useAuth } from '@redwoodjs/auth'
 import {
   FieldError,
   Form,
@@ -15,6 +14,7 @@ import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
+import { useAuth } from 'src/auth'
 import { useHasNewDeploy } from 'src/hooks/useHasNewDeploy'
 
 const LoginPage = () => {

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 
+import { useAuth } from 'src/auth'
 import { KILL_SESSION_MUTUTAION } from 'src/components/SessionCard'
 
 type MainLayoutProps = {

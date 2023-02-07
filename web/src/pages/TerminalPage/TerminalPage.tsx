@@ -7,10 +7,10 @@ import type {
   ReleaseTerminalMutationVariables,
 } from 'types/graphql'
 
-import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
 import { MetaTags, useMutation } from '@redwoodjs/web'
 
+import { useAuth } from 'src/auth'
 import Buchung from 'src/components/Buchung'
 
 const CLAIM_TERMINAL = gql`

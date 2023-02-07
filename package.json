@@ -21,9 +21,5 @@
   "prisma": {
     "seed": "yarn rw exec seed"
   },
-  "packageManager": "yarn@3.3.1",
-  "dependencies": {
-    "@fontsource/comfortaa": "^4.5.10",
-    "@fontsource/libre-franklin": "^4.5.10"
-  }
+  "packageManager": "yarn@3.3.1"
 }

@@ -7413,6 +7413,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@whatwg-node/fetch@npm:0.7.0":
+  version: 0.7.0
+  resolution: "@whatwg-node/fetch@npm:0.7.0"
+  dependencies:
+    "@peculiar/webcrypto": ^1.4.0
+    "@whatwg-node/node-fetch": ^0.0.6
+    busboy: ^1.6.0
+    urlpattern-polyfill: ^6.0.2
+    web-streams-polyfill: ^3.2.1
+  checksum: 0ee919bdd1386804e9abd84dceb1fd88ee4d0e9cb8ed858deda44fd4d7b2178c7655aff1c5b858572bc5a80f73c1bbd45d241d5d1302f9679646d646d423e10c
+  languageName: node
+  linkType: hard
+
 "@whatwg-node/fetch@npm:^0.4.0":
   version: 0.4.3
   resolution: "@whatwg-node/fetch@npm:0.4.3"
@@ -7453,6 +7466,19 @@ __metadata:
   peerDependencies:
     "@types/node": ^18.0.6
   checksum: 2a3b372532caabf0b7690f8026a030300467b657f91cbd7efabf07956c4fee742c0d3bd9c8969e53d2d47e66183032b44f4b8525fdea985213e1da5014ca6ff0
+  languageName: node
+  linkType: hard
+
+"@whatwg-node/node-fetch@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@whatwg-node/node-fetch@npm:0.0.6"
+  dependencies:
+    "@whatwg-node/events": ^0.0.2
+    busboy: ^1.6.0
+    tslib: ^2.3.1
+  peerDependencies:
+    "@types/node": ^18.0.6
+  checksum: 2b2842b0eb99e5a841e9445b77809c681757f97aa14329d8bc9e77fa853605539c9bac0862733c8813821b1317aa6fb482274a2f5023175684a8cbb5ab67ceb0
   languageName: node
   linkType: hard
 
@@ -7930,9 +7956,9 @@ __metadata:
     "@redwoodjs/auth-dbauth-api": 4.0.1
     "@redwoodjs/graphql-server": ^4.0.1
     "@types/async-lock": ^1.1.5
+    "@whatwg-node/fetch": 0.7.0
     async-lock: ^1.3.2
     date-fns: ^2.29.2
-    node-fetch: 2
     puppeteer: ^19.0.0
   languageName: unknown
   linkType: soft
@@ -17973,7 +17999,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2, node-fetch@npm:2.6.7, node-fetch@npm:^2.6.1, node-fetch@npm:^2.6.7":
+"node-fetch@npm:2.6.7, node-fetch@npm:^2.6.1, node-fetch@npm:^2.6.7":
   version: 2.6.7
   resolution: "node-fetch@npm:2.6.7"
   dependencies:

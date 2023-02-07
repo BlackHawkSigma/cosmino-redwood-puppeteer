@@ -8,10 +8,10 @@ import type {
   StartRecheckVariables,
 } from 'types/graphql'
 
-import { useAuth } from '@redwoodjs/auth'
 import { MetaTags, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/dist/toast'
 
+import { useAuth } from 'src/auth'
 import MissingTransactionsCell, {
   QUERY,
 } from 'src/components/MissingTransactionsCell'

@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events'
 
 import {
+  createInMemoryCache,
   useResponseCache,
   UseResponseCacheParameter,
-  createInMemoryCache,
 } from '@envelop/response-cache'
 
+import { authDecoder } from '@redwoodjs/auth-dbauth-api'
 import { createGraphQLHandler } from '@redwoodjs/graphql-server'
 
 import directives from 'src/directives/**/*.{js,ts}'
@@ -42,6 +43,7 @@ emitter.on('invalidate', (entity) => {
 
 export const handler = createGraphQLHandler({
   getCurrentUser,
+  authDecoder,
   loggerConfig: {
     logger,
     options: { operationName: true, tracing: true },

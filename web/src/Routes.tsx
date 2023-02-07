@@ -12,9 +12,11 @@ import { Router, Route, Private } from '@redwoodjs/router'
 import WhileLoadingAuth from 'src/components/WhileLoadingAuth/WhileLoadingAuth'
 import MainLayout from 'src/layouts/MainLayout'
 
+import { useAuth } from './auth'
+
 const Routes = () => {
   return (
-    <Router>
+    <Router useAuth={useAuth}>
       <Route path="/fehlende-buchungen" page={MissingDataPage} name="missingData" />
       <Route path="/dashboard/{type:string}" page={DashboardPage} name="dashboard" />
       <Route path="/sessions" page={SessionsPage} name="sessions" />

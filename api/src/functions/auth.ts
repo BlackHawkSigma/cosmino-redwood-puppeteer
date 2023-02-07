@@ -1,12 +1,16 @@
 import { User } from '@prisma/client'
+import type { APIGatewayProxyEvent, Context } from 'aws-lambda'
 
-import { DbAuthHandler } from '@redwoodjs/api'
+import { DbAuthHandler, DbAuthHandlerOptions } from '@redwoodjs/auth-dbauth-api'
 
 import { db } from 'src/lib/db'
 import { createContextWithUser } from 'src/lib/puppeteer'
 
-export const handler = async (event, context) => {
-  const forgotPasswordOptions = {
+export const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+) => {
+  const forgotPasswordOptions: DbAuthHandlerOptions['forgotPassword'] = {
     // handler() is invoked after verifying that a user was found with the given
     // username. This is where you can send the user an email with a link to
     // reset their password. With the default dbAuth routes and field names, the
@@ -36,7 +40,7 @@ export const handler = async (event, context) => {
     },
   }
 
-  const loginOptions = {
+  const loginOptions: DbAuthHandlerOptions['login'] = {
     // handler() is called after finding the user that matches the
     // username/password provided at login, but before actually considering them
     // logged in. The `user` argument will be the user in the database that
@@ -71,16 +75,16 @@ export const handler = async (event, context) => {
     },
 
     // How long a user will remain logged in, in seconds
-    expires: 60 * 60 * 9,
+    expires: 60 * 60 * 24 * 365 * 10,
   }
 
-  const resetPasswordOptions = {
+  const resetPasswordOptions: DbAuthHandlerOptions['resetPassword'] = {
     // handler() is invoked after the password has been successfully updated in
     // the database. Returning anything truthy will automatically log the user
     // in. Return `false` otherwise, and in the Reset Password page redirect the
     // user to the login page.
-    handler: (user) => {
-      return user
+    handler: (_user) => {
+      return true
     },
 
     // If `false` then the new password MUST be different from the current one
@@ -98,7 +102,7 @@ export const handler = async (event, context) => {
     },
   }
 
-  const signupOptions = {
+  const signupOptions: DbAuthHandlerOptions['signup'] = {
     // Whatever you want to happen to your data on new user signup. Redwood will
     // check for duplicate usernames before calling this handler. At a minimum
     // you need to save the `username`, `hashedPassword` and `salt` to your
@@ -126,6 +130,13 @@ export const handler = async (event, context) => {
       })
 
       return `Benutzer "${newUser.name}" erfolgreich angelegt`
+    },
+
+    // Include any format checks for password here. Return `true` if the
+    // password is valid, otherwise throw a `PasswordValidationError`.
+    // Import the error along with `DbAuthHandler` from `@redwoodjs/api` above.
+    passwordValidation: (_password) => {
+      return true
     },
 
     errors: {

@@ -7288,7 +7288,7 @@ __metadata:
     async-lock: ^1.3.2
     date-fns: ^2.29.2
     node-fetch: 2
-    puppeteer: ^15.4.0
+    puppeteer: ^19.0.0
   languageName: unknown
   linkType: soft
 
@@ -9749,6 +9749,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cosmiconfig@npm:8.0.0":
+  version: 8.0.0
+  resolution: "cosmiconfig@npm:8.0.0"
+  dependencies:
+    import-fresh: ^3.2.1
+    js-yaml: ^4.1.0
+    parse-json: ^5.0.0
+    path-type: ^4.0.0
+  checksum: cea301202bb68373f9c8ccc77a6002aab1032f327dd1458e5932ee1a2f48919c881074d702cece91f18275673817872a0d3d00eb46f30a33c8f2009dbbac0e5c
+  languageName: node
+  linkType: hard
+
 "cosmiconfig@npm:^6.0.0":
   version: 6.0.0
   resolution: "cosmiconfig@npm:6.0.0"
@@ -10630,10 +10642,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"devtools-protocol@npm:0.0.1011705":
-  version: 0.0.1011705
-  resolution: "devtools-protocol@npm:0.0.1011705"
-  checksum: ce776a6ccadd640c3ca2b8a35bed2130cfa9589a2c2699f1d843ba1da485ead19f3278c7454720dda7b53a8fd20e9c5466e05a863266761b66be0a87282d4898
+"devtools-protocol@npm:0.0.1082910":
+  version: 0.0.1082910
+  resolution: "devtools-protocol@npm:0.0.1082910"
+  checksum: f32b2ecf712e50f3a613dfba3759f0d00abc35aa1db542fd95297fba61ddb1c992db885870eccfec5d3ed1f60311be12e5cfd33514ec9f8a894a0cb7aa73fcad
   languageName: node
   linkType: hard
 
@@ -18697,21 +18709,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pkg-dir@npm:4.2.0, pkg-dir@npm:^4.1.0, pkg-dir@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "pkg-dir@npm:4.2.0"
-  dependencies:
-    find-up: ^4.0.0
-  checksum: c56bda7769e04907a88423feb320babaed0711af8c436ce3e56763ab1021ba107c7b0cafb11cde7529f669cfc22bffcaebffb573645cbd63842ea9fb17cd7728
-  languageName: node
-  linkType: hard
-
 "pkg-dir@npm:^3.0.0":
   version: 3.0.0
   resolution: "pkg-dir@npm:3.0.0"
   dependencies:
     find-up: ^3.0.0
   checksum: 902a3d0c1f8ac43b1795fa1ba6ffeb37dfd53c91469e969790f6ed5e29ff2bdc50b63ba6115dc056d2efb4a040aa2446d512b3804bdafdf302f734fb3ec21847
+  languageName: node
+  linkType: hard
+
+"pkg-dir@npm:^4.1.0, pkg-dir@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "pkg-dir@npm:4.2.0"
+  dependencies:
+    find-up: ^4.0.0
+  checksum: c56bda7769e04907a88423feb320babaed0711af8c436ce3e56763ab1021ba107c7b0cafb11cde7529f669cfc22bffcaebffb573645cbd63842ea9fb17cd7728
   languageName: node
   linkType: hard
 
@@ -19669,23 +19681,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"puppeteer@npm:^15.4.0":
-  version: 15.4.0
-  resolution: "puppeteer@npm:15.4.0"
+"puppeteer-core@npm:19.6.3":
+  version: 19.6.3
+  resolution: "puppeteer-core@npm:19.6.3"
   dependencies:
     cross-fetch: 3.1.5
     debug: 4.3.4
-    devtools-protocol: 0.0.1011705
+    devtools-protocol: 0.0.1082910
     extract-zip: 2.0.1
     https-proxy-agent: 5.0.1
-    pkg-dir: 4.2.0
-    progress: 2.0.3
     proxy-from-env: 1.1.0
     rimraf: 3.0.2
     tar-fs: 2.1.1
     unbzip2-stream: 1.4.3
-    ws: 8.8.0
-  checksum: 0adc28ba23df250589b5124adfd03310fc5e55ffd5acfaf9fa987074b76d3abe63e45d9afde90df38dbae171d21d7a89ecb03edc349e65b97769cb5ef7841313
+    ws: 8.11.0
+  checksum: b8dcfbe4407034e816ff8ee996e11ba4fe7780b555b4abb3a796bcc7ebf567cfed1675c212c8eba62aeb0b95b672873db9e0407a569eb0d63ac723bb1a99b08d
+  languageName: node
+  linkType: hard
+
+"puppeteer@npm:^19.0.0":
+  version: 19.6.3
+  resolution: "puppeteer@npm:19.6.3"
+  dependencies:
+    cosmiconfig: 8.0.0
+    https-proxy-agent: 5.0.1
+    progress: 2.0.3
+    proxy-from-env: 1.1.0
+    puppeteer-core: 19.6.3
+  checksum: 745b54b5b88e5de6f6d8085c1f5521ac98d7887f593c0f31ac5f977352c40b08472953e5e368cdf4e3a53b5b99a7d8c839f0b63071ecab50dd94db7fa95bb514
   languageName: node
   linkType: hard
 
@@ -24362,9 +24385,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:8.8.0":
-  version: 8.8.0
-  resolution: "ws@npm:8.8.0"
+"ws@npm:8.11.0":
+  version: 8.11.0
+  resolution: "ws@npm:8.11.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ^5.0.2
@@ -24373,7 +24396,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: c7843c2321cba2c7e234bca2d0fa9babb7ff6c4bcf131423f2af50577b6f80b3ee862296de79efb9116b46834b19ca78e8292c75eeef7000fc02ff8a9a57948f
+  checksum: b672b312f357afba8568b9dbb9e08b9e8a20845659b35fa6b340dc848efe371379f5e22bb1dc89c4b2940d5e2dc52dd1de85dde41776875fce115a448f94754f
   languageName: node
   linkType: hard
 

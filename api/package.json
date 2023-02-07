@@ -8,7 +8,7 @@
     "@redwoodjs/graphql-server": "^3.8.0",
     "async-lock": "^1.3.2",
     "date-fns": "^2.29.2",
-    "node-fetch": "2",
+    "node-fetch": "3",
     "puppeteer": "^19.0.0"
   },
   "devDependencies": {

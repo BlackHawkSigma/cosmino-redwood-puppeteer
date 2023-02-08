@@ -5,7 +5,6 @@ import { UserInputError } from '@redwoodjs/graphql-server'
 import { emitter } from 'src/functions/graphql'
 import AsyncLock from 'src/lib/async-lock'
 import { logger } from 'src/lib/logger'
-import { setTimeoutPromise } from 'src/utils/timers'
 
 import { db } from './db'
 
@@ -220,6 +219,10 @@ export const createBuchungWithUser = async ({
         const pages = await context.pages()
         const page = pages[0]
 
+        const frameNavigation = new Promise<void>((res) =>
+          page.on('framenavigated', () => res())
+        )
+
         const pageURL = new URL(page.url())
         const sessionID = pageURL.searchParams.get('sid')
         puppeteerLogger.info({ sessionID })
@@ -297,8 +300,7 @@ export const createBuchungWithUser = async ({
               'button#bttlist_actwfl888'
             )) as HandleFor<HTMLButtonElement>
             await ioButton.click()
-            await page.waitForNetworkIdle()
-            await setTimeoutPromise(500)
+            await frameNavigation
 
             return { type: 'success', message: label, imageUrl }
           }
@@ -306,8 +308,7 @@ export const createBuchungWithUser = async ({
             await popupPage.waitForSelector('button#bttlist_formcancel')
             const cancelButton = await popupPage.$('button#bttlist_formcancel')
             await cancelButton.click()
-            await page.waitForNetworkIdle()
-            await setTimeoutPromise(500)
+            await frameNavigation
 
             return {
               type: 'error',

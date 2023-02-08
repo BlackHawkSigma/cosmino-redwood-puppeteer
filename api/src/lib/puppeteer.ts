@@ -67,7 +67,9 @@ export const createContextWithUser = async ({
     case 'popup':
       try {
         const page = await context.newPage()
-        await page.goto(cosminoUrl.toString())
+        await page.goto(cosminoUrl.toString(), {
+          waitUntil: 'domcontentloaded',
+        })
         await Promise.all([
           page.waitForSelector('#username'),
           page.waitForSelector('#userpwd'),
@@ -121,7 +123,9 @@ export const createContextWithUser = async ({
     case 'direct':
       try {
         const page = await context.newPage()
-        await page.goto(cosminoDirectUrl.toString())
+        await page.goto(cosminoDirectUrl.toString(), {
+          waitUntil: 'domcontentloaded',
+        })
         await Promise.all([
           page.waitForSelector('#username'),
           page.waitForSelector('#userpwd'),

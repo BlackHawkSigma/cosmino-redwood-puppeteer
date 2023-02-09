@@ -182,7 +182,7 @@ export const createBuchungWithUser = async ({
   const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
   await input.type(code)
 
-  const nav = new Promise<void>((res) => browser.on('targetcreated', res))
+  const nav = new Promise<void>((res) => context.on('targetcreated', res))
 
   await page.keyboard.press('Tab')
 

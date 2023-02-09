@@ -228,6 +228,8 @@ export const createBuchungWithUser = async ({
     )
   })
 
+  const popupClosed = new Promise<void>((res) => popupPage.on('close', res))
+
   const title = await popupPage.title()
   switch (title) {
     case 'Fehlererfassung': {
@@ -247,6 +249,8 @@ export const createBuchungWithUser = async ({
         'button#bttlist_actwfl888'
       )) as HandleFor<HTMLButtonElement>
       await ioButton.click()
+
+      await popupClosed
       await frameNavigation
 
       return { type: 'success', message: label, imageUrl }
@@ -255,6 +259,8 @@ export const createBuchungWithUser = async ({
       await popupPage.waitForSelector('button#bttlist_formcancel')
       const cancelButton = await popupPage.$('button#bttlist_formcancel')
       await cancelButton.click()
+
+      await popupClosed
       await frameNavigation
 
       return {

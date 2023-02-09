@@ -31,7 +31,7 @@ const ForgotPasswordPage = () => {
       // been invoked, let the user know how to get the link to reset their
       // password (sent in email, perhaps?)
       toast.success(`Bitte das Passwort für ${response.name} aktualisieren`)
-      navigate(routes.resetPassword({ resetToken: response.resetToken }))
+      navigate(routes.resetPassword({ resetToken: response.token }))
     }
   }
 

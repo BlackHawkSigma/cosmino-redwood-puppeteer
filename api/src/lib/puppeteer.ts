@@ -3,16 +3,13 @@ import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
 import { UserInputError } from '@redwoodjs/graphql-server'
 
 import { emitter } from 'src/functions/graphql'
-import AsyncLock from 'src/lib/async-lock'
 import { logger } from 'src/lib/logger'
-import { setTimeoutPromise } from 'src/utils/timers'
 
 import { db } from './db'
 
 const puppeteerLogger = logger.child({ name: 'browser' })
 
 let browser: Browser | null = null
-const lock = new AsyncLock()
 
 type contextStore = {
   username: string
@@ -26,7 +23,6 @@ export const contexts: Map<string, contextStore> = new Map()
 const headless = process.env.PUPETEER_BROWSER_HEADLESS === 'true'
 const slowMo = parseInt(process.env.PUPETEER_BROWSER_SLOWMO ?? '10')
 const cosminoUrl = new URL(process.env.COSMINO_URL)
-const cosminoDirectUrl = new URL(process.env.COSMINO_DIRECT_URL)
 
 export type CreateContextArgs = {
   username: string
@@ -63,105 +59,60 @@ export const createContextWithUser = async ({
   // context.on('targetdestroyed', () => contexts.delete(username))
 
   puppeteerLogger.info(`Anmeldung für ${username}. Modus: ${type}`)
-  switch (type) {
-    case 'popup':
-      try {
-        const page = await context.newPage()
-        await page.goto(cosminoUrl.toString(), {
-          waitUntil: 'domcontentloaded',
-        })
-        await Promise.all([
-          page.waitForSelector('#username'),
-          page.waitForSelector('#userpwd'),
-        ])
-        puppeteerLogger.info('seite geladen')
+  try {
+    const page = await context.newPage()
+    await page.goto(cosminoUrl.toString(), {
+      waitUntil: 'domcontentloaded',
+    })
+    await Promise.all([
+      page.waitForSelector('#username'),
+      page.waitForSelector('#userpwd'),
+    ])
+    puppeteerLogger.info('seite geladen')
 
-        await page.click('#username')
-        await page.type('#username', username)
-        puppeteerLogger.info('name eingetragen')
+    await page.click('#username')
+    await page.type('#username', username)
+    puppeteerLogger.info('name eingetragen')
 
-        await page.click('#userpwd')
-        await page.type('#userpwd', userpwd)
-        puppeteerLogger.info('passwort eingetragen')
+    await page.click('#userpwd')
+    await page.type('#userpwd', userpwd)
+    puppeteerLogger.info('passwort eingetragen')
 
-        await Promise.all([
-          page.click('#bttlist_actLogin'),
-          page.waitForNavigation(),
-        ])
-        puppeteerLogger.info('anmeldung...')
+    await Promise.all([
+      page.click('#bttlist_actLogin'),
+      page.waitForNavigation(),
+    ])
+    puppeteerLogger.info('anmeldung...')
 
-        // Scann Fenster
-        const mainFrame = await page.waitForFrame(
-          (frame) => frame.name() === 'frameMain',
-          { timeout: 5_000 }
-        )
-        await mainFrame.waitForSelector('#bttlistnav_actItemLookUp')
-        puppeteerLogger.info(`... ${username} angemeldet`)
+    // Scann Fenster
+    const mainFrame = await page.waitForFrame(
+      (frame) => frame.name() === 'frameMain',
+      { timeout: 5_000 }
+    )
+    await mainFrame.waitForSelector('#bttlistnav_actItemLookUp')
+    puppeteerLogger.info(`... ${username} angemeldet`)
 
-        await Promise.all([
-          mainFrame.click('#bttlistnav_actItemLookUp'),
-          mainFrame.waitForNavigation({ waitUntil: 'networkidle2' }),
-        ])
+    await Promise.all([
+      mainFrame.click('#bttlistnav_actItemLookUp'),
+      mainFrame.waitForNavigation({ waitUntil: 'networkidle2' }),
+    ])
 
-        const filterFrame = await page.waitForFrame(
-          (frame) => frame.name() === 'frameFilter'
-        )
-        await filterFrame.waitForSelector('#txtOpWorkItemNo')
-        puppeteerLogger.info('bereit für Eingabe')
+    const filterFrame = await page.waitForFrame(
+      (frame) => frame.name() === 'frameFilter'
+    )
+    await filterFrame.waitForSelector('#txtOpWorkItemNo')
+    puppeteerLogger.info('bereit für Eingabe')
 
-        return true
-      } catch (err) {
-        puppeteerLogger.error(err)
-        try {
-          await context.close()
-        } finally {
-          contexts.delete(username)
-          emitter.emit('invalidate', { type: 'CosminoSession', id: username })
-        }
-        return false
-      }
-    case 'direct':
-      try {
-        const page = await context.newPage()
-        await page.goto(cosminoDirectUrl.toString(), {
-          waitUntil: 'domcontentloaded',
-        })
-        await Promise.all([
-          page.waitForSelector('#username'),
-          page.waitForSelector('#userpwd'),
-        ])
-        puppeteerLogger.info('seite geladen')
-
-        await page.click('#username')
-        await page.type('#username', username)
-        puppeteerLogger.info('name eingetragen')
-
-        await page.click('#userpwd')
-        await page.type('#userpwd', userpwd)
-        puppeteerLogger.info('passwort eingetragen')
-
-        await Promise.all([
-          page.click('#bttlist_actLogin'),
-          page.waitForNavigation(),
-        ])
-        puppeteerLogger.info('anmeldung...')
-
-        await page.waitForSelector('#txtOpWorkItemNo')
-        puppeteerLogger.info('bereit für Eingabe')
-
-        return true
-      } catch (err) {
-        puppeteerLogger.error(err)
-        try {
-          await context.close()
-        } finally {
-          contexts.delete(username)
-          emitter.emit('invalidate', { type: 'CosminoSession', id: username })
-        }
-        return false
-      }
-    default:
-      throw new Error('unknown type')
+    return true
+  } catch (err) {
+    puppeteerLogger.error(err)
+    try {
+      await context.close()
+    } finally {
+      contexts.delete(username)
+      emitter.emit('invalidate', { type: 'CosminoSession', id: username })
+    }
+    return false
   }
 }
 
@@ -213,160 +164,109 @@ export const createBuchungWithUser = async ({
     ctx = contexts.get(username)
   }
 
-  switch (ctx.type) {
-    case 'popup':
-      return lock.acquire<CreateBuchungResult>('cosmino', async () => {
-        const { context } = ctx
-        const pages = await context.pages()
-        const page = pages[0]
+  const { context } = ctx
+  const pages = await context.pages()
+  const page = pages[0]
 
-        const pageURL = new URL(page.url())
-        const sessionID = pageURL.searchParams.get('sid')
-        puppeteerLogger.info({ sessionID })
+  const frameNavigation = new Promise<void>((res) =>
+    page.on('framenavigated', () => res())
+  )
 
-        const filterFrame = await page.waitForFrame(
-          (frame) => frame.name() === 'frameFilter'
-        )
-        const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
-        await input.type(code)
+  const pageURL = new URL(page.url())
+  const sessionID = pageURL.searchParams.get('sid')
+  puppeteerLogger.info({ sessionID })
 
-        const nav = new Promise<void>((res) => browser.on('targetcreated', res))
+  const filterFrame = await page.waitForFrame(
+    (frame) => frame.name() === 'frameFilter'
+  )
+  const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
+  await input.type(code)
 
-        await page.keyboard.press('Tab')
+  const nav = new Promise<void>((res) => context.on('targetcreated', res))
 
-        await nav
+  await page.keyboard.press('Tab')
 
-        // const newWindow = await browser.waitForTarget(
-        //   (target) => {
-        //     const windowURL = new URL(target.url())
+  await nav
 
-        // const notFoundurl = `
-        // http://srfawp0008.ad.ponet:9080/csm/uc/client/oee/online/frames/scanfield/workitem_invalid/workitem_invalid.uc
-        // ?tmps=1673357210463
-        // &sid=e21bb8a0.aaefb018
-        // &spath=frameFilter
-        // &action=init
-        // &NotFoundNo=o48576934576
-        // &ProcessId=696
-        // &ProcessIds=696
-        // `
+  // const newWindow = await browser.waitForTarget(
+  //   (target) => {
+  //     const windowURL = new URL(target.url())
 
-        // const foundurl = `
-        // http://srfawp0008.ad.ponet:9080/csm/uc/client/traceability/faultlocation/dispatcher.uc
-        // ?tmps=1673357473462
-        // &sid=e21bb8a0.aaefb018
-        // &spath=frameFilter
-        // &action=init
-        // &WorkItemId=12781152
-        // &InspObjId=159476
-        // &ProcessId=696
-        // `
+  // const notFoundurl = `
+  // http://srfawp0008.ad.ponet:9080/csm/uc/client/oee/online/frames/scanfield/workitem_invalid/workitem_invalid.uc
+  // ?tmps=1673357210463
+  // &sid=e21bb8a0.aaefb018
+  // &spath=frameFilter
+  // &action=init
+  // &NotFoundNo=o48576934576
+  // &ProcessId=696
+  // &ProcessIds=696
+  // `
 
-        const newPages = await context.pages()
+  // const foundurl = `
+  // http://srfawp0008.ad.ponet:9080/csm/uc/client/traceability/faultlocation/dispatcher.uc
+  // ?tmps=1673357473462
+  // &sid=e21bb8a0.aaefb018
+  // &spath=frameFilter
+  // &action=init
+  // &WorkItemId=12781152
+  // &InspObjId=159476
+  // &ProcessId=696
+  // `
 
-        const popupPage = newPages.find((page) => {
-          const windowURL = new URL(page.url())
+  const newPages = await context.pages()
 
-          const sid = windowURL.searchParams.get('sid')
-          const NotFoundNo = windowURL.searchParams.get('NotFoundNo')
-          const WorkItemId = windowURL.searchParams.get('WorkItemId')
+  const popupPage = newPages.find((page) => {
+    const windowURL = new URL(page.url())
 
-          return (
-            sid?.startsWith(sessionID) &&
-            (NotFoundNo !== null || WorkItemId !== null)
-          )
-        })
+    const sid = windowURL.searchParams.get('sid')
+    const NotFoundNo = windowURL.searchParams.get('NotFoundNo')
+    const WorkItemId = windowURL.searchParams.get('WorkItemId')
 
-        const title = await popupPage.title()
-        switch (title) {
-          case 'Fehlererfassung': {
-            await popupPage.waitForSelector('#lbl_inspectionobj_name')
-            const label = await popupPage.$eval(
-              '#lbl_inspectionobj_name',
-              (span) => span.textContent.toString()
-            )
-            puppeteerLogger.trace(label)
+    return (
+      sid?.startsWith(sessionID) && (NotFoundNo !== null || WorkItemId !== null)
+    )
+  })
 
-            const imageSrc = await popupPage.$eval('img#pic01', (img) =>
-              img.getAttribute('src')
-            )
-            const imageUrl = `${cosminoUrl.origin}${imageSrc}`
-            await page.waitForNetworkIdle()
+  const popupClosed = new Promise<void>((res) => popupPage.on('close', res))
 
-            const ioButton = (await popupPage.$(
-              'button#bttlist_actwfl888'
-            )) as HandleFor<HTMLButtonElement>
-            await ioButton.click()
-            await page.waitForNetworkIdle()
-            await setTimeoutPromise(500)
+  const title = await popupPage.title()
+  switch (title) {
+    case 'Fehlererfassung': {
+      await popupPage.waitForSelector('#lbl_inspectionobj_name')
+      const label = await popupPage.$eval('#lbl_inspectionobj_name', (span) =>
+        span.textContent.toString()
+      )
+      puppeteerLogger.trace(label)
 
-            return { type: 'success', message: label, imageUrl }
-          }
-          case 'Scan fehlgeschlagen.': {
-            await popupPage.waitForSelector('button#bttlist_formcancel')
-            const cancelButton = await popupPage.$('button#bttlist_formcancel')
-            await cancelButton.click()
-            await page.waitForNetworkIdle()
-            await setTimeoutPromise(500)
+      const imageSrc = await popupPage.$eval('img#pic01', (img) =>
+        img.getAttribute('src')
+      )
+      const imageUrl = `${cosminoUrl.origin}${imageSrc}`
+      await page.waitForNetworkIdle()
 
-            return {
-              type: 'error',
-              message: 'Bearbeitungseinheit nicht gefunden!',
-            }
-          }
-        }
-      })
-    case 'direct':
-      return lock.acquire<CreateBuchungResult>('cosmino', async () => {
-        const { context } = ctx
-        const pages = await context.pages()
-        const page = pages[0]
+      const ioButton = (await popupPage.$(
+        'button#bttlist_actwfl888'
+      )) as HandleFor<HTMLButtonElement>
+      await ioButton.click()
 
-        const input = await page.waitForSelector('#txtOpWorkItemNo')
-        await input.type(code)
-        await page.keyboard.press('Tab')
+      await popupClosed
+      await frameNavigation
 
-        const nok = async () => {
-          await page.waitForSelector('#scan_visual.scan_visual_red')
+      return { type: 'success', message: label, imageUrl }
+    }
+    case 'Scan fehlgeschlagen.': {
+      await popupPage.waitForSelector('button#bttlist_formcancel')
+      const cancelButton = await popupPage.$('button#bttlist_formcancel')
+      await cancelButton.click()
 
-          // todo: remove async callback
-          const newWindow = await browser.waitForTarget(async (target) => {
-            const page = await target?.page()
-            const title = await page?.title()
-            return title === 'Scan fehlgeschlagen.'
-          })
+      await popupClosed
+      await frameNavigation
 
-          const popupPage = await newWindow?.page()
-
-          const cancelButton = await popupPage?.$('button#bttlist_formcancel')
-          await cancelButton?.click()
-
-          await page?.waitForNetworkIdle()
-          await page?.waitForFunction(
-            'document.querySelector("#lblMessage").innerText.length === 0'
-          )
-
-          return {
-            type: 'error',
-            message: 'Bearbeitungseinheit nicht gefunden!',
-          }
-        }
-
-        const ok = async () => {
-          await page.waitForSelector('#scan_visual.scan_visual_green')
-          await page.waitForNetworkIdle()
-          await page.waitForFunction(
-            'document.querySelector("#lblMessage").innerText.length === 0'
-          )
-          return {
-            type: 'success',
-            message: code,
-          }
-        }
-
-        return Promise.race([nok(), ok()])
-      })
-    default:
-      throw new Error('unknown type')
+      return {
+        type: 'error',
+        message: 'Bearbeitungseinheit nicht gefunden!',
+      }
+    }
   }
 }

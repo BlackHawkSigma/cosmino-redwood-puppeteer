@@ -23,8 +23,10 @@ export const handler = async (
     // You could use this return value to, for example, show the email
     // address in a toast message so the user will know it worked and where
     // to look for the email.
-    handler: (user) => {
-      return user
+    handler: async (user) => {
+      const dbUser = await db.user.findUnique({ where: { id: user.id } })
+
+      return { name: dbUser.name, token: dbUser.resetToken }
     },
 
     // How long the resetToken is valid for, in seconds (default is 24 hours)

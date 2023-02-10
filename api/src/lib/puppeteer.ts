@@ -168,10 +168,6 @@ export const createBuchungWithUser = async ({
   const pages = await context.pages()
   const page = pages[0]
 
-  const frameNavigation = new Promise<void>((res) =>
-    page.on('framenavigated', () => res())
-  )
-
   const pageURL = new URL(page.url())
   const sessionID = pageURL.searchParams.get('sid')
   puppeteerLogger.info({ sessionID })
@@ -181,12 +177,11 @@ export const createBuchungWithUser = async ({
   )
   const input = await filterFrame.waitForSelector('#txtOpWorkItemNo')
   await input.type(code)
-
-  const nav = new Promise<void>((res) => context.on('targetcreated', res))
-
   await page.keyboard.press('Tab')
 
-  await nav
+  await new Promise<void>((res) => {
+    context.once('targetcreated', res)
+  })
 
   // const newWindow = await browser.waitForTarget(
   //   (target) => {
@@ -251,7 +246,9 @@ export const createBuchungWithUser = async ({
       await ioButton.click()
 
       await popupClosed
-      await frameNavigation
+      await new Promise<void>((res) => {
+        page.on('framenavigated', () => res())
+      })
 
       return { type: 'success', message: label, imageUrl }
     }
@@ -261,7 +258,9 @@ export const createBuchungWithUser = async ({
       await cancelButton.click()
 
       await popupClosed
-      await frameNavigation
+      await new Promise<void>((res) => {
+        page.on('framenavigated', () => res())
+      })
 
       return {
         type: 'error',

@@ -76,7 +76,7 @@ type CreateBuchungInput = {
   input: CreateBuchungArgs & { terminalId: number }
 }
 
-const userLock = new AsyncLock()
+const userLock = new AsyncLock({ maxOccupationTime: 60_000 })
 
 export const createBuchung: MutationResolvers['createBuchung'] = async ({
   input,

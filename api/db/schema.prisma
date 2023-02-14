@@ -48,6 +48,8 @@ model Log {
   code      String
   type      String    @default("success")
   message   String
+  // in ms
+  duration  Int?
   createdAt DateTime  @default(now())
   checkedAt DateTime?
 }

@@ -88,8 +88,11 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     await updateTerminal({ id: input.terminalId, input: { busy: true } })
 
     let logId: number = null
+    const start = new Date().valueOf()
     try {
       const result = await createBuchungWithUser({ username: name, ...input })
+      const duration = new Date().valueOf() - start
+
       const { message, type } = result
 
       const log = await db.log.create({
@@ -99,6 +102,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
           code: input.code,
           type,
           message,
+          duration,
         },
       })
       logId = log.id

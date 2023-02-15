@@ -16,6 +16,7 @@ import {
 import { updateLogAndCounter } from 'src/services/buchungen'
 import { checkHU } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
+import { setTimeoutPromise } from 'src/utils/timers'
 
 export const cosminoSessions = () => {
   return [...contexts.entries()]
@@ -90,8 +91,16 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     let logId: number = null
     const start = new Date().valueOf()
     try {
-      const result = await createBuchungWithUser({ username: name, ...input })
+      const result = await Promise.race([
+        createBuchungWithUser({ username: name, ...input }),
+        setTimeoutPromise(45_000),
+      ])
       const duration = new Date().valueOf() - start
+
+      if (!result) {
+        await killContextWithUser(name)
+        throw new Error('timeout')
+      }
 
       const { message, type } = result
 
@@ -132,6 +141,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         id: input.terminalId,
         input: { lastSuccessImgUrl: null },
       })
+      const duration = new Date().valueOf() - start
 
       const log = await db.log.create({
         data: {
@@ -140,6 +150,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
           code: input.code,
           type: 'error',
           message: error.message,
+          duration,
         },
       })
       logId = log.id

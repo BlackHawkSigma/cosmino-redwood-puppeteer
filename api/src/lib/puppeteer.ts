@@ -246,7 +246,7 @@ export const createBuchungWithUser = async ({
         await popupPage.screenshot({
           path: `logs/${username}-${code}-${new Date().valueOf()}.png`,
         })
-        killContextWithUser(username)
+        await killContextWithUser(username)
         throw new UserInputError('kein Prüfauftrag gefunden')
       }
 

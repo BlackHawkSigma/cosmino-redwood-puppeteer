@@ -160,7 +160,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         code: input.code,
         timestamp: log.createdAt.toISOString(),
         type: 'error',
-        message: 'Fehlgeschlagen. Bitte erneut scannen!',
+        message: 'Fehlgeschlagen',
       }
     } finally {
       // Check if HU was registered by Cosmino

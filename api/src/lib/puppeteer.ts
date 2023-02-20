@@ -1,4 +1,4 @@
-import puppeteer, { BrowserContext, Browser, HandleFor } from 'puppeteer'
+import puppeteer, { Browser, BrowserContext, HandleFor } from 'puppeteer'
 
 import { UserInputError } from '@redwoodjs/graphql-server'
 
@@ -170,7 +170,7 @@ export const createBuchungWithUser = async ({
 
   const pageURL = new URL(page.url())
   const sessionID = pageURL.searchParams.get('sid')
-  puppeteerLogger.info({ sessionID })
+  puppeteerLogger.info(`sid: ${sessionID}`)
 
   const filterFrame = await page.waitForFrame(
     (frame) => frame.name() === 'frameFilter'
@@ -239,6 +239,16 @@ export const createBuchungWithUser = async ({
       )
       const imageUrl = `${cosminoUrl.origin}${imageSrc}`
       await page.waitForNetworkIdle()
+
+      // "kein Prüfauftrag gefunden" dialog
+      const errorDialog = await popupPage.$('div#dialog3')
+      if (errorDialog) {
+        await popupPage.screenshot({
+          path: `logs/${username}-${code}-${new Date().valueOf()}.png`,
+        })
+        killContextWithUser(username)
+        throw new UserInputError('kein Prüfauftrag gefunden')
+      }
 
       const ioButton = (await popupPage.$(
         'button#bttlist_actwfl888'

@@ -21,3 +21,4 @@ api/types/graphql.d.ts
 
 server.log
 codes.log
+logs/*.png

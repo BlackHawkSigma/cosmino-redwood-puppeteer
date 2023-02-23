@@ -2003,18 +2003,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@envelop/response-cache@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "@envelop/response-cache@npm:3.2.0"
+"@envelop/response-cache@npm:^4.0.0":
+  version: 4.0.7
+  resolution: "@envelop/response-cache@npm:4.0.7"
   dependencies:
     "@graphql-tools/utils": ^8.8.0
+    "@whatwg-node/fetch": ^0.6.5
     fast-json-stable-stringify: ^2.1.0
     lru-cache: ^6.0.0
-    tslib: ^2.4.0
+    tslib: ^2.5.0
   peerDependencies:
-    "@envelop/core": ^2.6.0
+    "@envelop/core": ^3.0.6
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 251c857bac43b78a2c2e8db76bc0dce6ae783807a627bf4f82c4920bc896370e6fb3c52ba864a1c5b99b16605b678fa752e477b349153c346c1da51411e65050
+  checksum: bdc1cf0827b2973fc108ee23dfd1778d5d661b0008fec419af95e1f5a1906eac7f1b4a1fc551cd40c54c85eb8685cc8b0de3aab4d5ef078707a49d7925dd7197
   languageName: node
   linkType: hard
 
@@ -7504,7 +7505,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@whatwg-node/fetch@npm:^0.6.0, @whatwg-node/fetch@npm:^0.6.9":
+"@whatwg-node/fetch@npm:^0.6.0, @whatwg-node/fetch@npm:^0.6.5, @whatwg-node/fetch@npm:^0.6.9":
   version: 0.6.9
   resolution: "@whatwg-node/fetch@npm:0.6.9"
   dependencies:
@@ -8038,7 +8039,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "api@workspace:api"
   dependencies:
-    "@envelop/response-cache": ^3.2.0
+    "@envelop/response-cache": ^4.0.0
     "@redwoodjs/api": 4.2.0
     "@redwoodjs/auth-dbauth-api": 4.2.0
     "@redwoodjs/graphql-server": 4.2.0
@@ -23343,7 +23344,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:~2.5.0":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.5.0, tslib@npm:~2.5.0":
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
   checksum: e32fc99cc730dd514e53c44e668d76016e738f0bcc726aad5dbd2d335cf19b87a95a9b1e4f0a9993e370f1d702b5e471cdd4acabcac428a3099d496b9af2021e

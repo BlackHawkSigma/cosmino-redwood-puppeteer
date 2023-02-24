@@ -165,13 +165,17 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
     } finally {
       // Check if HU was registered by Cosmino
       setTimeout(async () => {
-        const result = await checkHU(input.code)
+        try {
+          const result = await checkHU(input.code)
 
-        if (result.data.abnahmebuchung !== null) {
-          await db.log.update({
-            where: { id: logId },
-            data: { checkedAt: result.data.abnahmebuchung.datum },
-          })
+          if (result.data.abnahmebuchung !== null) {
+            await db.log.update({
+              where: { id: logId },
+              data: { checkedAt: result.data.abnahmebuchung.datum },
+            })
+          }
+        } catch (err) {
+          logger.error(err)
         }
       }, 5 * 60_000)
 

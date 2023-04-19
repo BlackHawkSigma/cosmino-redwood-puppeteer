@@ -1,9 +1,4 @@
-import { useEffect, useReducer, useState } from 'react'
-
-type TextAction =
-  | { type: 'add'; character: string }
-  | { type: 'fire' }
-  | { type: 'reset' }
+import { useEffect, useState } from 'react'
 
 type ScannerHandlerProps = {
   loading?: string
@@ -20,24 +15,8 @@ const ScannerHandler = ({
     document.hasFocus()
   )
 
-  const [text, dispatch] = useReducer(
-    (state: string, action: TextAction): string => {
-      switch (action.type) {
-        case 'add':
-          return `${state}${action.character}`
-        case 'fire':
-          if (state.length < 1) return ''
-
-          onFire(state)
-          return ''
-        case 'reset':
-          return ''
-        default:
-          throw new Error(`Unknown action type`)
-      }
-    },
-    ''
-  )
+  const [pressedKey, setPressedKey] = useState<string>('')
+  const [text, setText] = useState<string>('')
 
   useEffect(() => {
     const onFocus = () => setWindowIsFocused(true)
@@ -45,18 +24,8 @@ const ScannerHandler = ({
 
     const onKeyDown = (ev: KeyboardEvent) => {
       const { key } = ev
-
-      switch (key) {
-        case 'Tab':
-          ev.preventDefault()
-          return dispatch({ type: 'fire' })
-        case 'Enter':
-          return dispatch({ type: 'fire' })
-        case 'Escape':
-          return dispatch({ type: 'reset' })
-        default:
-          return dispatch({ type: 'add', character: ev.key })
-      }
+      ev.preventDefault()
+      setPressedKey(key)
     }
 
     window.addEventListener('focus', onFocus)
@@ -73,6 +42,22 @@ const ScannerHandler = ({
   useEffect(() => {
     onFocusChange(windowIsFocused)
   }, [windowIsFocused, onFocusChange])
+
+  useEffect(() => {
+    switch (pressedKey) {
+      case 'Tab':
+      case 'Enter':
+        onFire(text)
+        setText('')
+        break
+      case 'Escape':
+        setText('')
+        break
+      default:
+        setText((text) => text + pressedKey)
+    }
+    setPressedKey('')
+  }, [onFire, pressedKey, text])
 
   return (
     <div
@@ -91,7 +76,7 @@ const ScannerHandler = ({
       </p>
       <button
         className="self-end rounded border-slate-300 bg-slate-200 py-1 px-2 shadow active:scale-90"
-        onClick={() => dispatch({ type: 'reset' })}
+        onClick={() => setText('')}
       >
         Reset
       </button>

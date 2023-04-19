@@ -24,7 +24,11 @@ const ScannerHandler = ({
 
     const onKeyDown = (ev: KeyboardEvent) => {
       const { key } = ev
-      ev.preventDefault()
+
+      if (key === 'Tab') {
+        ev.preventDefault()
+      }
+
       setPressedKey(key)
     }
 
@@ -47,11 +51,16 @@ const ScannerHandler = ({
     switch (pressedKey) {
       case 'Tab':
       case 'Enter':
-        onFire(text)
-        setText('')
+        if (text.length > 0) {
+          onFire(text)
+          setText('')
+        }
         break
       case 'Escape':
         setText('')
+        break
+      case 'Backspace':
+        setText((text) => text.slice(0, -1))
         break
       default:
         setText((text) => text + pressedKey)

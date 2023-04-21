@@ -1,4 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
+
+type TextAction =
+  | { type: 'add'; character: string }
+  | { type: 'backspace' }
+  | { type: 'reset' }
 
 type ScannerHandlerProps = {
   loading?: string
@@ -15,8 +20,27 @@ const ScannerHandler = ({
     document.hasFocus()
   )
 
-  const [pressedKey, setPressedKey] = useState<string>('')
-  const [text, setText] = useState<string>('')
+  const [text, dispatch] = useReducer(
+    (state: string, action: TextAction): string => {
+      switch (action.type) {
+        case 'add':
+          return `${state}${action.character}`
+        case 'backspace':
+          return state.slice(0, -1)
+        case 'reset':
+          return ''
+        default:
+          throw new Error(`Unknown action type`)
+      }
+    },
+    ''
+  )
+
+  const doFire = useCallback(() => {
+    if (text.length > 0) {
+      onFire(text)
+    }
+  }, [onFire, text])
 
   useEffect(() => {
     const onFocus = () => setWindowIsFocused(true)
@@ -25,11 +49,21 @@ const ScannerHandler = ({
     const onKeyDown = (ev: KeyboardEvent) => {
       const { key } = ev
 
-      if (key === 'Tab') {
-        ev.preventDefault()
+      switch (key) {
+        case 'Tab':
+          ev.preventDefault()
+          doFire()
+          return dispatch({ type: 'reset' })
+        case 'Enter':
+          doFire()
+          return dispatch({ type: 'reset' })
+        case 'Escape':
+          return dispatch({ type: 'reset' })
+        case 'Backspace':
+          return dispatch({ type: 'backspace' })
+        default:
+          return dispatch({ type: 'add', character: ev.key })
       }
-
-      setPressedKey(key)
     }
 
     window.addEventListener('focus', onFocus)
@@ -41,32 +75,11 @@ const ScannerHandler = ({
       window.removeEventListener('blur', onBlur)
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [])
+  }, [doFire])
 
   useEffect(() => {
     onFocusChange(windowIsFocused)
   }, [windowIsFocused, onFocusChange])
-
-  useEffect(() => {
-    switch (pressedKey) {
-      case 'Tab':
-      case 'Enter':
-        if (text.length > 0) {
-          onFire(text)
-          setText('')
-        }
-        break
-      case 'Escape':
-        setText('')
-        break
-      case 'Backspace':
-        setText((text) => text.slice(0, -1))
-        break
-      default:
-        setText((text) => text + pressedKey)
-    }
-    setPressedKey('')
-  }, [onFire, pressedKey, text])
 
   return (
     <div
@@ -85,7 +98,7 @@ const ScannerHandler = ({
       </p>
       <button
         className="self-end rounded border-slate-300 bg-slate-200 py-1 px-2 shadow active:scale-90"
-        onClick={() => setText('')}
+        onClick={() => dispatch({ type: 'reset' })}
       >
         Reset
       </button>

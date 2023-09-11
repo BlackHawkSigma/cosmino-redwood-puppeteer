@@ -8,7 +8,7 @@ export const useHasNewDeploy = () => {
 
   useInterval(async () => {
     const { version, errors } = await fetch(
-      `${global.RWJS_API_URL}/hasNewDeploy`
+      `${globalThis.RWJS_API_URL}/hasNewDeploy`
     ).then((res) => res.json())
 
     if (errors) {

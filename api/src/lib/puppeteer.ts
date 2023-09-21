@@ -15,6 +15,7 @@ type contextStore = {
   username: string
   userpwd: string
   type: 'popup' | 'direct'
+  transactionsHandled: number
   context: BrowserContext
 }
 
@@ -53,7 +54,13 @@ export const createContextWithUser = async ({
   }
 
   const context = await browser.createIncognitoBrowserContext()
-  contexts.set(username, { username, userpwd, type, context })
+  contexts.set(username, {
+    username,
+    userpwd,
+    type,
+    transactionsHandled: 0,
+    context,
+  })
   emitter.emit('invalidate', { type: 'CosminoSession', id: username })
 
   // context.on('targetdestroyed', () => contexts.delete(username))
@@ -163,6 +170,11 @@ export const createBuchungWithUser = async ({
     })
     ctx = contexts.get(username)
   }
+
+  contexts.set(username, {
+    ...ctx,
+    transactionsHandled: ctx.transactionsHandled + 1,
+  })
 
   const { context } = ctx
   const pages = await context.pages()

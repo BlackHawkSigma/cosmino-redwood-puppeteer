@@ -6,6 +6,7 @@ type SessionCardProps = {
   user: {
     name: string
   }
+  transactions?: number
   busy?: boolean
 }
 
@@ -15,7 +16,7 @@ export const KILL_SESSION_MUTUTAION = gql`
   }
 `
 
-const SessionCard = ({ user, busy }: SessionCardProps) => {
+const SessionCard = ({ user, transactions, busy }: SessionCardProps) => {
   const [killSession] = useMutation(KILL_SESSION_MUTUTAION, {
     variables: { username: user.name },
     refetchQueries: [{ query: SessionsQuery }],
@@ -33,6 +34,7 @@ const SessionCard = ({ user, busy }: SessionCardProps) => {
           X
         </button>
       </div>
+      {transactions && <p>Transactions: {transactions}</p>}
       <p>{busy && <span className="animate-pulse">buchung läuft</span>}</p>
     </div>
   )

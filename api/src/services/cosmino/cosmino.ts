@@ -16,7 +16,8 @@ import {
 import { updateLogAndCounter } from 'src/services/buchungen'
 import { checkHU } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
-import { setTimeoutPromise } from 'src/utils/timers'
+
+const TRANSACTION_LIMIT = 50
 
 export const cosminoSessions = () => {
   return [...contexts.entries()]
@@ -27,6 +28,7 @@ export const cosminoSessions = () => {
       return {
         id: username,
         user: username,
+        transactions: session[1].transactionsHandled,
       }
     })
 }
@@ -60,16 +62,20 @@ export const killSession: MutationResolvers['killSession'] = async ({
   return unclaimed && killed
 }
 
+const userLock = new AsyncLock({ maxExecutionTime: 20_000 })
+
 export const refreshSession: MutationResolvers['refreshSession'] = async ({
   username,
 }) => {
   const user = await db.user.findUnique({ where: { name: username } })
 
-  await killContextWithUser(username)
-  return await createContextWithUser({
-    username,
-    userpwd: user.password,
-    type: user.directMode ? 'direct' : 'popup',
+  return userLock.acquire(username, async () => {
+    await killContextWithUser(username)
+    return await createContextWithUser({
+      username,
+      userpwd: user.password,
+      type: user.directMode ? 'direct' : 'popup',
+    })
   })
 }
 
@@ -77,112 +83,114 @@ type CreateBuchungInput = {
   input: CreateBuchungArgs & { terminalId: number }
 }
 
-const userLock = new AsyncLock({ maxOccupationTime: 60_000 })
-
 export const createBuchung: MutationResolvers['createBuchung'] = async ({
   input,
 }: CreateBuchungInput) => {
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
 
-  return userLock.acquire(name, async () => {
-    await updateTerminal({ id: input.terminalId, input: { busy: true } })
+  return userLock
+    .acquire(name, async () => {
+      await updateTerminal({ id: input.terminalId, input: { busy: true } })
 
-    let logId: number = null
-    const start = new Date().valueOf()
-    try {
-      const result = await Promise.race([
-        createBuchungWithUser({ username: name, ...input }),
-        setTimeoutPromise(45_000),
-      ])
-      const duration = new Date().valueOf() - start
+      let logId: number = null
+      const start = new Date().valueOf()
+      try {
+        const result = await createBuchungWithUser({ username: name, ...input })
+        const duration = new Date().valueOf() - start
 
-      if (!result) {
-        await killContextWithUser(name)
-        throw new Error('timeout')
-      }
+        const { message, type } = result
 
-      const { message, type } = result
-
-      const log = await db.log.create({
-        data: {
-          userId: id,
-          terminal: input.terminalId.toString(),
-          code: input.code,
-          type,
-          message,
-          duration,
-        },
-      })
-      logId = log.id
-
-      if (result.type === 'success') {
-        await updateTerminal({
-          id: input.terminalId,
-          input: { lastSuccessImgUrl: result.imageUrl },
+        const log = await db.log.create({
+          data: {
+            userId: id,
+            terminal: input.terminalId.toString(),
+            code: input.code,
+            type,
+            message,
+            duration,
+          },
         })
-      } else {
+        logId = log.id
+
+        if (result.type === 'success') {
+          await updateTerminal({
+            id: input.terminalId,
+            input: { lastSuccessImgUrl: result.imageUrl },
+          })
+        } else {
+          await updateTerminal({
+            id: input.terminalId,
+            input: { lastSuccessImgUrl: null },
+          })
+        }
+
+        return {
+          ...result,
+          id: log.id,
+          code: input.code,
+          timestamp: log.createdAt.toISOString(),
+        }
+      } catch (error) {
+        logger.error(error)
+
         await updateTerminal({
           id: input.terminalId,
           input: { lastSuccessImgUrl: null },
         })
-      }
+        const duration = new Date().valueOf() - start
 
-      return {
-        ...result,
-        id: log.id,
-        code: input.code,
-        timestamp: log.createdAt.toISOString(),
-      }
-    } catch (error) {
-      logger.error(error)
+        const log = await db.log.create({
+          data: {
+            userId: id,
+            terminal: input.terminalId.toString(),
+            code: input.code,
+            type: 'error',
+            message: error.message,
+            duration,
+          },
+        })
+        logId = log.id
 
-      await updateTerminal({
-        id: input.terminalId,
-        input: { lastSuccessImgUrl: null },
-      })
-      const duration = new Date().valueOf() - start
-
-      const log = await db.log.create({
-        data: {
-          userId: id,
-          terminal: input.terminalId.toString(),
+        return {
+          id: log.id,
           code: input.code,
+          timestamp: log.createdAt.toISOString(),
           type: 'error',
-          message: error.message,
-          duration,
-        },
-      })
-      logId = log.id
-
-      return {
-        id: log.id,
-        code: input.code,
-        timestamp: log.createdAt.toISOString(),
-        type: 'error',
-        message: 'Fehlgeschlagen',
-      }
-    } finally {
-      // Check if HU was registered by Cosmino
-      setTimeout(async () => {
-        try {
-          const result = await checkHU(input.code)
-
-          if (result.data.abnahmebuchung !== null) {
-            await db.log.update({
-              where: { id: logId },
-              data: { checkedAt: result.data.abnahmebuchung.datum },
-            })
-          }
-        } catch (err) {
-          logger.error(err)
+          message: 'Fehlgeschlagen',
         }
-      }, 5 * 60_000)
+      } finally {
+        // refresh Session if needed
+        const transactions = contexts.get(name).transactionsHandled
+        if (transactions >= TRANSACTION_LIMIT) {
+          refreshSession({ username: name })
+        }
 
-      await updateTerminal({ id: input.terminalId, input: { busy: false } })
-      await updateLogAndCounter({ userId: id, logId })
+        // Check if HU was registered by Cosmino
+        setTimeout(async () => {
+          try {
+            const result = await checkHU(input.code)
 
-      emitter.emit('invalidate', { type: 'BuchungsLog' })
-    }
-  })
+            if (result.data.abnahmebuchung !== null) {
+              await db.log.update({
+                where: { id: logId },
+                data: { checkedAt: result.data.abnahmebuchung.datum },
+              })
+            }
+          } catch (err) {
+            logger.error(err)
+          }
+        }, 5 * 60_000)
+
+        await updateTerminal({ id: input.terminalId, input: { busy: false } })
+        await updateLogAndCounter({ userId: id, logId })
+
+        emitter.emit('invalidate', { type: 'BuchungsLog' })
+      }
+    })
+    .catch(async (err) => {
+      await killContextWithUser(name)
+      logger.error(err)
+      return err
+    })
 }

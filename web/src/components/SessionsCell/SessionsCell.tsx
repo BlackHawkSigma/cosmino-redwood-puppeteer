@@ -9,6 +9,7 @@ export const QUERY = gql`
     cosminoSessions {
       id
       user
+      transactions
     }
   }
 `
@@ -31,7 +32,13 @@ export const Success = ({
   return (
     <div className="flex justify-around">
       {cosminoSessions.map((session) => {
-        return <SessionCard key={session.id} user={{ name: session.user }} />
+        return (
+          <SessionCard
+            key={session.id}
+            user={{ name: session.user }}
+            transactions={session.transactions}
+          />
+        )
       })}
     </div>
   )

@@ -8,5 +8,10 @@
   "[prisma]": {
     "editor.formatOnSave": true
   },
-  "typescript.tsserver.experimental.enableProjectDiagnostics": false
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+
+  "spellright.ignoreFiles": [
+    "**/.gitignore",
+    "yarn.lock"
+  ]
 }

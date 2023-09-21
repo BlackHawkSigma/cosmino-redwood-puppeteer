@@ -26,6 +26,7 @@ export const cosminoSessions = () => {
       return {
         id: username,
         user: username,
+        transactions: session[1].transactionsHandled,
       }
     })
 }

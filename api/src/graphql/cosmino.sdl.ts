@@ -2,6 +2,7 @@ export const schema = gql`
   type CosminoSession {
     id: String!
     user: String!
+    transactions: Int!
     busy: Boolean
     focused: Boolean
   }

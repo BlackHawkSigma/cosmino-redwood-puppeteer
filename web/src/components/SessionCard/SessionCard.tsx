@@ -6,7 +6,7 @@ type SessionCardProps = {
   user: {
     name: string
   }
-  transactions: number
+  transactions?: number
   busy?: boolean
 }
 
@@ -34,7 +34,7 @@ const SessionCard = ({ user, transactions, busy }: SessionCardProps) => {
           X
         </button>
       </div>
-      <p>Transactions: {transactions}</p>
+      {transactions && <p>Transactions: {transactions}</p>}
       <p>{busy && <span className="animate-pulse">buchung läuft</span>}</p>
     </div>
   )

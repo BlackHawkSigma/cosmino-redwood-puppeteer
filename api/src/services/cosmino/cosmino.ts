@@ -17,6 +17,8 @@ import { updateLogAndCounter } from 'src/services/buchungen'
 import { checkHU } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
+const TRANSACTION_LIMIT = 50
+
 export const cosminoSessions = () => {
   return [...contexts.entries()]
     .sort((a, b) => +a[0] - +b[0])
@@ -158,6 +160,12 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
           message: 'Fehlgeschlagen',
         }
       } finally {
+        // refresh Session if needed
+        const transactions = contexts.get(name).transactionsHandled
+        if (transactions >= TRANSACTION_LIMIT) {
+          refreshSession({ username: name })
+        }
+
         // Check if HU was registered by Cosmino
         setTimeout(async () => {
           try {

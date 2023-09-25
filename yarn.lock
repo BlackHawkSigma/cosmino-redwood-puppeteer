@@ -24032,11 +24032,12 @@ __metadata:
   linkType: hard
 
 "usehooks-ts@npm:^2.6.0":
-  version: 2.6.0
-  resolution: "usehooks-ts@npm:2.6.0"
+  version: 2.9.1
+  resolution: "usehooks-ts@npm:2.9.1"
   peerDependencies:
-    react: ">=16.9.0"
-  checksum: 33c30296aeae1aac2818f6cb7d59cb5b0dee90655f705a894cbf5f59ab53ff650c739d70ccffb245ee3bcb6843a034b7363b3e0a5c3167db0b2479944c7f89c8
+    react: ^16.8.0  || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0  || ^17.0.0 || ^18.0.0
+  checksum: 14f6bc3661cebe19714dc2bc0413b56c53fcb44fada2258756c2fefc10cf6481299bd8d4ba659af3bc5692a57d5da3c3e14b75d69177eccd3ac8326c5336e756
   languageName: node
   linkType: hard
 

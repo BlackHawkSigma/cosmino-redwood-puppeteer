@@ -1,13 +1,32 @@
-import { useEffect } from 'react'
-
 import { parseISO } from 'date-fns/fp'
-import type { MissingTransactionsQuery } from 'types/graphql'
+import type {
+  MissingTransactionsQuery,
+  StartRecheck,
+  StartRecheckVariables,
+  StartReruns,
+  StartRerunsVariables,
+} from 'types/graphql'
 
-import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
+import {
+  type CellSuccessProps,
+  type CellFailureProps,
+  useMutation,
+} from '@redwoodjs/web'
+import { toast } from '@redwoodjs/web/dist/toast'
 
-type CellProps = {
-  hasItems: (hasItems: boolean) => void
-}
+import { useAuth } from 'src/auth'
+
+const RERUN_MUTATION = gql`
+  mutation StartReruns($startTime: DateTime!, $endTime: DateTime!) {
+    rerunMissingTransactions(startTime: $startTime, endTime: $endTime)
+  }
+`
+
+const RECHECK_MUTATION = gql`
+  mutation StartRecheck($startTime: DateTime!, $endTime: DateTime!) {
+    recheckMissingTransactions(startTime: $startTime, endTime: $endTime)
+  }
+`
 
 export const QUERY = gql`
   query MissingTransactionsQuery($startTime: DateTime!, $endTime: DateTime!) {
@@ -20,17 +39,9 @@ export const QUERY = gql`
   }
 `
 
-export const Loading = ({ hasItems }: CellProps) => {
-  useEffect(() => hasItems(false), [hasItems])
+export const Loading = () => <div>Lade Daten...</div>
 
-  return <div>Lade Daten...</div>
-}
-
-export const Empty = ({ hasItems }: CellFailureProps & CellProps) => {
-  useEffect(() => hasItems(false), [hasItems])
-
-  return <div>Keine Daten gefunden</div>
-}
+export const Empty = () => <div>Keine Daten gefunden</div>
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error.message}</div>
@@ -38,8 +49,32 @@ export const Failure = ({ error }: CellFailureProps) => (
 
 export const Success = ({
   missingTransactions,
-  hasItems,
-}: CellSuccessProps<MissingTransactionsQuery> & CellProps) => {
+  variables,
+}: CellSuccessProps<MissingTransactionsQuery>) => {
+  const { hasRole } = useAuth()
+
+  const [rerunMutation, { loading: rerunLoading, error }] = useMutation<
+    StartReruns,
+    StartRerunsVariables
+  >(RERUN_MUTATION, {
+    variables,
+    onCompleted(data) {
+      toast.success(`${data.rerunMissingTransactions} Buchungen nachgetragen`)
+    },
+  })
+
+  const [recheckMutation, { loading: recheckLoading }] = useMutation<
+    StartRecheck,
+    StartRecheckVariables
+  >(RECHECK_MUTATION, {
+    variables,
+    refetchQueries: ['MissingTransactionsQuery'],
+    awaitRefetchQueries: true,
+    onCompleted() {
+      toast.success('aktualisiert')
+    },
+  })
+
   const countValidCodes = missingTransactions.filter(
     (item) => item.code.length === 9
   ).length
@@ -47,12 +82,29 @@ export const Success = ({
     (item) => item.code.length !== 9
   ).length
 
-  useEffect(() => {
-    hasItems(countValidCodes > 0)
-  }, [countValidCodes, hasItems])
-
   return (
     <div className="p-4">
+      <div>{error && <span>{error.message}</span>}</div>
+      <div className="my-4 flex gap-2">
+        <button
+          disabled={recheckLoading}
+          className="rw-button rw-button-green disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={() => recheckMutation()}
+        >
+          {recheckLoading ? 'läuft' : 'erneut prüfen'}
+        </button>
+
+        {hasRole('admin') && (
+          <button
+            disabled={rerunLoading}
+            className="rw-button rw-button-red disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => rerunMutation()}
+          >
+            {rerunLoading ? 'läuft' : 'nachbuchen'}
+          </button>
+        )}
+      </div>
+
       <table className="w-full table-auto">
         <caption>
           {countValidCodes} fehlende und {countInvalidCodes} fehlerhafte

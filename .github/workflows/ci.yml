@@ -1,0 +1,43 @@
+name: RedwoodJS CI
+
+on:
+  pull_request:
+    branches: ['main']
+  push:
+    branches: ['main']
+
+env:
+  COSMINO_URL: https://example.com
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Lint
+        run: yarn rw lint
+
+      - name: Build
+        run: yarn rw build
+
+      - name: Test `api` side
+        run: yarn rw test api --no-watch
+
+      - name: Test `web` side
+        run: yarn rw test web --no-watch

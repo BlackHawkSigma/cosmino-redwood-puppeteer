@@ -1,3 +1,11 @@
+import type {
+  ClaimTerminalMutation,
+  ClaimTerminalMutationVariables,
+  ReleaseTerminalMutation,
+  ReleaseTerminalMutationVariables,
+  UpdateTerminalMutation,
+} from 'types/graphql'
+
 import { render, mockCurrentUser, waitFor } from '@redwoodjs/testing/web'
 
 import TerminalPage from './TerminalPage'
@@ -15,4 +23,26 @@ describe('BuchenPage', () => {
       }).not.toThrow()
     })
   })
+})
+
+mockGraphQLMutation<ClaimTerminalMutation, ClaimTerminalMutationVariables>(
+  'ClaimTerminalMutation',
+  (variables) => {
+    const { id } = variables
+    return {
+      claimTerminal: { id, name: '1', user: { name: 'Alice' } },
+    }
+  }
+)
+
+mockGraphQLMutation<ReleaseTerminalMutation, ReleaseTerminalMutationVariables>(
+  'ReleaseTerminalMutation',
+  (variables) => {
+    const { id } = variables
+    return { unclaimTerminal: { id, user: { name: 'Alice' } } }
+  }
+)
+
+mockGraphQLMutation<UpdateTerminalMutation>('UpdateTerminalMutation', () => {
+  return { updateTerminal: { id: 1, user: { name: 'Alice' } } }
 })

@@ -6,6 +6,9 @@ on:
   push:
     branches: ['main']
 
+env:
+  COSMINO_URL: https://example.com
+
 jobs:
   build:
     runs-on: ubuntu-latest

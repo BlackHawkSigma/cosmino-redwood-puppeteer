@@ -20,4 +20,5 @@ export const standard = (/* vars, { ctx, req } */) => ({
       createdAt: '2022-07-19T07:18:11.666Z',
     },
   ],
+  queryResult: { variables: { startTime: new Date(), endTime: new Date() } },
 })

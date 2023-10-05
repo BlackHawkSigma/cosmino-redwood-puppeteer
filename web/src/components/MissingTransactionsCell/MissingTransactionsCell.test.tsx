@@ -36,7 +36,7 @@ describe('MissingTransactionsCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success missingTransactions={standard().missingTransactions} />)
+      render(<Success {...standard()} />)
     }).not.toThrow()
   })
 })

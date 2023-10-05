@@ -1,3 +1,5 @@
+import type { UpdateTerminalMutation } from 'types/graphql'
+
 import { render } from '@redwoodjs/testing/web'
 
 import Buchung from './Buchung'
@@ -11,4 +13,8 @@ describe('Buchung', () => {
       render(<Buchung terminalId={1} username="John" />)
     }).not.toThrow()
   })
+})
+
+mockGraphQLMutation<UpdateTerminalMutation>('UpdateTerminalMutation', () => {
+  return { updateTerminal: { id: 1 } }
 })

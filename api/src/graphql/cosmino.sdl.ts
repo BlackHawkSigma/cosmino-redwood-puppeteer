@@ -35,7 +35,9 @@ export const schema = gql`
     createSession(input: CreateSessionInput!): Boolean!
       @requireAuth(roles: "user")
     killSession(username: String!): Boolean! @skipAuth
-    refreshSession(username: String!): Boolean! @requireAuth(roles: "user")
+    refreshSession(username: String!): Boolean!
+      @requireAuth(roles: "user")
+      @deprecated(reason: "Refreshs are handeld on the server")
     createBuchung(input: CreateBuchungInput!): BuchungResult!
       @requireAuth(roles: "user")
   }

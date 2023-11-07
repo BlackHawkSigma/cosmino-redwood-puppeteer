@@ -13,6 +13,6 @@
     "puppeteer": "^19.0.0"
   },
   "devDependencies": {
-    "@types/async-lock": "1.4.0"
+    "@types/async-lock": "1.4.2"
   }
 }

@@ -5152,10 +5152,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/async-lock@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@types/async-lock@npm:1.4.0"
-  checksum: af227e06365dd1b89739d21d2456277b1dcd5366dd6141a99ce1065969612be17c6652c3a07d7e449b35aae5b696ac8fc598d017a39e2c1305cbc0db08ea2946
+"@types/async-lock@npm:1.4.2":
+  version: 1.4.2
+  resolution: "@types/async-lock@npm:1.4.2"
+  checksum: c40b68b746a6f0272539546c6765c08a1cb6f9df9141e6180eacde9310859db3f55d24fc90dd6cba7a6187d88b922c7d59b4734fe14cf31850d5dcf957069007
   languageName: node
   linkType: hard
 
@@ -6826,7 +6826,7 @@ __metadata:
     "@redwoodjs/api": 6.3.1
     "@redwoodjs/auth-dbauth-api": 6.3.1
     "@redwoodjs/graphql-server": 6.3.1
-    "@types/async-lock": 1.4.0
+    "@types/async-lock": 1.4.2
     "@whatwg-node/fetch": 0.9.13
     async-lock: ^1.4.0
     date-fns: ^2.29.2

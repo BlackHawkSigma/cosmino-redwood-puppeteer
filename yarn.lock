@@ -8528,9 +8528,9 @@ __metadata:
   linkType: hard
 
 "async-lock@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "async-lock@npm:1.4.0"
-  checksum: a31e78a5fbf3f25117e12c8bf7094791afa23679323940519475614cabc768c92b7846000dd8198401fe58e5ea976081cfcaa195703c7e70ec3190463879e168
+  version: 1.4.1
+  resolution: "async-lock@npm:1.4.1"
+  checksum: f696991c7d894af1dc91abc81cc4f14b3785190a35afb1646d8ab91138238d55cabd83bfdd56c42663a008d72b3dc39493ff83797e550effc577d1ccbde254af
   languageName: node
   linkType: hard
 

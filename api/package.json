@@ -9,7 +9,7 @@
     "@redwoodjs/graphql-server": "4.2.0",
     "@whatwg-node/fetch": "0.9.13",
     "async-lock": "^1.4.0",
-    "date-fns": "^2.29.2",
+    "date-fns": "^3.0.0",
     "puppeteer": "^19.0.0"
   },
   "devDependencies": {

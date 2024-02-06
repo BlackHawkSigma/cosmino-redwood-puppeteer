@@ -97,7 +97,7 @@ const ScannerHandler = ({
         </code>
       </p>
       <button
-        className="self-end rounded border-slate-300 bg-slate-200 py-1 px-2 shadow active:scale-90"
+        className="self-end rounded border-slate-300 bg-slate-200 px-2 py-1 shadow active:scale-90"
         onClick={() => dispatch({ type: 'reset' })}
       >
         Reset

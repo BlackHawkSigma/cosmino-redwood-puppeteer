@@ -49,7 +49,7 @@ export const Failure = ({ error }: CellFailureProps) => (
 
 export const Success = ({
   missingTransactions,
-  variables,
+  queryResult: { variables },
 }: CellSuccessProps<MissingTransactionsQuery>) => {
   const { hasRole } = useAuth()
 

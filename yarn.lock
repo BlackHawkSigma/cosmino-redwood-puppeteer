@@ -3671,6 +3671,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kamilkisiela/fast-url-parser@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "@kamilkisiela/fast-url-parser@npm:1.1.4"
+  checksum: 2c85202cb4924720ac812c8bc06967fd5df4db759a68aa3acc2962b8cf9e2b3bc131de863f00473c0b0602df13891b35140f667a87eea04c9b897b6c1ae89c4a
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.4
   resolution: "@leichtgewicht/ip-codec@npm:2.0.4"
@@ -7488,13 +7495,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@whatwg-node/fetch@npm:0.9.13":
-  version: 0.9.13
-  resolution: "@whatwg-node/fetch@npm:0.9.13"
+"@whatwg-node/fetch@npm:0.9.17":
+  version: 0.9.17
+  resolution: "@whatwg-node/fetch@npm:0.9.17"
   dependencies:
-    "@whatwg-node/node-fetch": ^0.4.17
-    urlpattern-polyfill: ^9.0.0
-  checksum: cd65ac6f41b5f78103cb2b78a5594e871977aeb104adf177ddb89c07867b976b08d5160d97517c156a09a9d172ab40f54804693b10d665533e5a876491f3a09c
+    "@whatwg-node/node-fetch": ^0.5.7
+    urlpattern-polyfill: ^10.0.0
+  checksum: 6638f1d456d17c9eab55f6278aa8045157ceb43a27acc65def1b7a2a3b80ef1b79f4c203e523865c9bcf1236ef64e1378ab0627e91932c97e9f1f3a129b17195
   languageName: node
   linkType: hard
 
@@ -7569,16 +7576,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@whatwg-node/node-fetch@npm:^0.4.17":
-  version: 0.4.19
-  resolution: "@whatwg-node/node-fetch@npm:0.4.19"
+"@whatwg-node/node-fetch@npm:^0.5.7":
+  version: 0.5.7
+  resolution: "@whatwg-node/node-fetch@npm:0.5.7"
   dependencies:
+    "@kamilkisiela/fast-url-parser": ^1.1.4
     "@whatwg-node/events": ^0.1.0
     busboy: ^1.6.0
     fast-querystring: ^1.1.1
-    fast-url-parser: ^1.1.3
     tslib: ^2.3.1
-  checksum: a89bb2b4bd6e3da7d4c884e3771532f83a307a123098a19d3ca03351ce8e2961717a51b76fcec6928b400a20989acd8590905a680c28c09057d540e25ceebc2d
+  checksum: 73ee747b4d215632d8980fb116a8b9662fb0ffafb4a2214287526bd167cace10ed15e960cff2a9b97f20e59245b2635520be97cb11a281327ffaf986d58efe51
   languageName: node
   linkType: hard
 
@@ -8050,7 +8057,7 @@ __metadata:
     "@redwoodjs/auth-dbauth-api": 4.2.0
     "@redwoodjs/graphql-server": 4.2.0
     "@types/async-lock": 1.4.2
-    "@whatwg-node/fetch": 0.9.13
+    "@whatwg-node/fetch": 0.9.17
     async-lock: ^1.4.0
     date-fns: ^2.29.2
     puppeteer: ^19.0.0
@@ -24008,19 +24015,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"urlpattern-polyfill@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "urlpattern-polyfill@npm:10.0.0"
+  checksum: 43593f2a89bd54f2d5b5105ef4896ac5c5db66aef723759fbd15cd5eb1ea6cdae9d112e257eda9bbc3fb0cd90be6ac6e9689abe4ca69caa33114f42a27363531
+  languageName: node
+  linkType: hard
+
 "urlpattern-polyfill@npm:^6.0.2":
   version: 6.0.2
   resolution: "urlpattern-polyfill@npm:6.0.2"
   dependencies:
     braces: ^3.0.2
   checksum: 28301775a23ae371ea02798d4a94d65ee894cdab4ede0d2b82f8d3642804febeb145900c1bce65d1d075ed942ac2ee58c193f3f6b2498f274a06e407cba5e019
-  languageName: node
-  linkType: hard
-
-"urlpattern-polyfill@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "urlpattern-polyfill@npm:9.0.0"
-  checksum: 1fecb4a7695ad7917b02193896ec7b5773bb730ee3fbbb583cfaf134cc99da054c18560a35e7e901ad4e2f7a6035b6754313a2bb84126a7f118201427d465185
   languageName: node
   linkType: hard
 

@@ -10,7 +10,7 @@
     "@whatwg-node/fetch": "0.9.13",
     "async-lock": "^1.4.0",
     "date-fns": "^2.29.2",
-    "puppeteer": "^19.0.0"
+    "puppeteer": "^22.0.0"
   },
   "devDependencies": {
     "@types/async-lock": "1.4.2"

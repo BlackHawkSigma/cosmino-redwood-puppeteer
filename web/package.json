@@ -15,8 +15,8 @@
     ]
   },
   "dependencies": {
-    "@fontsource/comfortaa": "4.5.11",
-    "@fontsource/libre-franklin": "4.5.11",
+    "@fontsource/comfortaa": "5.1.0",
+    "@fontsource/libre-franklin": "5.1.1",
     "@redwoodjs/auth-dbauth-web": "4.2.0",
     "@redwoodjs/forms": "4.2.0",
     "@redwoodjs/router": "4.2.0",

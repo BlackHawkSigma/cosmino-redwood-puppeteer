@@ -7,7 +7,7 @@
     "@redwoodjs/api": "4.2.0",
     "@redwoodjs/auth-dbauth-api": "4.2.0",
     "@redwoodjs/graphql-server": "4.2.0",
-    "@whatwg-node/fetch": "0.9.13",
+    "@whatwg-node/fetch": "0.10.1",
     "async-lock": "^1.4.0",
     "date-fns": "^2.29.2",
     "puppeteer": "^19.0.0"

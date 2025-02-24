@@ -7448,6 +7448,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@whatwg-node/disposablestack@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@whatwg-node/disposablestack@npm:0.0.5"
+  dependencies:
+    tslib: ^2.6.3
+  checksum: dfa949223f348a51acdeca2e3f08393ec8816a2ac2cee754a129e9b2ee4ada3afc1b3dcfbec7bdfe5abe14b30627ef0cef89d01a00062a031c82d555c43ab7f9
+  languageName: node
+  linkType: hard
+
 "@whatwg-node/events@npm:0.0.2, @whatwg-node/events@npm:^0.0.2":
   version: 0.0.2
   resolution: "@whatwg-node/events@npm:0.0.2"
@@ -7455,10 +7464,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@whatwg-node/events@npm:^0.1.0":
-  version: 0.1.1
-  resolution: "@whatwg-node/events@npm:0.1.1"
-  checksum: 7e4678c8c092484dc248f4a229a398de30d21190b94ebebc333c2187180207a18e257c4588d0910e872251b3089007f4a2a3ff8b9a4d057fae94db8da28be467
+"@whatwg-node/fetch@npm:0.10.5":
+  version: 0.10.5
+  resolution: "@whatwg-node/fetch@npm:0.10.5"
+  dependencies:
+    "@whatwg-node/node-fetch": ^0.7.11
+    urlpattern-polyfill: ^10.0.0
+  checksum: 89e07f3202ac61246e31d78b8ae3a29ba647b4a6b8f7f5c843bf60129efbc199c32422eb658b9f8330cf2d0619eea7db5e110e4187c2afa98960aec5b115d8ba
   languageName: node
   linkType: hard
 
@@ -7485,16 +7497,6 @@ __metadata:
     urlpattern-polyfill: ^6.0.2
     web-streams-polyfill: ^3.2.1
   checksum: daf897c2e651878b5a0a14299875f4cb2d9364ced4d0880cb6fa3f92a8d48d02be563d8442c56c4e8339b8cfdd25a31efed93560182932a49027135df75f62c5
-  languageName: node
-  linkType: hard
-
-"@whatwg-node/fetch@npm:0.9.13":
-  version: 0.9.13
-  resolution: "@whatwg-node/fetch@npm:0.9.13"
-  dependencies:
-    "@whatwg-node/node-fetch": ^0.4.17
-    urlpattern-polyfill: ^9.0.0
-  checksum: cd65ac6f41b5f78103cb2b78a5594e871977aeb104adf177ddb89c07867b976b08d5160d97517c156a09a9d172ab40f54804693b10d665533e5a876491f3a09c
   languageName: node
   linkType: hard
 
@@ -7569,16 +7571,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@whatwg-node/node-fetch@npm:^0.4.17":
-  version: 0.4.19
-  resolution: "@whatwg-node/node-fetch@npm:0.4.19"
+"@whatwg-node/node-fetch@npm:^0.7.11":
+  version: 0.7.11
+  resolution: "@whatwg-node/node-fetch@npm:0.7.11"
   dependencies:
-    "@whatwg-node/events": ^0.1.0
+    "@whatwg-node/disposablestack": ^0.0.5
     busboy: ^1.6.0
-    fast-querystring: ^1.1.1
-    fast-url-parser: ^1.1.3
-    tslib: ^2.3.1
-  checksum: a89bb2b4bd6e3da7d4c884e3771532f83a307a123098a19d3ca03351ce8e2961717a51b76fcec6928b400a20989acd8590905a680c28c09057d540e25ceebc2d
+    tslib: ^2.6.3
+  checksum: ec6b25d78c359e278667718f33299072182ab6ca14109564047b6a42775546105a334c0df9ad3f4faff3c824ab620bc356c275586bc750836209eee2e4701a4f
   languageName: node
   linkType: hard
 
@@ -8050,7 +8050,7 @@ __metadata:
     "@redwoodjs/auth-dbauth-api": 4.2.0
     "@redwoodjs/graphql-server": 4.2.0
     "@types/async-lock": 1.4.2
-    "@whatwg-node/fetch": 0.9.13
+    "@whatwg-node/fetch": 0.10.5
     async-lock: ^1.4.0
     date-fns: ^2.29.2
     puppeteer: ^19.0.0
@@ -23463,6 +23463,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:^2.6.3":
+  version: 2.8.1
+  resolution: "tslib@npm:2.8.1"
+  checksum: 9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
+  languageName: node
+  linkType: hard
+
 "tsutils@npm:^3.21.0":
   version: 3.21.0
   resolution: "tsutils@npm:3.21.0"
@@ -24008,19 +24015,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"urlpattern-polyfill@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "urlpattern-polyfill@npm:10.0.0"
+  checksum: 43593f2a89bd54f2d5b5105ef4896ac5c5db66aef723759fbd15cd5eb1ea6cdae9d112e257eda9bbc3fb0cd90be6ac6e9689abe4ca69caa33114f42a27363531
+  languageName: node
+  linkType: hard
+
 "urlpattern-polyfill@npm:^6.0.2":
   version: 6.0.2
   resolution: "urlpattern-polyfill@npm:6.0.2"
   dependencies:
     braces: ^3.0.2
   checksum: 28301775a23ae371ea02798d4a94d65ee894cdab4ede0d2b82f8d3642804febeb145900c1bce65d1d075ed942ac2ee58c193f3f6b2498f274a06e407cba5e019
-  languageName: node
-  linkType: hard
-
-"urlpattern-polyfill@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "urlpattern-polyfill@npm:9.0.0"
-  checksum: 1fecb4a7695ad7917b02193896ec7b5773bb730ee3fbbb583cfaf134cc99da054c18560a35e7e901ad4e2f7a6035b6754313a2bb84126a7f118201427d465185
   languageName: node
   linkType: hard
 

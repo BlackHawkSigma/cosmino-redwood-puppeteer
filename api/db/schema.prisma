@@ -41,17 +41,18 @@ model UserRolesOnUser {
 }
 
 model Log {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int
-  terminal  String
-  code      String
-  type      String    @default("success")
-  message   String
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  terminal    String
+  code        String
+  type        String    @default("success")
+  faultStatus String    @default("none")
+  message     String
   // in ms
-  duration  Int?
-  createdAt DateTime  @default(now())
-  checkedAt DateTime?
+  duration    Int?
+  createdAt   DateTime  @default(now())
+  checkedAt   DateTime?
 }
 
 model Terminal {

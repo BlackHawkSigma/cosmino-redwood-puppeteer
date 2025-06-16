@@ -6,6 +6,7 @@ export type Logs = {
   code: string
   type: string
   message: string
+  faultStatus: string
 }
 
 type BuchenLogProps = {
@@ -20,7 +21,7 @@ const BuchungLog = ({ logs }: BuchenLogProps) => {
   return (
     <div className="p-4">
       <ol className="flex flex-col gap-3">
-        {sortedLogs.map(({ id, date, code, message, type }) => {
+        {sortedLogs.map(({ id, date, code, message, type, faultStatus }) => {
           return (
             <li
               key={id}
@@ -32,7 +33,8 @@ const BuchungLog = ({ logs }: BuchenLogProps) => {
                   : null
               }`}
             >
-              {date.toLocaleTimeString('de-DE')} | {code}: {message}
+              {date.toLocaleTimeString('de-DE')} | {faultStatus} {code}:{' '}
+              {message}
             </li>
           )
         })}

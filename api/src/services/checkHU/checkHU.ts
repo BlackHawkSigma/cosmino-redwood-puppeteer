@@ -11,7 +11,6 @@ type CheckHU = {
 }
 
 export const checkHU = async (Barcode: string): Promise<CheckHU> => {
-  // return process.env.NODE_ENV === 'production' ?
   return fetch(URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -26,8 +25,42 @@ export const checkHU = async (Barcode: string): Promise<CheckHU> => {
       variables: { Barcode },
     }),
   }).then((res) => res.json())
-  // : Promise.resolve({
-  //     data: { abnahmebuchung: { datum: new Date().toISOString() } },
-  //     // data: { abnahmebuchung: { datum: null } },
-  //   })
+}
+
+type CheckHUforFaultMessage = {
+  data: {
+    checkHUforFaultMessage: null | {
+      entry: {
+        datum: string
+      }
+      faultMessages: {
+        positions: {
+          position: string
+          type: 'CHECK' | 'SCRAP'
+        }[]
+      }[]
+    }
+  }
+}
+
+export const checkHUforFaultMessage = async (
+  Barcode: string
+): Promise<CheckHUforFaultMessage> => {
+  return fetch(URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: `
+        query checkHUforFaultMessage($Barcode: String!) {
+          checkHUforFaultMessage(barcode: $Barcode) {
+            entry {
+              datum
+            }
+            faultMessages
+          }
+        }
+      `,
+      variables: { Barcode },
+    }),
+  }).then((res) => res.json())
 }

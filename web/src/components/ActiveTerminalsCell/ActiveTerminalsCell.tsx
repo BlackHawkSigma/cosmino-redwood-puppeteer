@@ -25,6 +25,7 @@ export const QUERY = gql`
         code
         message
         type
+        faultStatus
       }
       successCount
     }

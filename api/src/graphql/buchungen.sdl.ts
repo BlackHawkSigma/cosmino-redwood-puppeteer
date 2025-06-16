@@ -4,6 +4,7 @@ export const schema = gql`
     timestamp: DateTime!
     code: String!
     type: String!
+    faultStatus: String!
     message: String!
   }
 

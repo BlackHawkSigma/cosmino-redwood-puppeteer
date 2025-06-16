@@ -14,7 +14,7 @@ import {
   killContextWithUser,
 } from 'src/lib/puppeteer'
 import { updateLogAndCounter } from 'src/services/buchungen'
-import { checkHU } from 'src/services/checkHU'
+import { checkHUforFaultMessage } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
 const TRANSACTION_LIMIT = 50
@@ -107,6 +107,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
             terminal: input.terminalId.toString(),
             code: input.code,
             type,
+            faultStatus: 'pending',
             message,
             duration,
           },
@@ -166,21 +167,29 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
           refreshSession({ username: name })
         }
 
-        // Check if HU was registered by Cosmino
+        // Check if HU was registered by Cosmino and if there is a fault message
         setTimeout(async () => {
           try {
-            const result = await checkHU(input.code)
+            const result = await checkHUforFaultMessage(input.code)
 
-            if (result.data.abnahmebuchung !== null) {
+            if (result.data.checkHUforFaultMessage !== null) {
+              const faultStatus =
+                result.data.checkHUforFaultMessage.faultMessages.length > 0
+                  ? 'fault'
+                  : 'OK'
+
               await db.log.update({
                 where: { id: logId },
-                data: { checkedAt: result.data.abnahmebuchung.datum },
+                data: {
+                  faultStatus,
+                  checkedAt: result.data.checkHUforFaultMessage.entry.datum,
+                },
               })
             }
           } catch (err) {
             logger.error(err)
           }
-        }, 5 * 60_000)
+        }, 1 * 60_000)
 
         await updateTerminal({ id: input.terminalId, input: { busy: false } })
         await updateLogAndCounter({ userId: id, logId })

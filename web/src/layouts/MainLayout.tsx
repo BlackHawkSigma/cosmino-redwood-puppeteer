@@ -1,8 +1,7 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
-import { toast } from '@redwoodjs/web/dist/toast'
 
 import { useAuth } from 'src/auth'
 import { KILL_SESSION_MUTUTAION } from 'src/components/SessionCard'
@@ -29,12 +28,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     }
   }, [killSession])
 
-  const handlePauseButton = () => {
-    toast.success(
-      'Es ist nicht mehr notwending die Pause zu aktiviern.\nDieser Button wird demnächst entfernt'
-    )
-  }
-
   return (
     <>
       <header className="mb-4 bg-slate-200 py-2">
@@ -58,15 +51,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     className="rw-button rw-button-blue text-xl"
                   >
                     {currentUser.name} abmelden
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={handlePauseButton}
-                    className="rw-button text-xl disabled:pointer-events-none"
-                  >
-                    Pause Starten
                   </button>
                 </li>
               </>

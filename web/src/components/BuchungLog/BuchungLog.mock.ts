@@ -6,6 +6,7 @@ export const standard = () => ({
       code: '123456',
       message: 'Scan fehlgeschlagen',
       type: 'error',
+      faultStatus: 'none',
     },
     {
       id: 2,
@@ -13,6 +14,7 @@ export const standard = () => ({
       code: '302316505',
       message: 'VW326R-L VO 18115 SF. HLAK C9A',
       type: 'success',
+      faultStatus: 'ok',
     },
     {
       id: 3,
@@ -20,6 +22,7 @@ export const standard = () => ({
       code: '302316504',
       message: 'VW326R-L VO 18115 SF. HLAK C9A',
       type: 'success',
+      faultStatus: 'check',
     },
   ],
   successCount: 2,

@@ -20,6 +20,7 @@ export const standard = (/* vars, { ctx, req } */) => ({
           code: '123',
           message: 'ok',
           type: 'success',
+          faultStatus: 'ok',
         },
       ],
 

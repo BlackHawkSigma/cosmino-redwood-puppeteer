@@ -147,6 +147,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
             terminal: input.terminalId.toString(),
             code: input.code,
             type: 'error',
+            faultStatus: 'none',
             message: error.message,
             duration,
           },
@@ -172,17 +173,14 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
           try {
             const result = await checkHUforFaultMessage(input.code)
 
-            if (result.data.checkHUforFaultMessage !== null) {
-              const faultStatus =
-                result.data.checkHUforFaultMessage.faultMessages.length > 0
-                  ? 'fault'
-                  : 'OK'
+            if (result !== null) {
+              const { faultStatus, datum: checkedAt } = result
 
               await db.log.update({
                 where: { id: logId },
                 data: {
                   faultStatus,
-                  checkedAt: result.data.checkHUforFaultMessage.entry.datum,
+                  checkedAt,
                 },
               })
             }

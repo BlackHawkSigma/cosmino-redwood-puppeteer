@@ -55,6 +55,7 @@ const Buchung = ({ terminalId, username }: BuchungProps) => {
         [...logs, createBuchung]
           .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
           .slice(0, 5)
+          .map((log) => ({ ...log, faultStatus: 'pending' }))
       )
       switch (createBuchung.type) {
         case 'success':

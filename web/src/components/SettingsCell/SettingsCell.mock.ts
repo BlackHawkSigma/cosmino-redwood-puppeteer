@@ -7,6 +7,7 @@ export const standard = (/* vars, { ctx, req } */) => ({
     name: 'John Doe',
     password: 'secret',
     showSuccessCounter: true,
+    directMode: false,
   },
 })
 
@@ -18,7 +19,9 @@ mockGraphQLMutation<UpdateSettings, UpdateSettingsVariables>(
     const { input } = variables
     return {
       updateUser: {
-        settings: { showSuccessCounter: input.showSuccessCounter || true },
+        id: 1,
+        showSuccessCounter: input.showSuccessCounter || true,
+        directMode: input.directMode || false,
       },
     }
   }

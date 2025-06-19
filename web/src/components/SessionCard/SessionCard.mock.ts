@@ -5,11 +5,13 @@ import type {
 
 export const standard = () => ({
   user: { name: 'John Doe' },
+  transactions: 0,
   busy: false,
 })
 
 export const busy = () => ({
   user: { name: 'John Doe' },
+  transactions: 42,
   busy: true,
 })
 

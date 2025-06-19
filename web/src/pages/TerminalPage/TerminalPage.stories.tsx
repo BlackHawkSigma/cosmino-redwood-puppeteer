@@ -5,6 +5,7 @@ export const generated = () => {
     id: 1,
     name: 'Alice',
     userRoles: [{ userRole: { id: 1, name: 'user' } }],
+    roles: [],
   })
 
   return <TerminalPage terminal={1} />

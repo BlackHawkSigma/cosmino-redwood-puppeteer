@@ -34,7 +34,7 @@ const SessionCard = ({ user, transactions, busy }: SessionCardProps) => {
           X
         </button>
       </div>
-      {transactions && <p>Transactions: {transactions}</p>}
+      {transactions !== undefined && <p>Transactions: {transactions}</p>}
       <p>{busy && <span className="animate-pulse">buchung läuft</span>}</p>
     </div>
   )

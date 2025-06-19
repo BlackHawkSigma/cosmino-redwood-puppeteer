@@ -37,7 +37,7 @@ describe('LastFiveLogsByUserCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success logs={standard().logs} />)
+      render(<Success successCount={undefined} logs={standard().logs} />)
     }).not.toThrow()
   })
 })

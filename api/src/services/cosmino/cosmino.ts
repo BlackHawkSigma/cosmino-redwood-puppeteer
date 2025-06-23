@@ -13,7 +13,7 @@ import {
   createContextWithUser,
   killContextWithUser,
 } from 'src/lib/puppeteer'
-import { updateLogAndCounter } from 'src/services/buchungen'
+import { updateLogAndCounter, updateSingleLog } from 'src/services/buchungen'
 import { checkHUforFaultMessage } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
@@ -183,6 +183,8 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
                   checkedAt,
                 },
               })
+
+              await updateSingleLog({ userId: id, logId })
             }
           } catch (err) {
             logger.error(err)

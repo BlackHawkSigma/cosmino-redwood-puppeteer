@@ -151,6 +151,29 @@ export const updateLogAndCounter = async ({ userId, logId }) => {
   }
 }
 
+export const updateSingleLog = async ({
+  userId,
+  logId,
+}: {
+  userId: number
+  logId: number
+}) => {
+  const log = await db.log
+    .findUnique({ where: { id: logId } })
+    .then(extentResult)
+  const currentLogs = logsMap.get(userId)?.logs ?? []
+
+  const index = currentLogs.findIndex((l) => l.id === log.id)
+  if (index !== -1) {
+    currentLogs[index] = log
+  }
+
+  logsMap.set(userId, {
+    logs: currentLogs,
+    created: new Date().valueOf(),
+  })
+}
+
 const extentResult = (entry: Log) => ({
   ...entry,
   message:

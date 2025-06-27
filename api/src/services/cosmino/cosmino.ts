@@ -185,6 +185,8 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
               })
 
               await updateSingleLog({ userId: id, logId })
+
+              emitter.emit('invalidate', { type: 'BuchungsLog' })
             }
           } catch (err) {
             logger.error(err)

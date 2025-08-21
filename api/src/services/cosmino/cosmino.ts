@@ -69,14 +69,21 @@ export const refreshSession: MutationResolvers['refreshSession'] = async ({
 }) => {
   const user = await db.user.findUnique({ where: { name: username } })
 
-  return userLock.acquire(username, async () => {
-    await killContextWithUser(username)
-    return await createContextWithUser({
-      username,
-      userpwd: user.password,
-      type: user.directMode ? 'direct' : 'popup',
+  try {
+    return await userLock.acquire(username, async () => {
+      await killContextWithUser(username)
+      return await createContextWithUser({
+        username,
+        userpwd: user.password,
+        type: user.directMode ? 'direct' : 'popup',
+      })
     })
-  })
+  } catch (error) {
+    logger.error(`refreshSession timeout for user ${username}:`, error)
+    // Clean up any stuck context
+    await killContextWithUser(username)
+    return false
+  }
 }
 
 type CreateBuchungInput = {
@@ -89,8 +96,8 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
   requireAuth({ roles: 'user' })
   const { id, name } = context.currentUser
 
-  return userLock
-    .acquire(name, async () => {
+  try {
+    return await userLock.acquire(name, async () => {
       await updateTerminal({ id: input.terminalId, input: { busy: true } })
 
       let logId: number = null
@@ -163,45 +170,78 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         }
       } finally {
         // refresh Session if needed
-        const transactions = contexts.get(name).transactionsHandled
+        const transactions = contexts.get(name)?.transactionsHandled || 0
         if (transactions >= TRANSACTION_LIMIT) {
           refreshSession({ username: name })
         }
 
         // Check if HU was registered by Cosmino and if there is a fault message
-        setTimeout(async () => {
-          try {
-            const result = await checkHUforFaultMessage(input.code)
+        if (logId) {
+          setTimeout(async () => {
+            try {
+              const result = await checkHUforFaultMessage(input.code)
 
-            if (result !== null) {
-              const { faultStatus, datum: checkedAt } = result
+              if (result !== null) {
+                const { faultStatus, datum: checkedAt } = result
 
-              await db.log.update({
-                where: { id: logId },
-                data: {
-                  faultStatus,
-                  checkedAt,
-                },
-              })
+                await db.log.update({
+                  where: { id: logId },
+                  data: {
+                    faultStatus,
+                    checkedAt,
+                  },
+                })
 
-              await updateSingleLog({ userId: id, logId })
+                await updateSingleLog({ userId: id, logId })
 
-              emitter.emit('invalidate', { type: 'BuchungsLog' })
+                emitter.emit('invalidate', { type: 'BuchungsLog' })
+              }
+            } catch (err) {
+              logger.error(err)
             }
-          } catch (err) {
-            logger.error(err)
-          }
-        }, 1 * 60_000)
+          }, 1 * 60_000)
+        }
 
         await updateTerminal({ id: input.terminalId, input: { busy: false } })
-        await updateLogAndCounter({ userId: id, logId })
+        if (logId) {
+          await updateLogAndCounter({ userId: id, logId })
+        }
 
         emitter.emit('invalidate', { type: 'BuchungsLog' })
       }
     })
-    .catch(async (err) => {
-      await killContextWithUser(name)
-      logger.error(err)
-      return err
+  } catch (error) {
+    // Handle AsyncLock timeout gracefully
+    logger.error(`createBuchung timeout for user ${name}:`, error)
+
+    // Clean up any stuck context
+    await killContextWithUser(name)
+
+    // Ensure terminal is not left in busy state
+    await updateTerminal({ id: input.terminalId, input: { busy: false } })
+
+    // Create error log entry
+    const errorLog = await db.log.create({
+      data: {
+        userId: id,
+        terminal: input.terminalId.toString(),
+        code: input.code,
+        type: 'error',
+        faultStatus: 'none',
+        message: 'Operation timed out - system may be overloaded',
+        duration: 20_000, // timeout duration
+      },
     })
+
+    await updateLogAndCounter({ userId: id, logId: errorLog.id })
+    emitter.emit('invalidate', { type: 'BuchungsLog' })
+
+    return {
+      id: errorLog.id,
+      code: input.code,
+      timestamp: errorLog.createdAt.toISOString(),
+      type: 'error',
+      message: 'System timeout - please try again',
+    }
+  }
 }

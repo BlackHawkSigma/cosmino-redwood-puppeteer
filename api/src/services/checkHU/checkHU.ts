@@ -45,7 +45,7 @@ type CheckHUforFaultMessage = {
 }
 
 type CheckResult = {
-  datum: string
+  datum: string | null
   faultStatus: 'none' | 'ok' | 'check' | 'scrap'
 }
 
@@ -79,7 +79,7 @@ export const checkHUforFaultMessage = async (
     .then((res) => {
       const { entry, faultMessages } = res.data.checkHUforFaultMessage || {}
       if (!entry) {
-        return { datum: '', faultStatus: 'none' }
+        return { datum: null, faultStatus: 'none' }
       }
 
       const datum = entry.datum

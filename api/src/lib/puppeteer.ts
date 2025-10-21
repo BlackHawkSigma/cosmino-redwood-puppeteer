@@ -16,6 +16,7 @@ type contextStore = {
   userpwd: string
   type: 'popup' | 'direct'
   transactionsHandled: number
+  consecutiveErrors: number
   context: BrowserContext
 }
 
@@ -59,6 +60,7 @@ export const createContextWithUser = async ({
     userpwd,
     type,
     transactionsHandled: 0,
+    consecutiveErrors: 0,
     context,
   })
   emitter.emit('invalidate', { type: 'CosminoSession', id: username })
@@ -150,7 +152,7 @@ export type CreateBuchungArgs = {
 
 export type CreateBuchungResult =
   | { type: 'success'; message: string; imageUrl: string }
-  | { type: 'error'; message: string }
+  | { type: 'error'; message: string; isBusinessError?: boolean }
 
 export const createBuchungWithUser = async ({
   username,
@@ -287,6 +289,7 @@ export const createBuchungWithUser = async ({
       return {
         type: 'error',
         message: 'Bearbeitungseinheit nicht gefunden!',
+        isBusinessError: true,
       }
     }
   }

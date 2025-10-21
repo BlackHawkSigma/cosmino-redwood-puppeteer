@@ -18,6 +18,7 @@ import { checkHUforFaultMessage } from 'src/services/checkHU'
 import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
 const TRANSACTION_LIMIT = 50
+const ERROR_LIMIT = 3
 
 export const cosminoSessions = () => {
   return [...contexts.entries()]
@@ -122,11 +123,28 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         logId = log.id
 
         if (result.type === 'success') {
+          // Reset error counter on success
+          const ctx = contexts.get(name)
+          if (ctx) {
+            contexts.set(name, { ...ctx, consecutiveErrors: 0 })
+          }
+
           await updateTerminal({
             id: input.terminalId,
             input: { lastSuccessImgUrl: result.imageUrl },
           })
         } else {
+          // Only increment error counter for technical errors, not business errors
+          if (!result.isBusinessError) {
+            const ctx = contexts.get(name)
+            if (ctx) {
+              contexts.set(name, {
+                ...ctx,
+                consecutiveErrors: ctx.consecutiveErrors + 1,
+              })
+            }
+          }
+
           await updateTerminal({
             id: input.terminalId,
             input: { lastSuccessImgUrl: null },
@@ -141,6 +159,15 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         }
       } catch (error) {
         logger.error(error)
+
+        // Increment error counter on exception
+        const ctx = contexts.get(name)
+        if (ctx) {
+          contexts.set(name, {
+            ...ctx,
+            consecutiveErrors: ctx.consecutiveErrors + 1,
+          })
+        }
 
         await updateTerminal({
           id: input.terminalId,
@@ -170,8 +197,19 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         }
       } finally {
         // refresh Session if needed
-        const transactions = contexts.get(name)?.transactionsHandled || 0
+        const ctx = contexts.get(name)
+        const transactions = ctx?.transactionsHandled || 0
+        const errors = ctx?.consecutiveErrors || 0
+
         if (transactions >= TRANSACTION_LIMIT) {
+          logger.info(
+            `Refreshing session for ${name}: transaction limit reached`
+          )
+          refreshSession({ username: name })
+        } else if (errors >= ERROR_LIMIT) {
+          logger.info(
+            `Refreshing session for ${name}: ${errors} consecutive errors`
+          )
           refreshSession({ username: name })
         }
 
@@ -213,6 +251,15 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
   } catch (error) {
     // Handle AsyncLock timeout gracefully
     logger.error(`createBuchung timeout for user ${name}:`, error)
+
+    // Increment error counter on timeout
+    const ctx = contexts.get(name)
+    if (ctx) {
+      contexts.set(name, {
+        ...ctx,
+        consecutiveErrors: ctx.consecutiveErrors + 1,
+      })
+    }
 
     // Clean up any stuck context
     await killContextWithUser(name)

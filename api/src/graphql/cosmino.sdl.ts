@@ -16,8 +16,23 @@ export const schema = gql`
     imageUrl: String
   }
 
+  type LockStatistics {
+    totalAcquired: Int!
+    totalReleased: Int!
+    totalTimeouts: Int!
+    totalErrors: Int!
+    activeLocks: Int!
+    activeUsers: [ActiveLockUser!]!
+  }
+
+  type ActiveLockUser {
+    username: String!
+    waitingFor: Int!
+  }
+
   type Query {
     cosminoSessions: [CosminoSession!]! @skipAuth
+    lockStatistics: LockStatistics! @skipAuth
   }
 
   input CreateSessionInput {

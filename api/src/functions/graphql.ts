@@ -27,6 +27,7 @@ const useResponseCacheParameters: UseResponseCacheParameter = {
     'Query.serverStatus': 1_000,
     'Query.lastLogsByUser': 2_000,
     'Query.cosminoSessions': 0,
+    'Query.lockStatistics': 0,
   },
 }
 

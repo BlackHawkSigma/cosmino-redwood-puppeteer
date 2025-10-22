@@ -19,6 +19,7 @@ import { unclaimTerminal, updateTerminal } from 'src/services/terminal'
 
 const TRANSACTION_LIMIT = 50
 const ERROR_LIMIT = 3
+const EXECUTION_TIMEOUT = 60_000
 
 export const cosminoSessions = () => {
   return [...contexts.entries()]
@@ -32,6 +33,10 @@ export const cosminoSessions = () => {
         transactions: session[1].transactionsHandled,
       }
     })
+}
+
+export const lockStatistics = () => {
+  return userLock.getStats()
 }
 
 type CreateSessionInput = {
@@ -63,7 +68,7 @@ export const killSession: MutationResolvers['killSession'] = async ({
   return unclaimed && killed
 }
 
-const userLock = new AsyncLock({ maxExecutionTime: 20_000 })
+const userLock = new AsyncLock({ maxExecutionTime: EXECUTION_TIMEOUT })
 
 export const refreshSession: MutationResolvers['refreshSession'] = async ({
   username,
@@ -276,7 +281,7 @@ export const createBuchung: MutationResolvers['createBuchung'] = async ({
         type: 'error',
         faultStatus: 'none',
         message: 'Operation timed out - system may be overloaded',
-        duration: 20_000, // timeout duration
+        duration: EXECUTION_TIMEOUT, // timeout duration
       },
     })
 
